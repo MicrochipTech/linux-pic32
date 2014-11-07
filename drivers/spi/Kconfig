@@ -243,6 +243,24 @@ config SPI_IMG_SPFI
 	  This enables support for the SPFI master controller found on
 	  IMG SoCs.
 
+config SPI_GPIO_PIC32MZ
+	tristate "PIC32MZ GPIO-based bitbanging SPI Master"
+	depends on GPIOLIB && !SPI_GPIO
+	select SPI_BITBANG
+	help
+	  Optimized GPIO SPI driver for PIC32MZ.
+
+	  This simple GPIO bitbanging SPI master uses the arch-neutral GPIO
+	  interface to manage MOSI, MISO, SCK, and chipselect signals.  SPI
+	  slaves connected to a bus using this driver are configured as usual,
+	  except that the spi_board_info.controller_data holds the GPIO number
+	  for the chipselect used by this controller driver.
+
+	  Note that this driver often won't achieve even 1 Mbit/sec speeds,
+	  making it unusually slow for SPI.  If your platform can inline
+	  GPIO operations, you should be able to leverage that for better
+	  speed with a custom version of this driver; see the source code.
+
 config SPI_IMX
 	tristate "Freescale i.MX SPI controllers"
 	depends on ARCH_MXC || COMPILE_TEST
