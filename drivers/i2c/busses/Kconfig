@@ -957,6 +957,17 @@ config I2C_RCAR
 	  This driver can also be built as a module.  If so, the module
 	  will be called i2c-rcar.
 
+config I2C_PIC32
+	tristate "PIC32 I2C Bus Driver"
+	depends on MACH_PIC32
+	default y
+	help
+	  If you say yes to this option, support will be included for the
+	  Microchip PIC32 I2C controller.
+
+	  This driver can also be built as a module.  If so, the module
+	  will be called i2c-pic32.
+
 comment "External I2C/SMBus adapter drivers"
 
 config I2C_DIOLAN_U2C
