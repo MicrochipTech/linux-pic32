@@ -338,10 +338,12 @@ static void bma150_report_xyz(struct bma150_data *bma150)
 	y = (s16) (y << 6) >> 6;
 	z = (s16) (z << 6) >> 6;
 
-	input_report_abs(bma150->input, ABS_X, x);
-	input_report_abs(bma150->input, ABS_Y, y);
-	input_report_abs(bma150->input, ABS_Z, z);
-	input_sync(bma150->input);
+	if (bma150->input) {
+		input_report_abs(bma150->input, ABS_X, x);
+		input_report_abs(bma150->input, ABS_Y, y);
+		input_report_abs(bma150->input, ABS_Z, z);
+		input_sync(bma150->input);
+	}
 }
 
 static irqreturn_t bma150_irq_thread(int irq, void *dev)
