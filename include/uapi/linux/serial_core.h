@@ -261,4 +261,7 @@
 /* STM32 USART */
 #define PORT_STM32	113
 
+/* Microchip PIC32 UART */
+#define PORT_PIC32	114
+
 #endif /* _UAPILINUX_SERIAL_CORE_H */
