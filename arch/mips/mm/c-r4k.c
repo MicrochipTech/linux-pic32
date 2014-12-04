@@ -1488,6 +1488,7 @@ static void setup_scache(void)
 		return;
 
 	case CPU_CAVIUM_OCTEON3:
+	case CPU_M14KEC:
 	case CPU_XLP:
 		/* don't need to worry about L2, fully coherent */
 		return;
