@@ -366,7 +366,7 @@ static int jz4740_i2s_resume(struct snd_soc_dai *dai)
 	return 0;
 }
 
-static void jz4740_i2c_init_pcm_config(struct jz4740_i2s *i2s)
+static void jz4740_i2s_init_pcm_config(struct jz4740_i2s *i2s)
 {
 	struct snd_dmaengine_dai_dma_data *dma_data;
 
@@ -390,7 +390,7 @@ static int jz4740_i2s_dai_probe(struct snd_soc_dai *dai)
 
 	clk_prepare_enable(i2s->clk_aic);
 
-	jz4740_i2c_init_pcm_config(i2s);
+	jz4740_i2s_init_pcm_config(i2s);
 	snd_soc_dai_init_dma_data(dai, &i2s->playback_dma_data,
 		&i2s->capture_dma_data);
 
