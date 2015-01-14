@@ -34,6 +34,7 @@
 
 #include <asm/mips-boards/generic.h>
 #include <asm/mach-pic32/pic32.h>
+#include <asm/mach-pic32/pbtimer.h>
 
 #include <asm/prom.h>
 #include <dt-bindings/interrupt-controller/microchip,pic32mz-evic.h>
@@ -157,5 +158,6 @@ void __init plat_time_init(void)
 	pr_info("CPU Clock: %ldMHz\n", clk_get_rate(clk) / 1000000);
 	mips_hpt_frequency = clk_get_rate(clk) / 2;
 
+	of_pic32_pb_timer_init();
 	clocksource_of_init();
 }
