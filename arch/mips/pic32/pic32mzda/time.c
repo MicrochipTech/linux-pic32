@@ -35,6 +35,7 @@
 #include <asm/mips-boards/generic.h>
 #include <asm/mach-pic32/pic32.h>
 #include <asm/mach-pic32/pbtimer.h>
+#include <asm/mach-pic32/ocmp.h>
 
 #include <asm/prom.h>
 #include <dt-bindings/interrupt-controller/microchip,pic32mz-evic.h>
@@ -57,8 +58,6 @@
 #define OSCCON         0x0000
 #define SPLLCON        0x0020
 #define PB1DIV         0x0140
-
-extern void __init of_pic32_oc_init(void);
 
 u32 pic32_get_cpuclk(void)
 {
@@ -159,5 +158,6 @@ void __init plat_time_init(void)
 	mips_hpt_frequency = clk_get_rate(clk) / 2;
 
 	of_pic32_pb_timer_init();
+	of_pic32_oc_init();
 	clocksource_of_init();
 }
