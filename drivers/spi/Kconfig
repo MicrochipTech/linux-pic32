@@ -641,6 +641,12 @@ config SPI_NUC900
 	help
 	  SPI driver for Nuvoton NUC900 series ARM SoCs
 
+config SPI_PIC32
+	tristate "Microchip PIC32 series SPI"
+	help
+	  SPI driver for PIC32 SPI master controller.
+
+
 #
 # Add new SPI master controllers in alphabetical order above this line
 #
