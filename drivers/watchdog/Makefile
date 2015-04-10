@@ -147,6 +147,7 @@ obj-$(CONFIG_LANTIQ_WDT) += lantiq_wdt.o
 obj-$(CONFIG_RALINK_WDT) += rt2880_wdt.o
 obj-$(CONFIG_IMGPDC_WDT) += imgpdc_wdt.o
 obj-$(CONFIG_PIC32_WDT) += pic32-wdt.o
+obj-$(CONFIG_PIC32_DMT) += pic32-dmt.o
 
 # PARISC Architecture
 
