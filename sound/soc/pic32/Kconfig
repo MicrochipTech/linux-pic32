@@ -1,0 +1,14 @@
+config SND_PIC32_SOC_I2S
+	tristate
+
+config SND_PIC32_SOC
+	tristate "SoC Audio support for the PIC32 I2S module"
+	depends on MACH_PIC32
+	select SND_SOC_DMAENGINE_PCM
+	select DMA_PIC32
+	select SND_SOC_GENERIC_DMAENGINE_PCM
+	help
+	  Say Y or M if you want to add support for codecs attached to
+	  the PIC32 I2S interface. You will also need
+	  to select the audio interfaces to support below.
+
