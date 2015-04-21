@@ -12,3 +12,10 @@ config SND_PIC32_SOC
 	  the PIC32 I2S interface. You will also need
 	  to select the audio interfaces to support below.
 
+config SND_PIC32_SOC_CODEC_PROTO
+	tristate "Support for Audio Codec Board - PROTO (WM8731)"
+	depends on SND_PIC32_SOC
+	select SND_PIC32_SOC_I2S
+	select SND_SOC_WM8731
+	help
+	  Say Y if you want to add support for Audio Codec Board - PROTO (WM8731)
