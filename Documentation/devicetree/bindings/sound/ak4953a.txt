@@ -1,0 +1,21 @@
+AK4953A Codec
+
+This device supports I2C mode only.
+
+Required properties:
+
+  - compatible : "asahi-kasei,ak4953a"
+
+  - reg : The I2C address of the chip
+
+Optional properties:
+
+  - reset-gpio : a GPIO spec for the reset pin. If specified, it will be
+		 asserted before communication to the device starts.
+
+Example:
+
+ak4953a: ak4953a@12 {
+	compatible = "asahi-kasei,ak4953a";
+	reg = <0x12>;
+};

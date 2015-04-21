@@ -40,6 +40,7 @@ config SND_SOC_ALL_CODECS
 	select SND_SOC_AK4642 if I2C
 	select SND_SOC_AK4671 if I2C
 	select SND_SOC_AK5386
+	select SND_SOC_AK4953 if I2C
 	select SND_SOC_ALC5623 if I2C
 	select SND_SOC_ALC5632 if I2C
 	select SND_SOC_CQ0093VC if MFD_DAVINCI_VOICECODEC
@@ -326,6 +327,9 @@ config SND_SOC_AK4671
 
 config SND_SOC_AK5386
 	tristate "AKM AK5638 CODEC"
+
+config SND_SOC_AK4953
+	tristate "AKM AK4953 CODEC"
 
 config SND_SOC_ALC5623
        tristate "Realtek ALC5623 CODEC"
