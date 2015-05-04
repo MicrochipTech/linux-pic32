@@ -646,6 +646,11 @@ config SPI_PIC32
 	help
 	  SPI driver for PIC32 SPI master controller.
 
+config SQI_PIC32
+	tristate "Microchip Quad SPI driver"
+	help
+	  SPI driver for PIC32 SQI controller.
+
 
 #
 # Add new SPI master controllers in alphabetical order above this line
