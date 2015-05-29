@@ -976,6 +976,20 @@ config FB_OPENCORES
 	  The source code and specification for the core is available at
 	  <http://opencores.org/project,vga_lcd>
 
+config FB_PIC32_LCD
+	tristate "PIC32 LCD framebuffer support"
+	depends on FB && MACH_PIC32
+	select FB_CFB_FILLRECT
+	select FB_CFB_COPYAREA
+	select FB_CFB_IMAGEBLIT
+	select FB_MODE_HELPERS
+	select VIDEOMODE_HELPERS
+	help
+	  This enables support for the PIC32 LCD framebuffer driver.
+
+	  The PIC32 LCD framebuffer driver is used in PIC32 devices to
+	  communicate with an LCD.
+
 config FB_S1D13XXX
 	tristate "Epson S1D13XXX framebuffer support"
 	depends on FB
