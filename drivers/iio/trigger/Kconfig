@@ -25,4 +25,10 @@ config IIO_SYSFS_TRIGGER
 	  To compile this driver as a module, choose M here: the
 	  module will be called iio-trig-sysfs.
 
+config IIO_PIC32_TIMER_TRIGGER
+	tristate "PIC32 Periodic Timer trigger"
+	depends on MACH_PIC32
+	help
+	  Provides support for using an PIC32 pbtimer as an IIO trigger.
+
 endmenu
