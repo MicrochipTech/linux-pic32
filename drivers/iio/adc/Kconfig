@@ -242,6 +242,16 @@ config NAU7802
 	  To compile this driver as a module, choose M here: the
 	  module will be called nau7802.
 
+config PIC32_ADC
+	tristate "Microchip PIC32 ADC"
+	depends on MACH_PIC32
+	select IIO_BUFFER
+	select IIO_TRIGGER
+	select IIO_TRIGGERED_BUFFER
+	select ANON_INODES # hack to fix missing dep
+	help
+	  Say yes here to build support for Microchip PIC32 ADC.
+
 config QCOM_SPMI_IADC
 	tristate "Qualcomm SPMI PMIC current ADC"
 	depends on SPMI
