@@ -576,6 +576,15 @@ static int __spi_unmap_msg(struct spi_master *master, struct spi_message *msg)
 	struct spi_transfer *xfer;
 	struct device *tx_dev, *rx_dev;
 
+	if (master->flags & (SPI_MASTER_MUST_RX | SPI_MASTER_MUST_TX)) {
+		list_for_each_entry(xfer, &msg->transfers, transfer_list) {
+			if (xfer->rx_buf == master->dummy_rx)
+				xfer->rx_buf = NULL;
+			if (xfer->tx_buf == master->dummy_tx)
+				xfer->tx_buf = NULL;
+		}
+	}
+
 	if (!master->cur_msg_mapped || !master->can_dma)
 		return 0;
 
@@ -996,11 +1005,10 @@ void spi_finalize_current_message(struct spi_master *master)
 	unsigned long flags;
 	int ret;
 
+	spi_unmap_msg(master, master->cur_msg);
 	spin_lock_irqsave(&master->queue_lock, flags);
 	mesg = master->cur_msg;
 	spin_unlock_irqrestore(&master->queue_lock, flags);
-
-	spi_unmap_msg(master, mesg);
 
 	if (master->cur_msg_prepared && master->unprepare_message) {
 		ret = master->unprepare_message(master, mesg);
