@@ -6,6 +6,7 @@ dts-dirs	+= mti
 dts-dirs	+= netlogic
 dts-dirs	+= qca
 dts-dirs	+= ralink
+dts-dirs	+= pic32
 
 obj-y		:= $(addsuffix /, $(dts-dirs))
 
