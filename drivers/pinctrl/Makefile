@@ -53,3 +53,5 @@ obj-$(CONFIG_PLAT_SPEAR)	+= spear/
 obj-$(CONFIG_ARCH_SUNXI)	+= sunxi/
 obj-$(CONFIG_ARCH_VT8500)	+= vt8500/
 obj-$(CONFIG_ARCH_MEDIATEK)	+= mediatek/
+obj-$(CONFIG_PINCTRL_PIC32)	+= pinctrl-pic32.o
+obj-$(CONFIG_PINCTRL_PIC32MZDA)	+= pinctrl-pic32mzda.o
