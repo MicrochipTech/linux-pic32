@@ -715,10 +715,6 @@ static inline bool is_pic32_console_port(struct uart_port *port)
 	return (port->cons && port->cons->index == port->line);
 }
 
-#else
-#define PIC32_SCONSOLE NULL
-#endif
-
 /*
  * Late console initialization.
  */
@@ -731,6 +727,10 @@ static int __init pic32_late_console_init(void)
 }
 
 core_initcall(pic32_late_console_init);
+
+#else
+#define PIC32_SCONSOLE NULL
+#endif
 
 static struct uart_driver pic32_uart_driver = {
 	.owner			= THIS_MODULE,
