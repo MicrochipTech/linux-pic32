@@ -1,0 +1,15 @@
+Microchip PIC32 I2C Bus Driver
+
+Required properties:
+- compatible: Should be "microchip,pic32-i2c"
+
+Example:
+
+	i2c@bf820000 {
+		compatible = "microchip,pic32-i2c";
+		reg = <0xbf820000 0x100>;
+		interrupts = <I2C1_MASTER_EVENT DEFAULT_INT_PRI IRQ_TYPE_NONE>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		clocks = <&PBCLK2>;
+	};
