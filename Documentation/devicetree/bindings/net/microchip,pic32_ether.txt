@@ -1,0 +1,26 @@
+* PIC32 Ethernet Controller
+
+Required properties:
+- compatible: Should be "microchip,pic32-ether"
+- reg: Address and length of the register-set (and optional,
+       coherent-memory-region) for the device.
+- reg-name: name of above "reg" property name. It must have "regs". Add
+            "mem" if optional coherent-memory-region is available.
+- interrupts: Should contain ethernet interrupt
+- phy-mode: See ethernet.txt file in the same directory.
+- clock-names: Single clock names.
+	Required elements: 'eth_clk'
+- clocks: Phandle to clock.
+
+Examples:
+
+	pic32_ether: ethernet@bf882000 {
+		compatible = "microchip,pic32-ether";
+		reg = <0xbf882000 0x1000>,<0x1000 0x7f000>;
+		reg-name= "regs","mem";
+		interrupts = <ETHERNET_INTERRUPT DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
+		phy-mode = "rmii";
+		mac-address = [00 00 00 00 00 00];
+		clock-names = "eth_clk";
+		clocks = <&PBCLK5>;
+	};
