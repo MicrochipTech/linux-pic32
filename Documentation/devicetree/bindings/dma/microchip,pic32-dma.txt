@@ -1,0 +1,49 @@
+* PIC32 DMA contorller driver
+
+The PIC32 DMA controller has 8 channels in total.
+Each DMA channel is capable of
+ - memory-to-device, device-to-memory and memory-to-memory transfer.
+ - Automatic flow-control & abort based on peripheral interrupt sources.
+ - One-Shot or Auto-Repeat Block Transfer.
+ - Channel-to-channel chaining (dependency handling)
+ - CRC generation
+
+Required properties:
+- compatible: Should be "microchip,pic32-dma".
+- reg: Should contain DMA registers location and length.
+- interrupts: Should contain the DMA interrupts associated
+		to the DMA channels in ascending order.
+Example:
+
+	dma0: dma@bf811000 {
+		compatible = "microchip,pic32-dma";
+		reg = <0xbf811000 0x2000>;
+		interrupts = <DMA_CHANNEL_0 DEFAULT_INT_PRI IRQ_TYPE_NONE>,
+			<DMA_CHANNEL_1 DEFAULT_INT_PRI IRQ_TYPE_NONE>,
+		       <DMA_CHANNEL_2 DEFAULT_INT_PRI IRQ_TYPE_NONE>,
+		       <DMA_CHANNEL_3 DEFAULT_INT_PRI IRQ_TYPE_NONE>,
+		       <DMA_CHANNEL_4 DEFAULT_INT_PRI IRQ_TYPE_NONE>,
+		       <DMA_CHANNEL_5 DEFAULT_INT_PRI IRQ_TYPE_NONE>,
+		       <DMA_CHANNEL_6 DEFAULT_INT_PRI IRQ_TYPE_NONE>,
+		       <DMA_CHANNEL_7 DEFAULT_INT_PRI IRQ_TYPE_NONE>;
+	};
+
+DMA clients connected to the PIC32 DMA controller must use the format
+described in the dma.txt file, using a two-cell specifier for each channel.
+
+Each dma request consists of 2 cells:
+ 1. phandle pointing to the DMA controller
+ 2. channel interrupt number.
+
+Example:
+
+	i2s5: i2s@bf821A00 {
+		compatible = "microchip,pic32-i2s";
+		reg = <0xbf821A00 512>;
+		interrupts = <SPI6_RECEIVE_DONE DEFAULT_INT_PRI IRQ_TYPE_NONE>,
+			<SPI6_TRANSFER_DONE DEFAULT_INT_PRI IRQ_TYPE_NONE>;
+		dmas = <&dma DMA_CHANNEL_4>,
+			<&dma0 DMA_CHANNEL_5>;
+		dma-names = "rx", "tx";
+		clocks = <&PBCLK2>;
+       };
