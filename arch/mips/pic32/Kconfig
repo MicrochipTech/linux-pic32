@@ -43,6 +43,11 @@ config DTB_PIC32_MZDA_SK
        depends on PIC32MZDA
        select BUILTIN_DTB
 
+config DTB_PIC32_MZDA_EVK
+       bool "PIC32MZDA EVK"
+       depends on PIC32MZDA
+       select BUILTIN_DTB
+
 endchoice
 
 config COMMON_CLK_PIC32
