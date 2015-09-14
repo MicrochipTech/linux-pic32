@@ -1,0 +1,30 @@
+Microchip PIC32 SQI device
+
+Required properties:
+- compatible : should be "microchip,pic32-sqi".
+- reg: Address and length of the register set for the device
+- interrupts: Should contain sqi interrupt. Note SQI interrupt
+              is level-triggerd one.
+- clocks: phandles to input clocks. Should be &REFCLKO2, &PBCLK5 in order.
+- clock-names: Should be "spi_ck" (for REFCLKO2) and "sfr_ck"(for PBCLK5).
+- pinctrl: Specify correct pinctrl name & pinctrl group.
+
+Optional properties:
+- max-clock-frequency: SPI clock maximum output rate (in HZ)
+- microchip,sqi-v1: Should be set for Michigan devices.
+- microchip,sqi-num-cs: Number of chip-select lines to drive (default, 2).
+
+Example:
+	sqi1:spi@0xbf8e2000 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "microchip,pic32-sqi";
+		reg = <0xbf8e2000 0x200>;
+		clocks = <&REFCLKO2>, <&PBCLK5>;
+		clock-names = "spi_ck","sfr_ck";
+		interrupt-parent = <&evic>;
+		interrupts = <SQI1_EVENT DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_sqi1>;
+		max-clock-frequency = <5000000>;
+	};
