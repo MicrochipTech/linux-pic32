@@ -422,10 +422,15 @@ void pic32_read_fifo(struct musb_hw_ep *hw_ep, u16 len, u8 *dst)
 }
 
 static const struct musb_platform_ops pic32_ops = {
+	.quirks         = MUSB_DMA_INVENTRA | MUSB_INDEXED_EP,
 	.init		= pic32_musb_init,
 	.exit		= pic32_musb_exit,
 
 	.read_fifo	= pic32_read_fifo,
+#ifdef CONFIG_USB_INVENTRA_DMA
+	.dma_init	= musbhs_dma_controller_create,
+	.dma_exit	= musbhs_dma_controller_destroy,
+#endif
 	.enable		= pic32_musb_enable,
 	.disable	= pic32_musb_disable,
 
