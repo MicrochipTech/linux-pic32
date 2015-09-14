@@ -1,0 +1,38 @@
+/*
+ * This file is subject to the terms and conditions of the GNU General Public
+ * License.  See the file "COPYING" in the main directory of this archive
+ * for more details.
+ *
+ * Copyright (C) 2014 Joshua Henderson <joshua.henderson@microchip.com>
+ */
+#ifndef __ASM_MACH_PIC32_CPU_FEATURE_OVERRIDES_H
+#define __ASM_MACH_PIC32_CPU_FEATURE_OVERRIDES_H
+
+/*
+ * CPU feature overrides for PIC32 boards
+ */
+#ifdef CONFIG_CPU_MIPS32
+#define cpu_has_vint		1
+#define cpu_has_veic		0
+#define cpu_has_tlb		1
+#define cpu_has_4kex		1
+#define cpu_has_4k_cache	1
+#define cpu_has_fpu		0
+#define cpu_has_counter		1
+/* #define cpu_has_divec	1 */
+/* #define cpu_has_vce		0 */
+/* #define cpu_has_mcheck	1 */
+#ifdef CONFIG_CPU_MICROMIPS
+#define cpu_has_llsc		0
+#else
+#define cpu_has_llsc		1
+#endif
+#define cpu_has_nofpuex		0
+#define cpu_icache_snoops_remote_store 1
+#endif
+
+#ifdef CONFIG_CPU_MIPS64
+#error This platform does not support 64bit.
+#endif
+
+#endif /* __ASM_MACH_PIC32_CPU_FEATURE_OVERRIDES_H */

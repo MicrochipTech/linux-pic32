@@ -32,7 +32,6 @@
 
 #include <asm/mips-boards/generic.h>
 #include <asm/mach-pic32/pic32.h>
-#include <asm/mach-pic32/common.h>
 
 /* OSCCON Reg fields */
 #define OSC_CUR_MASK		0x07
