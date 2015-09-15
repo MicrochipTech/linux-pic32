@@ -1,0 +1,15 @@
+PIC32 Periodic Timer ADC trigger.
+
+Mandatory properties:
+compatible : should be "microchip,pic32-timer-trig"
+microchip,timer: phandle of Micorchip PB TIMER.
+
+Optional properties:
+trig-period-sec: trigger period in secs.
+
+example:
+iio-trig {
+                compatible = "microchip,pic32-timer-trig";
+                microchip,timer = <&PBTIMER23>;
+                trig-period-sec = <2>;
+        };
