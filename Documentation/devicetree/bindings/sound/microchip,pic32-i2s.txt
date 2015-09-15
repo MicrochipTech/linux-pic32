@@ -1,0 +1,26 @@
+PIC32 SoC I2S Driver
+
+Required properties:
+- compatible : "microchip,pic32-i2s"
+- reg : Should contain I2S registers location (physical address) and length
+- interrupts : Should contain I2S receive and transmit interrupts
+- dmas : Must contain an entry for each entry in clock-names.
+  See ../dma/dma.txt for details.
+- dma-names : Must include the following entries:
+  - rx
+  - tx
+- clocks : Must contain one entry, for the module clock.
+  See ../clocks/clock-bindings.txt for details.
+
+Example:
+
+	i2s0: i2s@bf821000 {
+		compatible = "microchip,pic32-i2s";
+		reg = <0x1f821000 512>;
+		interrupts = <SPI1_RECEIVE_DONE DEFAULT_INT_PRI IRQ_TYPE_NONE>,
+			<SPI1_TRANSFER_DONE DEFAULT_INT_PRI IRQ_TYPE_NONE>;
+		dmas = <&dma 0>,
+			<&dma 1>;
+		dma-names = "rx", "tx";
+		clocks = <&PBCLK2>;
+	};
