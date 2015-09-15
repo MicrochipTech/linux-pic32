@@ -1,0 +1,52 @@
+Microchip PIC32 general purpose timer
+
+The PIC32 timer module provides one class-A 16-bit timer and eight 16-bit class-B free
+running counter. Two consecutive 16-bit timers can be combined to form one
+32-bit timer.
+
+Required properties:
+
+- compatible : should be one of the followings
+	"microchip,pic32-timer"      16-bit class-B timer.
+	"microchip,pic32-timerA"	16-bit class-A timer
+	"microchip,pic32-timer32"	32-bit class-B timer
+	"microchip,pic32-timer-adc"	16-bit ADC event trigger timer.
+- reg : Specifies base address and size of the registers.
+- interrupts : See evic ../interrupt-controller/.
+- clocks : Must contain one entry, for the module clock.
+  See ../clocks/clock-bindings.txt for details.
+- timer-id: timer id (starting at 1) as documented in FRM.
+
+Optional properties:
+- microchip,timer-A : added only for class-A timer.
+- microchip,timer-async : asynchronous clock source.
+- microchip,timer-32bit : timer support 32bit counting.
+- microchip,timer-gated : gated timer
+- microchip,timer-adc : timer can trigger an ADC.
+- microchip,timer-oneshot: one-shot timer, instead of continuous.
+- microchip,timer-version: set timer version (default 1).
+- clock-frequency : default timer rate, see ../clocks/clock-bindings.txt for details.
+- microchip,clock-indices: See ../clocks/microchip,pic32-clock.txt
+
+
+Example:
+
+pbtimer4:pbtimer4 {
+	#timer-cells = <0>;
+	compatible = "microchip,pic32-timer";
+	reg = <0xbf840600 0x400>;
+	interrupts = <0>;
+	clocks = <&PBCLK3>, <&TxCKI>;
+	timer-id = <4>;
+	microchip,timer-32bit; /* class B, 32-bit combined timer; usable for ADC */
+	microchip,timer-adc;
+	clock-frequency = <200000000>; /* 200MHZ */
+};
+
+The timer consumers should specify the desire timer by having the timer in its
+"pic32,timer" phandle cell. For example for PWM
+
+pwm-0: {
+	compatible = <>;
+	microchip,timer = <&pbtimer4>; /* pbtimer phandle */
+};
