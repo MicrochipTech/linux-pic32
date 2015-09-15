@@ -1,0 +1,15 @@
+PIC32 Random number generator
+
+Required properties:
+
+- compatible : should be "microchip,pic32-rng"
+- reg : Specifies base physical address and size of the registers.
+- clocks: clock phandle.
+
+Example:
+
+rng {
+        compatible = "microchip,pic32-rng";
+	reg = <0xbf8e6000 0x1000>;
+	clocks = <&PBCLK5>;
+};
