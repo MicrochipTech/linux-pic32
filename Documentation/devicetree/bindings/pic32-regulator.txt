@@ -1,0 +1,31 @@
+PIC32 voltage regulator bindings
+
+Required properties:
+- compatible: Should be "microchip,pic32-regulator"
+- reg: register address-space.
+- pic32,regulator-vin-select: input supply selector (0 or 1).
+  Choose 0, for internal voltage sources (Vdd, Vss) and
+  1, for external input voltage sources (Vref+, Vref-).
+- pic32,regulator-vin-uV: input supply voltage (in microvolts). Select 3300000.
+- pic32,regulator-vout-select: output voltage range selector.
+  Choose 0 for [0.83V - 2.37V] and 1 for (0.00V - 2.06V)
+
+Any property defined as part of the core regulator binding defined in
+regulator.txt can also be used.
+
+Example:
+	cvref_regulator {
+		compatible = "microchip,pic32-regulator;
+		reg = <0xbf800e00 0x10>;
+
+		/* specific */
+		pic32,regulator-vin-select=<0>; /* input voltage supply selector */
+		pic32,regulator-vin-uV=<3300000>; /* voltage supply */
+		pic32,regulator-vout-select=<1>; /* output voltage range select */
+
+		/* generic parameter */
+		regulator-name="cvref_out";
+		regulator-min-microvolt = <0140000>;
+		regulator-max-microvolt = <2372000>;
+		vref-supply=<&VREF_EXT>;
+	};
