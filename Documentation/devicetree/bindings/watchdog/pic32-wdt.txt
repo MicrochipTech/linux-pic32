@@ -1,0 +1,18 @@
+* PIC32 Watchdog Timer
+
+** pic32-wdt
+
+Required properties:
+- compatible: must be "microchip,pic32-wdt" or "microchip,pic32-wdt-v2".
+- reg: physical base address of the controller and length of memory mapped
+  region.
+- clocks: phandle of source clk. should be <&LPRC> clk. v2 can have clock
+  other than <&LPRC>.
+
+Example:
+
+	watchdog: wdt@bf800800 {
+		compatible = "microchip,pic32-wdt";
+		reg = <0xbf800800 0x200>;
+		clocks = <&LPRC>;
+	};
