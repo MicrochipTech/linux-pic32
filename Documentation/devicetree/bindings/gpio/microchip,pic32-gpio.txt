@@ -1,0 +1,32 @@
+* Microchip PIC32 GPIO devices (PIO).
+
+Required properties:
+ - compatible: "microchip,pic32-gpio"
+ - reg: Base address and length for the device.
+ - interrupts: The port interrupt shared be all pins.
+ - gpio-controller: Marks the port as GPIO controller.
+ - #gpio-cells: Two. The first cell is the pin number and
+   the second cell is unused.
+ - interrupt-controller: Marks the device node as an interrupt controller.
+ - #interrupt-cells: Two. The first cell is the GPIO number and second cell
+   is used to specify the trigger type:
+	PIC32_PIN_CN_RISING	: low-to-high edge triggered.
+	PIC32_PIN_CN_FALLING	: high-to-low edge triggered.
+	PIC32_PIN_CN_BOTH	: low-to-high and high-to-low edges triggered.
+
+Note:
+ - If gpio-ranges is missing, then all the pins (32) related to the gpio bank
+   are enabled.
+
+Example:
+gpio@bf860000 {
+	compatible = "microchip,pic32-gpio";
+	reg = <0xbf860000 0x24>;
+	interrupts = <PORTA_INPUT_CHANGE_INTERRUPT DEFAULT_INT_PRI IRQ_TYPE_NONE>;
+	#gpio-cells = <2>;
+	gpio-controller;
+	interrupt-controller;
+	#interrupt-cells = <2>;
+	gpio-ranges = <&pic32_pinctrl 0 0 32>;
+};
+
