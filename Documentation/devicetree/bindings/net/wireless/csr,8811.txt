@@ -1,0 +1,15 @@
+* CSR plc CSR8811 Bluetooth 4.1 module
+
+The CRS8811 module can be connected via UART. The document describes the
+binding for the UART connected chip.
+
+Required properties:
+- compatible :       		Should be "csr,8811"
+- bluetooth_nrst-gpios :	Enable / reset gpio connected to the module
+
+Examples:
+
+bluetooth0 {
+	compatible = "csr,8811";
+	bluetooth_nrst-gpios = <&pioB 4 0>;
+};
