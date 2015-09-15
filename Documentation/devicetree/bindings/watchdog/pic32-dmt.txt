@@ -1,0 +1,16 @@
+* PIC32 Deadman Timer
+
+** pic32-dmt
+
+Required properties:
+- compatible: must be "microchip,pic32-dmt".
+- reg: physical base address of the controller and length of memory mapped
+  region.
+- clocks: phandle of parent clock (should be &PBCLK7).
+
+Example:
+
+	watchdog: wdt@bf800800 {
+		compatible = "microchip,pic32-wdt";
+		reg = <0xbf800800 0x200>;
+	};
