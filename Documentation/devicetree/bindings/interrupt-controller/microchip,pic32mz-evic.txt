@@ -1,0 +1,65 @@
+Microchip PIC32MZ Interrupt Controller
+======================================
+
+The Microchip PIC32MZ SOC contains an Enhanced Vectored Interrupt Controller
+(EVIC) version 2. It handles internal and external interrupts and provides
+support for priority, sub-priority, irq type and polarity.
+
+Required properties
+-------------------
+
+- compatible: Should be "microchip,evic-v2"
+
+- reg: specifies physical base address and size of register range.
+
+- interrupt-controller: Identifies the node as an interrupt controller.
+
+- #interrupt cells: Specifies the number of cells used to encode an interrupt
+source connected to this controller. The value shall be 3 and interrupt
+descriptor shall have the following format:
+	<hw_irq irq_priority_and_subpriority irq_type>
+
+hw_irq - represents the hardware interrupt number as in the data sheet.
+
+irq_priority_and_subpriority - sets the priority and sub-priority for the
+interrupt line. The INT_PRI(pri, subpri) macro can be used to set desired
+values or the DEFAULT_INT_PRI can be used for the default value.
+
+irq_type - is used to describe the type and polarity of an interrupt. For
+internal interrupts use IRQ_TYPE_EDGE_RISING for non persistent interrupts and
+IRQ_TYPE_LEVEL_HIGH for persistent interrupts. For external interrupts use
+IRQ_TYPE_EDGE_RISING or IRQ_TYPE_EDGE_FALLING to select the desired polarity.
+
+Example
+-------
+
+evic: interrupt-controller@bf810000 {
+        compatible = "microchip,evic-v2";
+        interrupt-controller;
+        #interrupt-cells = <3>;
+        reg = <0xbf810000 0x1000>;
+        device_type="evic-v2";
+};
+
+Each device must request his interrupt line with the associated priority and
+polarity
+
+Internal interrupt DTS snippet
+------------------------------
+
+device@bf800000 {
+    ...
+    interrupt-parent = <&evic>;
+    interrupts = <UART1_RECEIVE_DONE DEFAULT_INT_PRI IRQ_TYPE_NONE>;
+    ...
+    };
+
+External interrupt DTS snippet
+------------------------------
+
+device@bf800000 {
+    ...
+    interrupt-parent = <&evic>;
+    interrupts = <EXTERNAL_INTERRUPT_0 DEFAULT_INT_PRI IRQ_TYPE_EDGE_RISING>;
+    ...
+    };
