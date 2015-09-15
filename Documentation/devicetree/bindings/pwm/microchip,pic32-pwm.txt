@@ -1,0 +1,25 @@
+* PIC32 Pulse Width Modulation
+
+PWM functionality in Microchip PIC32 SoC is driven by Output Compare(OCMP)
+module. OCMP module in congruence with General Purpose Timer(TIMER) module
+generates PWM signal.
+
+In PWM mode OCMP generates HIGH during duty_cycle and LOW when timer.count
+exceeds duty_cycle. OCMP reloads duty_cycle when timer.count reaches PERIOD
+and continues to drive HIGH.
+
+Required properties:
+- compatible : should be "microchip,pic32-pwm"
+- #pwm-cells: should be 3. See pwm.txt in this directory for a description of
+  the cells format. The only third cell flag supported by this binding is
+  PWM_POLARITY_INVERTED.
+- microchip,timer: pbtimer phandle.
+- microchip,ocmp: ocmp phandle
+
+Example:
+
+pwm@0 {
+	compatible = "microchip,pic32-pwm";
+	microchip,timer = <&PBTIMER6>; /* pbtimer phandle */
+	microchip,ocmp = <&OCMP2>; /* ocmp phandle */
+};
