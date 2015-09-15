@@ -1,0 +1,49 @@
+* PIC32 Analog to Digital Converter (ADC)
+
+Required properties:
+  - compatible: Should be "microchip,pic32-adc"
+  - reg: Should contain ADC registers location and length
+  - interrupts: Should contain the IRQ line for the ADC
+  - enabled-channel-mask: Bitmask of the channels that will be enabled
+  - resolution: The desired adc resolution. Valid options are
+    6, 8, 10 or 12 bits
+  - vref: Reference voltage in millivolts for the conversions
+Trigger Nodes:
+  - trigger-name: Name of the trigger exposed to the user
+  - trigger-value: Its associated value in the trigger register
+  - microchip,timer: A handle for the associated timer trigger
+
+Examples:
+adc1: adc@bf84b000 {
+	compatible = "microchip,pic32-adc";
+	reg = <0xbf84b000 0x300>;
+	interrupts = <ADC1_GLOBAL DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_adc1>;
+	enabled-channel-mask = <0x1000001E>;
+	resolution = <12>;
+	vref = <3300>;
+
+	trigger@0 {
+			trigger-name = "int0-external-interrupt";
+			trigger-value = <4>;
+			};
+
+	trigger@1 {
+			trigger-name = "tmr1-match";
+			trigger-value = <5>;
+			microchip,timer = <&PBTIMER1>;
+			};
+
+	trigger@2 {
+			trigger-name = "tmr3-match";
+			trigger-value = <6>;
+			microchip,timer = <&PBTIMER23>;
+			};
+
+	trigger@3 {
+			trigger-name = "tmr5-match";
+			trigger-value = <7>;
+			microchip,timer = <&PBTIMER5>;
+			};
+};
