@@ -292,6 +292,8 @@ int pic32_sdhci_probe(struct platform_device *pdev)
 	if (sdhci_pdata->piomode)
 		host->quirks |= SDHCI_QUIRK_BROKEN_ADMA | SDHCI_QUIRK_BROKEN_DMA;
 
+	host->quirks |= SDHCI_QUIRK_INVERTED_WRITE_PROTECT;
+
 	host->mmc->ocr_avail = PIC32_MMC_OCR;
 
 	ret = pic32_sdhci_probe_platform(pdev, sdhci_pdata);
