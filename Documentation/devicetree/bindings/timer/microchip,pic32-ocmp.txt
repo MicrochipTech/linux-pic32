@@ -1,0 +1,36 @@
+Microchip PIC32 output-compare
+
+The PIC32 output-compare(OC) module can generate single pulse or train of pulses
+in response to selected time bases and operating mode. This module is capable of
+triggering ADC or asserting interrupt and working as PWM controller.
+
+Required properties:
+- compatible : should be "microchip,pic32-ocmp".
+- reg : Specifies base address and size of the registers.
+- interrupts : See evic ../interrupt-controller/.
+- oc-id: module id (starting at 1) as documented in FRM.
+
+Optional properties:
+- microchip,oc-32bit : added only when 32bit timebase is used.
+- microchip,oc-adc : OC can trigger an ADC.
+- microchip,oc-pwm: OC as PWM controller.
+
+Example:
+
+ocmp1@0 {
+	#oc-cells = <0>;
+	compatible = "microchip,pic32-ocmp";
+	reg = <0xbf844000 0x30>;
+	interrupts = <0>;
+	oc-id = <1>;
+	microchip,oc-32bit; /* class B, 32-bit combined timer; usable for ADC */
+	microchip,oc-pwm; /* PWM controller */
+};
+
+The output-compare consumers should specify the desire OC by having in its
+"pic32,ocmp" phandle cell. For example for PWM
+
+pwm-0: {
+	compatible = <>;
+	microchip,ocmp = <&ocmp1>; /* ocmp phandle */
+};
