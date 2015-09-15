@@ -1,0 +1,100 @@
+* Microchip PIC32 Pinmux device.
+
+Please refer to pinctrl-bindings.txt for details of the pinctrl properties and
+common bindings.
+
+PIC32 'pin configuration node' is a node of a group of pins which can be
+used for a specific device or function. This node represents configuraions of
+single pins or a pairs of mux and related configuration.
+
+Required properties for pic32 device:
+ - compatible: "microchip,pic32-pinctrl", "microchip,pic32mz-pinctrl"
+ - reg: Base address and length for pps:in and pps:out registers.
+
+Properties for 'pin configuration node':
+ - pic32,pins: each entry consists of 3 intergers and represents the mux and
+   config settings for one pin. The first integer represent the remappable pin,
+   the second represent the peripheral pin and the last the configuration.
+   The format is pic32,pins = <PIC32_RP_'dir'_'pin'
+   PIC32_PP_'dir'_'peripherl-pin' PIC32_PIN_CONF_'config'>. The configurations
+   are divided in 2 classes: IN and OUT and each in 4 buckets. Each entry must
+   contains items from the same class and bucket, otherwise the driver will
+   notify an error and the initialization will fail.
+ - pic32,single-pins: each entry consists of 3 intergers and represents a pin
+   (that is not remappable) and related configuraion. The format is
+   pic32,single-pins = <PORT_'x' 'pin' PIC32_PIN_CONF_'config'>. Each port has
+   32 pins and please refer to chip documentation for details of remappable
+   pins.
+
+Available pin configurations (refer to dt-bindings/pinctrl/pic32.h):
+	PIC32_PIN_CONF_NONE	: no configuration (default).
+	PIC32_PIN_CONF_OD	: indicate this pin need a open-drain (no direction).
+	PIC32_PIN_CONF_OD_OUT	: indicate this pin need a open-drain out.
+	PIC32_PIN_CONF_PU	: indicate this pin need a pull up (no direction).
+	PIC32_PIN_CONF_PU_IN	: indicate this pin need a pull up in.
+	PIC32_PIN_CONF_PD	: indicate this pin need a pull down (no direction).
+	PIC32_PIN_CONF_PD_IN	: indicate this pin need a pull down input.
+	PIC32_PIN_CONF_AN	: indicate this pin as analogic (no direction).
+	PIC32_PIN_CONF_AN_IN	: indicate this pin as analogic input.
+	PIC32_PIN_CONF_DG	: indicate this pin as digital (no direction).
+	PIC32_PIN_CONF_DG_IN	: indicate this pin as digital input.
+	PIC32_PIN_CONF_DG_OUT	: indicate this pin as digital output.
+
+NOTEs:
+1. The pins functions nods are defined under pic32 pinctrl node. The function's
+   pin groups are defined under functions node.
+2. Each pin group can have both pic32,pins and pic32,single-pins properties to
+   specify re-mappable or non-remappable pins with related mux and configs or
+   at least one.
+3. Each pin configuration node can have a phandle and devices can set pins
+   configurations by referring to the phandle of that pin configuration node.
+4. The pinctrl bindings are listed in dt-bindings/pinctrl/pic32.h.
+5. The gpio controller must be described in the pinctrl simple-bus.
+
+Example:
+pinctrl@bf800000{
+	#address-cells = <1>;
+	#size-cells = <1>;
+	compatible = "microchip,pic32-pinctrl", "simple-bus";
+	ranges;
+	reg = <0xbf801404 0x3c>, /* in  */
+	      <0xbf801538 0x57>; /* out */
+
+	pioA: gpio@bf860000 {
+		compatible = "microchip,pic32-gpio";
+		reg = <0xbf860000 0x24>;
+		gpio-controller;
+	};
+
+	/* functions */
+	sw1 {
+		pinctrl_sw1: sw1-0 {
+			pic32,single-pins = <PORT_B 12 PIC32_PIN_CONF_PULLUP>;
+		};
+	};
+
+	uart1 {
+		pinctrl_uart1: uart1-0 {
+			pic32,pins =
+				<PIC32_RP_OUT_RPG7 PIC32_PP_OUT_U1TX PIC32_PIN_CONF_NONE
+				 PIC32_RP_IN_RPG8 PIC32_PP_IN_U1RX PIC32_PIN_CONF_NONE>;
+		};
+	};
+};
+
+uart1: serial@bf822000 {
+	compatible = "microchip,pic32-uart";
+
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_uart1>;
+};
+
+sw@1 {
+	compatible = "microchip,pic32-switch";
+
+	interrupt-parent = <&pioB>;
+	interrupts = <12 PIC32_CN_RISING>;/* GPIO_B_12 */
+
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_sw1>;
+};
