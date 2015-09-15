@@ -1,0 +1,18 @@
+* Microchip PIC32 SDHCI Controller
+
+This file documents differences between the core properties in mmc.txt
+and the properties used by the sdhci-pic32 driver.
+
+- compatible: "st,spear300-sdhci"
+
+Example:
+
+	sdhci@bf8ec000 {
+		compatible = "microchip,pic32-sdhci";
+		compatible = "microchip,pic32-sdhci";
+		reg = <0xbf8ec000 0x100>;
+		interrupts = <SDHC_EVENT DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
+		/* TODO?: bus width and Shared Bus configs. */
+		/* change to SDHCLK */
+		clocks = <&REFCLKO4>;
+	};
