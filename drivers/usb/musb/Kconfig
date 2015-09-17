@@ -111,7 +111,7 @@ config USB_MUSB_JZ4740
 	depends on USB_OTG_BLACKLIST_HUB
 
 config USB_MUSB_PIC32
-	tristate "Microchip platforms"
+	tristate "Microchip PIC32 USB platforms"
 	depends on MACH_PIC32
 	help
 	  MUSB glue code for PIC32 devices

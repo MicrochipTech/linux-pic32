@@ -763,7 +763,7 @@ static struct platform_driver pic32_musb_driver = {
 	},
 };
 
-MODULE_DESCRIPTION("PIC32 MUSB Glue Layer");
+MODULE_DESCRIPTION("Microchip PIC32 MUSB Glue Layer");
 MODULE_AUTHOR("Cristian Birsan <cristian.birsan@microchip.com>");
 MODULE_LICENSE("GPL v2");
 
