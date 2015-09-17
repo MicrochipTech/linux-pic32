@@ -252,6 +252,9 @@ config PIC32_ADC
 	help
 	  Say yes here to build support for Microchip PIC32 ADC.
 
+	  To compile this driver as a module, choose M here: the
+	  module will be called pic32_adc.
+
 config QCOM_SPMI_IADC
 	tristate "Qualcomm SPMI PMIC current ADC"
 	depends on SPMI
