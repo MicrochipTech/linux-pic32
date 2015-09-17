@@ -290,7 +290,8 @@ int pic32_sdhci_probe(struct platform_device *pdev)
 		host->quirks2 |= SDHCI_QUIRK2_NO_1_8_V;
 
 	if (sdhci_pdata->piomode)
-		host->quirks |= SDHCI_QUIRK_BROKEN_ADMA | SDHCI_QUIRK_BROKEN_DMA;
+		host->quirks |= SDHCI_QUIRK_BROKEN_ADMA |
+			SDHCI_QUIRK_BROKEN_DMA;
 
 	host->quirks |= SDHCI_QUIRK_INVERTED_WRITE_PROTECT;
 
