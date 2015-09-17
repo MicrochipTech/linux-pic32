@@ -1330,7 +1330,7 @@ config PIC32_WDT
 	  The module will be called pic32-wdt.
 
 config PIC32_DMT
-	tristate "PIC32 Deadman Timer"
+	tristate "Microchip PIC32 Deadman Timer"
 	select WATCHDOG_CORE
 	depends on MACH_PIC32
 	default y

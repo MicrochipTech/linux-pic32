@@ -91,6 +91,7 @@ static inline int dmt_keepalive(struct pic32_dmt *dmt)
 static inline u32 dmt_timeleft(struct pic32_dmt *dmt)
 {
 	u32 top = readl(dmt->regs + DMTPSCNT_REG);
+
 	return top - readl(dmt->regs + DMTCNT_REG);
 }
 
@@ -146,6 +147,7 @@ static int pic32_dmt_ping(struct watchdog_device *wdd)
 static unsigned int pic32_dmt_get_timeleft(struct watchdog_device *wdd)
 {
 	struct pic32_dmt *dmt = watchdog_get_drvdata(wdd);
+
 	return dmt_timeleft(dmt);
 }
 
