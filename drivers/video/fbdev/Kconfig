@@ -977,7 +977,7 @@ config FB_OPENCORES
 	  <http://opencores.org/project,vga_lcd>
 
 config FB_PIC32_LCD
-	tristate "PIC32 LCD framebuffer support"
+	tristate "Microchip PIC32 LCD framebuffer support"
 	depends on FB && MACH_PIC32
 	select FB_CFB_FILLRECT
 	select FB_CFB_COPYAREA
