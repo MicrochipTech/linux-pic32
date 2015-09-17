@@ -96,6 +96,7 @@ static int pic32_rtc_setaie(struct device *dev, unsigned int enabled)
 static int pic32_rtc_setfreq(struct device *dev, int freq)
 {
 	unsigned long flags;
+
 	clk_enable(rtc_clk);
 
 	spin_lock_irqsave(&pic32_rtc_pie_lock, flags);
@@ -377,10 +378,12 @@ static int pic32_rtc_probe(struct platform_device *pdev)
 	platform_set_drvdata(pdev, rtc);
 
 	pic32_rtc_setfreq(&pdev->dev, 1);
-	ret = devm_request_irq(&pdev->dev, pic32_rtc_alarmno, pic32_rtc_alarmirq,
-			  0,  DRIVER_NAME " alarm", rtc);
+	ret = devm_request_irq(&pdev->dev, pic32_rtc_alarmno,
+			pic32_rtc_alarmirq, 0,
+			DRIVER_NAME " alarm", rtc);
 	if (ret) {
-		dev_err(&pdev->dev, "IRQ %d error %d\n", pic32_rtc_alarmno, ret);
+		dev_err(&pdev->dev,
+			"IRQ %d error %d\n", pic32_rtc_alarmno, ret);
 		goto err_nortc;
 	}
 
@@ -415,7 +418,7 @@ static struct platform_driver pic32_rtc_driver = {
 
 module_platform_driver(pic32_rtc_driver);
 
-MODULE_DESCRIPTION("PIC32 RTC Driver");
+MODULE_DESCRIPTION("Microchip PIC32 RTC Driver");
 MODULE_AUTHOR("Joshua Henderson <joshua.henderson@microchip.com>");
 MODULE_LICENSE("GPL");
 MODULE_ALIAS("platform:" DRIVER_NAME);

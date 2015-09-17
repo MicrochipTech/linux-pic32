@@ -1582,7 +1582,7 @@ config RTC_DRV_XGENE
 	  will be called "rtc-xgene".
 
 config RTC_DRV_PIC32
-	tristate "PIC32 RTC"
+	tristate "Microchip PIC32 RTC"
 	depends on MACH_PIC32
 	default y
 	help
