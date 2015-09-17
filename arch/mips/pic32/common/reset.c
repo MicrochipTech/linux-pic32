@@ -30,7 +30,8 @@ static void pic32_machine_restart(char *command)
 
 	dummy = __raw_readl(reg);
 
-	while (1) {}
+	while (1)
+		;
 }
 
 static void pic32_machine_halt(void)

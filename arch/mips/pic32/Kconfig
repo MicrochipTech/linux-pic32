@@ -4,7 +4,7 @@ choice
 	prompt "Machine Type"
 
 config PIC32MZDA
-	bool "PIC32MZDA Platform"
+	bool "Microchip PIC32MZDA Platform"
 	select BOOT_ELF32
 	select BOOT_RAW
 	select CEVT_R4K
