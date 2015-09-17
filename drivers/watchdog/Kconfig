@@ -1316,7 +1316,7 @@ config RALINK_WDT
 	  Hardware driver for the Ralink SoC Watchdog Timer.
 
 config PIC32_WDT
-	tristate "PIC32 hardware watchdog"
+	tristate "Microchip PIC32 hardware watchdog"
 	select WATCHDOG_CORE
 	depends on MACH_PIC32
 	default y
