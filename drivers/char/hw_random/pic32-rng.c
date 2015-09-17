@@ -143,4 +143,4 @@ module_platform_driver(pic32_rng_driver);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Joshua Henderson <joshua.henderson@microchip.com>");
-MODULE_DESCRIPTION("PIC32 pseudo random number generator driver");
+MODULE_DESCRIPTION("Microchip PIC32 random number generator driver");

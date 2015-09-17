@@ -360,7 +360,7 @@ config HW_RANDOM_XGENE
 	  If unsure, say Y.
 
 config HW_RANDOM_PIC32
-	tristate "PIC32 Pseudo-Random Number Generator support"
+	tristate "Microchip PIC32 Random Number Generator support"
 	depends on HW_RANDOM && MACH_PIC32
 	default y
 	---help---
