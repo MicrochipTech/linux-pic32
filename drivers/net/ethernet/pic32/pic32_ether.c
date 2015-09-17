@@ -623,7 +623,8 @@ static void pic32ether_tx_clean(struct pic32ether *bp)
 
 	bp->tx_tail = tail;
 	if (netif_queue_stopped(bp->ndev) &&
-	    (CIRC_CNT(bp->tx_head, bp->tx_tail, TX_RING_SIZE) <= MAC_TX_WAKEUP_THRESH))
+	    (CIRC_CNT(bp->tx_head, bp->tx_tail, TX_RING_SIZE) <=
+		      MAC_TX_WAKEUP_THRESH))
 		netif_wake_queue(bp->ndev);
 }
 
@@ -1638,7 +1639,7 @@ static struct platform_driver pic32ether_driver = {
 
 module_platform_driver_probe(pic32ether_driver, pic32ether_probe);
 
-MODULE_DESCRIPTION("PIC32 Ethernet Controller Driver");
+MODULE_DESCRIPTION("Microchip PIC32 Ethernet Controller Driver");
 MODULE_AUTHOR("Joshua Henderson <joshua.henderson@microchip.com>");
 MODULE_LICENSE("GPL");
 MODULE_ALIAS("platform:" DRIVER_NAME);

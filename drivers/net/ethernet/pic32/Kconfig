@@ -3,7 +3,7 @@
 #
 
 config NET_PIC32
-	bool "PIC32 devices"
+	bool "Microchip PIC32 devices"
 	depends on MACH_PIC32
 	default y
 	---help---
@@ -21,7 +21,7 @@ config NET_PIC32
 if NET_PIC32
 
 config MIPS_PIC32_ETHER
-	tristate "PIC32 Ethernet support"
+	tristate "Microchip PIC32 Ethernet support"
 	default y
 	select PHYLIB
 	---help---
