@@ -2,7 +2,7 @@ config SND_PIC32_SOC_I2S
 	tristate
 
 config SND_PIC32_SOC
-	tristate "SoC Audio support for the PIC32 I2S module"
+	tristate "SoC Audio support for the Microchip PIC32"
 	depends on MACH_PIC32
 	select SND_SOC_DMAENGINE_PCM
 	select DMA_PIC32

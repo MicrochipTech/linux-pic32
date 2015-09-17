@@ -454,7 +454,7 @@ static struct platform_driver pic32_i2s_driver = {
 
 module_platform_driver(pic32_i2s_driver);
 
-MODULE_DESCRIPTION("PIC32 SoC I2S driver");
+MODULE_DESCRIPTION("Microchip PIC32 ASoC I2S driver");
 MODULE_AUTHOR("Joshua Henderson, <joshua.henderson@microchip.com>");
 MODULE_LICENSE("GPL");
 MODULE_ALIAS("platform:" DRIVER_NAME);
