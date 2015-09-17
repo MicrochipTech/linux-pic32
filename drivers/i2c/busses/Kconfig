@@ -958,7 +958,7 @@ config I2C_RCAR
 	  will be called i2c-rcar.
 
 config I2C_PIC32
-	tristate "PIC32 I2C Bus Driver"
+	tristate "Microchip PIC32 I2C Bus Driver"
 	depends on MACH_PIC32
 	default y
 	help

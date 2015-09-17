@@ -155,6 +155,7 @@ static inline void pic32_i2c_tx(struct pic32_i2c *id)
 static inline void pic32_i2c_stop(struct pic32_i2c *id)
 {
 	u32 timeout = 1000;
+
 	pic32_i2c_writereg(I2CCON_PEN, PIC32_SET(I2CCON));
 
 	while ((pic32_i2c_readreg(I2CCON) & I2CCON_PEN) && --timeout)
