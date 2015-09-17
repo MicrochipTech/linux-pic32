@@ -244,7 +244,7 @@ config SPI_IMG_SPFI
 	  IMG SoCs.
 
 config SPI_GPIO_PIC32MZ
-	tristate "PIC32MZ GPIO-based bitbanging SPI Master"
+	tristate "Microchip PIC32MZ GPIO-based bitbanging SPI Master"
 	depends on GPIOLIB && !SPI_GPIO
 	select SPI_BITBANG
 	help
