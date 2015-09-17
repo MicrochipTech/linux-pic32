@@ -71,7 +71,7 @@
 		compatible = "microchip,pic32-timerA";
 		interrupts = <TIMER1 DEFAULT_INT_PRI IRQ_TYPE_EDGE_RISING>;
 		clocks = <&PBCLK3>, <&SOSC>,/*<&TxCKI>,*/<&LPRC>;
-		microchip,clock-indices = <0>, <1>, /*<3>, */<5>;
+		microchip,clock-indices = <0>, <1>, <5>;
 		timer-id = <1>;
 		microchip,timer-class-A;  /* class A timer */
 		microchip,timer-version = <2>; /* v2 timer */
@@ -85,7 +85,7 @@
 		interrupts = <TIMER3 DEFAULT_INT_PRI IRQ_TYPE_EDGE_RISING>;
 		clocks = <&PBCLK3>, <&TxCKI>;
 		timer-id = <2>;
-		microchip,timer-32bit;   /* class B, 32-bit combined timer */
+		microchip,timer-32bit;	 /* class B, 32-bit combined timer */
 	};
 
 	/* 16-bit class-b timer */
@@ -229,7 +229,7 @@
 		#gpio-range-cells = <3>;
 		compatible = "microchip,pic32-pinctrl", "simple-bus";
 		ranges;
-		reg = <0x1f801400 0x100>, /* in  */
+		reg = <0x1f801400 0x100>, /* in	 */
 		      <0x1f801500 0x200>; /* out */
 		clocks = <&PBCLK1>;
 
@@ -237,7 +237,8 @@
 		pioA: gpio@1f860000 {
 			compatible = "microchip,pic32-gpio";
 			reg = <0x1f860000 0x24>;
-			interrupts = <PORTA_INPUT_CHANGE_INTERRUPT DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
+			interrupts = <PORTA_INPUT_CHANGE_INTERRUPT
+					DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
 			#gpio-cells = <2>;
 			gpio-controller;
 			interrupt-controller;
@@ -249,7 +250,8 @@
 		pioB: gpio@1f860100 {
 			compatible = "microchip,pic32-gpio";
 			reg = <0x1f860100 0x24>;
-			interrupts = <PORTB_INPUT_CHANGE_INTERRUPT DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
+			interrupts = <PORTB_INPUT_CHANGE_INTERRUPT
+					DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
 			#gpio-cells = <2>;
 			gpio-controller;
 			interrupt-controller;
@@ -261,7 +263,8 @@
 		pioC: gpio@1f860200 {
 			compatible = "microchip,pic32-gpio";
 			reg = <0x1f860200 0x24>;
-			interrupts = <PORTC_INPUT_CHANGE_INTERRUPT DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
+			interrupts = <PORTC_INPUT_CHANGE_INTERRUPT
+					DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
 			#gpio-cells = <2>;
 			gpio-controller;
 			interrupt-controller;
@@ -273,7 +276,8 @@
 		pioD: gpio@1f860300 {
 			compatible = "microchip,pic32-gpio";
 			reg = <0x1f860300 0x24>;
-			interrupts = <PORTD_INPUT_CHANGE_INTERRUPT DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
+			interrupts = <PORTD_INPUT_CHANGE_INTERRUPT
+					DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
 			#gpio-cells = <2>;
 			gpio-controller;
 			interrupt-controller;
@@ -285,7 +289,8 @@
 		pioE: gpio@1f860400 {
 			compatible = "microchip,pic32-gpio";
 			reg = <0x1f860400 0x24>;
-			interrupts = <PORTE_INPUT_CHANGE_INTERRUPT DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
+			interrupts = <PORTE_INPUT_CHANGE_INTERRUPT
+					DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
 			#gpio-cells = <2>;
 			gpio-controller;
 			interrupt-controller;
@@ -297,7 +302,8 @@
 		pioF: gpio@1f860500 {
 			compatible = "microchip,pic32-gpio";
 			reg = <0x1f860500 0x24>;
-			interrupts = <PORTF_INPUT_CHANGE_INTERRUPT DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
+			interrupts = <PORTF_INPUT_CHANGE_INTERRUPT
+					DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
 			#gpio-cells = <2>;
 			gpio-controller;
 			interrupt-controller;
@@ -309,7 +315,8 @@
 		pioG: gpio@1f860600 {
 			compatible = "microchip,pic32-gpio";
 			reg = <0x1f860600 0x24>;
-			interrupts = <PORTG_INPUT_CHANGE_INTERRUPT DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
+			interrupts = <PORTG_INPUT_CHANGE_INTERRUPT
+					 DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
 			#gpio-cells = <2>;
 			gpio-controller;
 			interrupt-controller;
@@ -321,7 +328,8 @@
 		pioH: gpio@1f860700 {
 			compatible = "microchip,pic32-gpio";
 			reg = <0x1f860700 0x24>;
-			interrupts = <PORTH_INPUT_CHANGE_INTERRUPT DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
+			interrupts = <PORTH_INPUT_CHANGE_INTERRUPT
+					DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
 			#gpio-cells = <2>;
 			gpio-controller;
 			interrupt-controller;
@@ -335,7 +343,8 @@
 		pioJ: gpio@1f860800 {
 			compatible = "microchip,pic32-gpio";
 			reg = <0x1f860800 0x24>;
-			interrupts = <PORTJ_INPUT_CHANGE_INTERRUPT DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
+			interrupts = <PORTJ_INPUT_CHANGE_INTERRUPT
+					DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
 			#gpio-cells = <2>;
 			gpio-controller;
 			interrupt-controller;
@@ -347,7 +356,8 @@
 		pioK: gpio@1f860900 {
 			compatible = "microchip,pic32-gpio";
 			reg = <0x1f860900 0x24>;
-			interrupts = <PORTK_INPUT_CHANGE_INTERRUPT DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
+			interrupts = <PORTK_INPUT_CHANGE_INTERRUPT
+					DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
 			#gpio-cells = <2>;
 			gpio-controller;
 			interrupt-controller;
@@ -361,7 +371,8 @@
 		compatible = "microchip,pic32-ether";
 		reg = <0x1f882000 0x1000>, <0x1000 0x7f000>;
 		reg-names = "regs","mem";
-		interrupts = <ETHERNET_INTERRUPT DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
+		interrupts = <ETHERNET_INTERRUPT DEFAULT_INT_PRI
+				IRQ_TYPE_LEVEL_HIGH>;
 		phy-mode = "rmii";
 		clock-names = "eth_clk";
 		clocks = <&PBCLK5>;
@@ -371,7 +382,8 @@
 	rtc@1f8c0000 {
 		compatible = "microchip,pic32-rtc";
 		reg = <0x1f8c0000 0x60>;
-		interrupts = <REAL_TIME_CLOCK DEFAULT_INT_PRI IRQ_TYPE_EDGE_RISING>;
+		interrupts = <REAL_TIME_CLOCK DEFAULT_INT_PRI
+				IRQ_TYPE_EDGE_RISING>;
 		clocks = <&PBCLK6>;
 	};
 
@@ -396,7 +408,8 @@
 	dma: dma-controller@1f811000 {
 		compatible = "microchip,pic32-dma";
 		reg = <0x1f811000 0x2000>;
-		interrupts = <DMA_CHANNEL_0 DEFAULT_INT_PRI IRQ_TYPE_EDGE_RISING>,
+		interrupts = <DMA_CHANNEL_0 DEFAULT_INT_PRI
+				IRQ_TYPE_EDGE_RISING>,
 			<DMA_CHANNEL_1 DEFAULT_INT_PRI IRQ_TYPE_EDGE_RISING>,
 			<DMA_CHANNEL_2 DEFAULT_INT_PRI IRQ_TYPE_EDGE_RISING>,
 			<DMA_CHANNEL_3 DEFAULT_INT_PRI IRQ_TYPE_EDGE_RISING>,
@@ -417,12 +430,13 @@
 		clock-names = "base_clk", "sys_clk";
 		no-1-8-v;
 		status = "disabled";
-        };
+	};
 
 	lcd: fb@1f8ea000 {
-                compatible = "microchip,pic32-lcd";
-                reg = <0x1f8ea000 0x1000>;
-		interrupts = <GLCD_INTERRUPT DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
+		compatible = "microchip,pic32-lcd";
+		reg = <0x1f8ea000 0x1000>;
+		interrupts = <GLCD_INTERRUPT DEFAULT_INT_PRI
+				IRQ_TYPE_LEVEL_HIGH>;
 		clocks = <&REFCLKO5>, <&SYSCLK>;
 		clock-names = "lcd_clk", "sys_clk";
 		status = "disabled";
@@ -433,8 +447,9 @@
 		reg = <0x1f8e3000 0x1000>,
 		      <0x1f884000 0x1000>;
 		reg-names = "mc", "control";
-		interrupts = <USB_GENERAL_EVENT DEFAULT_INT_PRI IRQ_TYPE_EDGE_RISING>,
-				<USB_DMA_EVENT DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
+		interrupts = <USB_GENERAL_EVENT DEFAULT_INT_PRI
+				IRQ_TYPE_EDGE_RISING>,
+			<USB_DMA_EVENT DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
 		interrupt-names = "mc", "dma", "over_current";
 		dr_mode = "host";
 		mentor,multipoint = <1>;
@@ -466,8 +481,10 @@
 	i2s1: i2s@1f821000 {
 		compatible = "microchip,pic32-i2s";
 		reg = <0x1f821000 512>;
-		interrupts = <SPI1_RECEIVE_DONE DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>,
-		<SPI1_TRANSFER_DONE DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
+		interrupts = <SPI1_RECEIVE_DONE DEFAULT_INT_PRI
+				IRQ_TYPE_LEVEL_HIGH>,
+			<SPI1_TRANSFER_DONE DEFAULT_INT_PRI
+				IRQ_TYPE_LEVEL_HIGH>;
 		dmas = <&dma DMA_CHANNEL_0>,
 		<&dma DMA_CHANNEL_1>;
 		dma-names = "rx", "tx";
@@ -479,12 +496,14 @@
 	i2s2: i2s@1f821200 {
 		compatible = "microchip,pic32-i2s";
 		reg = <0x1f821200 512>;
-		interrupts = <SPI2_RECEIVE_DONE DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>,
-		<SPI2_TRANSFER_DONE DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
+		interrupts = <SPI2_RECEIVE_DONE DEFAULT_INT_PRI
+				IRQ_TYPE_LEVEL_HIGH>,
+			<SPI2_TRANSFER_DONE DEFAULT_INT_PRI
+				IRQ_TYPE_LEVEL_HIGH>;
 		dmas = <&dma DMA_CHANNEL_2>,
 		<&dma DMA_CHANNEL_3>;
 		dma-names = "rx", "tx";
-			clocks = <&PBCLK2>, <&REFCLKO1>;
+		clocks = <&PBCLK2>, <&REFCLKO1>;
 		clock-names = "mck0","mck1";
 		status = "disabled";
 	};
@@ -492,8 +511,10 @@
 	i2s3: i2s@1f821400 {
 		compatible = "microchip,pic32-i2s";
 		reg = <0x1f821400 512>;
-		interrupts = <SPI3_RECEIVE_DONE DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>,
-		<SPI3_TRANSFER_DONE DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
+		interrupts = <SPI3_RECEIVE_DONE DEFAULT_INT_PRI
+				IRQ_TYPE_LEVEL_HIGH>,
+			<SPI3_TRANSFER_DONE DEFAULT_INT_PRI
+				IRQ_TYPE_LEVEL_HIGH>;
 		dmas = <&dma DMA_CHANNEL_4>,
 		<&dma DMA_CHANNEL_5>;
 		dma-names = "rx", "tx";
@@ -505,8 +526,10 @@
 	i2s4: i2s@1f821600 {
 		compatible = "microchip,pic32-i2s";
 		reg = <0x1f821600 512>;
-		interrupts = <SPI4_RECEIVE_DONE DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>,
-		<SPI4_TRANSFER_DONE DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
+		interrupts = <SPI4_RECEIVE_DONE DEFAULT_INT_PRI
+				IRQ_TYPE_LEVEL_HIGH>,
+			<SPI4_TRANSFER_DONE DEFAULT_INT_PRI
+				IRQ_TYPE_LEVEL_HIGH>;
 		dmas = <&dma DMA_CHANNEL_6>,
 		<&dma DMA_CHANNEL_7>;
 		dma-names = "rx", "tx";
@@ -518,8 +541,10 @@
 	i2s5: i2s@1f821800 {
 		compatible = "microchip,pic32-i2s";
 		reg = <0x1f821800 512>;
-		interrupts = <SPI5_RECEIVE_DONE DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>,
-		<SPI5_TRANSFER_DONE DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
+		interrupts = <SPI5_RECEIVE_DONE DEFAULT_INT_PRI
+				IRQ_TYPE_LEVEL_HIGH>,
+			<SPI5_TRANSFER_DONE DEFAULT_INT_PRI
+				IRQ_TYPE_LEVEL_HIGH>;
 		dmas = <&dma DMA_CHANNEL_0>,
 		<&dma DMA_CHANNEL_1>;
 		dma-names = "rx", "tx";
@@ -531,8 +556,10 @@
 	i2s6: i2s@1f821A00 {
 		compatible = "microchip,pic32-i2s";
 		reg = <0x1f821A00 512>;
-		interrupts = <SPI6_RECEIVE_DONE DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>,
-		<SPI6_TRANSFER_DONE DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
+		interrupts = <SPI6_RECEIVE_DONE DEFAULT_INT_PRI
+				IRQ_TYPE_LEVEL_HIGH>,
+			<SPI6_TRANSFER_DONE DEFAULT_INT_PRI
+				IRQ_TYPE_LEVEL_HIGH>;
 		dmas = <&dma DMA_CHANNEL_2>,
 		<&dma DMA_CHANNEL_3>;
 		dma-names = "rx", "tx";
@@ -557,15 +584,18 @@
 		compatible = "microchip,pic32-spi";
 		reg = <0x1f821000 0x200>;
 		interrupt-parent = <&evic>;
-		interrupts = <SPI1_FAULT DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>,
-			     <SPI1_RECEIVE_DONE DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>,
-			     <SPI1_TRANSFER_DONE DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
+		interrupts = <SPI1_FAULT DEFAULT_INT_PRI
+				IRQ_TYPE_LEVEL_HIGH>,
+			<SPI1_RECEIVE_DONE DEFAULT_INT_PRI
+				IRQ_TYPE_LEVEL_HIGH>,
+			<SPI1_TRANSFER_DONE DEFAULT_INT_PRI
+				IRQ_TYPE_LEVEL_HIGH>;
 		interrupt-names = "fault","rx","tx";
 		clocks = <&PBCLK2>,<&REFCLKO1>;
 		clock-names = "mck0","mck1";
-	        dmas = <&dma DMA_CHANNEL_2>,
-                       <&dma DMA_CHANNEL_3>;
-                dma-names = "spi-rx", "spi-tx";
+		dmas = <&dma DMA_CHANNEL_2>,
+			<&dma DMA_CHANNEL_3>;
+		dma-names = "spi-rx", "spi-tx";
 		status = "disabled";
 	};
 
@@ -576,14 +606,16 @@
 		reg = <0x1f821200 0x200>;
 		interrupt-parent = <&evic>;
 		interrupts = <SPI2_FAULT DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>,
-			     <SPI2_RECEIVE_DONE DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>,
-			     <SPI2_TRANSFER_DONE DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
+			<SPI2_RECEIVE_DONE DEFAULT_INT_PRI
+				IRQ_TYPE_LEVEL_HIGH>,
+			<SPI2_TRANSFER_DONE DEFAULT_INT_PRI
+				IRQ_TYPE_LEVEL_HIGH>;
 		interrupt-names = "fault","rx","tx";
 		clocks = <&PBCLK2>,<&REFCLKO1>;
 		clock-names = "mck0","mck1";
-	        dmas = <&dma DMA_CHANNEL_2>,
-                       <&dma DMA_CHANNEL_3>;
-                dma-names = "spi-rx", "spi-tx";
+		dmas = <&dma DMA_CHANNEL_2>,
+		       <&dma DMA_CHANNEL_3>;
+		dma-names = "spi-rx", "spi-tx";
 		status = "disabled";
 	};
 
@@ -594,14 +626,16 @@
 		reg = <0x1f821400 0x200>;
 		interrupt-parent = <&evic>;
 		interrupts = <SPI3_FAULT DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>,
-			     <SPI3_RECEIVE_DONE DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>,
-			     <SPI3_TRANSFER_DONE DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
+			<SPI3_RECEIVE_DONE DEFAULT_INT_PRI
+				IRQ_TYPE_LEVEL_HIGH>,
+			<SPI3_TRANSFER_DONE DEFAULT_INT_PRI
+				IRQ_TYPE_LEVEL_HIGH>;
 		interrupt-names = "fault","rx","tx";
 		clocks = <&PBCLK2>,<&REFCLKO1>;
 		clock-names = "mck0","mck1";
-	        dmas = <&dma DMA_CHANNEL_2>,
-                       <&dma DMA_CHANNEL_3>;
-                dma-names = "spi-rx", "spi-tx";
+		dmas = <&dma DMA_CHANNEL_2>,
+		       <&dma DMA_CHANNEL_3>;
+		dma-names = "spi-rx", "spi-tx";
 		status = "disabled";
 	};
 
@@ -612,14 +646,16 @@
 		reg = <0x1f821600 0x200>;
 		interrupt-parent = <&evic>;
 		interrupts = <SPI4_FAULT DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>,
-			     <SPI4_RECEIVE_DONE DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>,
-			     <SPI4_TRANSFER_DONE DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
+			<SPI4_RECEIVE_DONE DEFAULT_INT_PRI
+				IRQ_TYPE_LEVEL_HIGH>,
+			<SPI4_TRANSFER_DONE DEFAULT_INT_PRI
+				IRQ_TYPE_LEVEL_HIGH>;
 		interrupt-names = "fault","rx","tx";
 		clocks = <&PBCLK2>,<&REFCLKO1>;
 		clock-names = "mck0","mck1";
-	        dmas = <&dma DMA_CHANNEL_2>,
-                       <&dma DMA_CHANNEL_3>;
-                dma-names = "spi-rx", "spi-tx";
+		dmas = <&dma DMA_CHANNEL_2>,
+		       <&dma DMA_CHANNEL_3>;
+		dma-names = "spi-rx", "spi-tx";
 		status = "disabled";
 	};
 
@@ -630,14 +666,16 @@
 		reg = <0x1f821800 0x200>;
 		interrupt-parent = <&evic>;
 		interrupts = <SPI5_FAULT DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>,
-			     <SPI5_RECEIVE_DONE DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>,
-			     <SPI5_TRANSFER_DONE DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
+			<SPI5_RECEIVE_DONE DEFAULT_INT_PRI
+				IRQ_TYPE_LEVEL_HIGH>,
+			<SPI5_TRANSFER_DONE DEFAULT_INT_PRI
+				IRQ_TYPE_LEVEL_HIGH>;
 		interrupt-names = "fault","rx","tx";
 		clocks = <&PBCLK2>,<&REFCLKO1>;
 		clock-names = "mck0","mck1";
-	        dmas = <&dma DMA_CHANNEL_2>,
-                       <&dma DMA_CHANNEL_3>;
-                dma-names = "spi-rx", "spi-tx";
+		dmas = <&dma DMA_CHANNEL_2>,
+		       <&dma DMA_CHANNEL_3>;
+		dma-names = "spi-rx", "spi-tx";
 		status = "disabled";
 	};
 
@@ -648,14 +686,16 @@
 		reg = <0x1f821A00 0x200>;
 		interrupt-parent = <&evic>;
 		interrupts = <SPI6_FAULT DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>,
-			     <SPI6_RECEIVE_DONE DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>,
-			     <SPI6_TRANSFER_DONE DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
+			<SPI6_RECEIVE_DONE DEFAULT_INT_PRI
+				IRQ_TYPE_LEVEL_HIGH>,
+			<SPI6_TRANSFER_DONE DEFAULT_INT_PRI
+				IRQ_TYPE_LEVEL_HIGH>;
 		interrupt-names = "fault","rx","tx";
 		clocks = <&PBCLK2>,<&REFCLKO1>;
 		clock-names = "mck0","mck1";
-	        dmas = <&dma DMA_CHANNEL_2>,
-                       <&dma DMA_CHANNEL_3>;
-                dma-names = "spi-rx", "spi-tx";
+		dmas = <&dma DMA_CHANNEL_2>,
+		       <&dma DMA_CHANNEL_3>;
+		dma-names = "spi-rx", "spi-tx";
 		status = "disabled";
 	};
 
@@ -671,40 +711,47 @@
 		status = "disabled";
 	};
 
-        usart1: serial@1f822000 {
-                compatible = "microchip,pic32-usart";
-                reg = <0x1f822000 0x50>;
-                interrupts = <UART1_FAULT DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>,
-                             <UART1_RECEIVE_DONE DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>,
-                             <UART1_TRANSFER_DONE DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
-                clocks = <&PBCLK2>;
-                status = "disabled";
-        };
+	usart1: serial@1f822000 {
+		compatible = "microchip,pic32-usart";
+		reg = <0x1f822000 0x50>;
+		interrupts = <UART1_FAULT DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>,
+			<UART1_RECEIVE_DONE DEFAULT_INT_PRI
+				IRQ_TYPE_LEVEL_HIGH>,
+			<UART1_TRANSFER_DONE DEFAULT_INT_PRI
+				IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&PBCLK2>;
+		status = "disabled";
+	};
 
-        usart2: serial@1f822200 {
-                compatible = "microchip,pic32-usart";
-                reg = <0x1f822200 0x50>;
-                interrupts = <UART2_FAULT DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>,
-                             <UART2_RECEIVE_DONE DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>,
-                             <UART2_TRANSFER_DONE DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
-                clocks = <&PBCLK2>;
-                status = "disabled";
-        };
+	usart2: serial@1f822200 {
+		compatible = "microchip,pic32-usart";
+		reg = <0x1f822200 0x50>;
+		interrupts = <UART2_FAULT DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>,
+			<UART2_RECEIVE_DONE DEFAULT_INT_PRI
+				IRQ_TYPE_LEVEL_HIGH>,
+			<UART2_TRANSFER_DONE DEFAULT_INT_PRI
+				IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&PBCLK2>;
+		status = "disabled";
+	};
 
-        usart5: serial@1f822A00 {
-                compatible = "microchip,pic32-usart";
-                reg = <0x1f822A00 0x50>;
-                interrupts = <UART6_FAULT DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>,
-                             <UART6_RECEIVE_DONE DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>,
-                             <UART6_TRANSFER_DONE DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
-                clocks = <&PBCLK2>;
-                status = "disabled";
-        };
+	usart5: serial@1f822A00 {
+		compatible = "microchip,pic32-usart";
+		reg = <0x1f822A00 0x50>;
+		interrupts = <UART6_FAULT DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>,
+			<UART6_RECEIVE_DONE DEFAULT_INT_PRI
+				IRQ_TYPE_LEVEL_HIGH>,
+			<UART6_TRANSFER_DONE DEFAULT_INT_PRI
+				IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&PBCLK2>;
+		status = "disabled";
+	};
 
 	i2c1: i2c@1f820000 {
 		compatible = "microchip,pic32-i2c";
 		reg = <0x1f820000 512>;
-		interrupts = <I2C1_MASTER_EVENT DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
+		interrupts = <I2C1_MASTER_EVENT DEFAULT_INT_PRI
+				IRQ_TYPE_LEVEL_HIGH>;
 		clock-frequency = <100000>;
 		clocks = <&PBCLK2>;
 		status = "disabled";
@@ -713,7 +760,8 @@
 	i2c2: i2c@1f820200 {
 		compatible = "microchip,pic32-i2c";
 		reg = <0x1f820200 512>;
-		interrupts = <I2C2_MASTER_EVENT DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
+		interrupts = <I2C2_MASTER_EVENT DEFAULT_INT_PRI
+				IRQ_TYPE_LEVEL_HIGH>;
 		clock-frequency = <100000>;
 		clocks = <&PBCLK2>;
 		status = "disabled";
@@ -722,7 +770,8 @@
 	i2c3: i2c@1f820400 {
 		compatible = "microchip,pic32-i2c";
 		reg = <0x1f820400 512>;
-		interrupts = <I2C3_MASTER_EVENT DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
+		interrupts = <I2C3_MASTER_EVENT DEFAULT_INT_PRI
+				IRQ_TYPE_LEVEL_HIGH>;
 		clock-frequency = <100000>;
 		clocks = <&PBCLK2>;
 		status = "disabled";
@@ -731,7 +780,8 @@
 	i2c4: i2c@1f820600 {
 		compatible = "microchip,pic32-i2c";
 		reg = <0x1f820600 512>;
-		interrupts = <I2C4_MASTER_EVENT DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
+		interrupts = <I2C4_MASTER_EVENT DEFAULT_INT_PRI
+				IRQ_TYPE_LEVEL_HIGH>;
 		clock-frequency = <100000>;
 		clocks = <&PBCLK2>;
 		status = "disabled";
@@ -740,7 +790,8 @@
 	i2c5: i2c@1f820800 {
 		compatible = "microchip,pic32-i2c";
 		reg = <0x1f820800 512>;
-		interrupts = <I2C5_MASTER_EVENT DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
+		interrupts = <I2C5_MASTER_EVENT DEFAULT_INT_PRI
+				IRQ_TYPE_LEVEL_HIGH>;
 		clock-frequency = <100000>;
 		clocks = <&PBCLK2>;
 		status = "disabled";

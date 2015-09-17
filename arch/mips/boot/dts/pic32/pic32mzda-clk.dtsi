@@ -63,11 +63,10 @@
 			#clock-cells = <0>;
 			compatible = "microchip,pic32-sosc";
 			clock-frequency = <32768>;
-			//status = "disabled";
 			reg = <0x1f801200 0x10   /* enable reg */
-			       0x1f801390 0x10>; /* status reg */
-			microchip,bit-mask=<0x02>; /* enable mask */
-			microchip,status-bit-mask=<0x10>; /* status-mask*/
+				0x1f801390 0x10>; /* status reg */
+			microchip,bit-mask = <0x02>; /* enable mask */
+			microchip,status-bit-mask = <0x10>; /* status-mask*/
 		};
 
 		FRCDIV:frcdiv_clk {
@@ -82,7 +81,7 @@
 			#clock-cells = <0>;
 			compatible = "microchip,pic32-syspll";
 			reg = <0x1f801220 0x10 /* SPLL register */
-			       0x1f801390 0x10>; /* CLKSTAT register */
+				0x1f801390 0x10>; /* CLKSTAT register */
 			clocks = <&POSC>, <&FRC>;
 			clock-output-names = "sys_pll";
 			microchip,status-bit-mask = <0x80>; /* SPLLRDY */
@@ -92,8 +91,9 @@
 		SYSCLK:sys_clk {
 			#clock-cells = <0>;
 			compatible = "microchip,pic32-sysclk-v2";
-			clocks = <&FRCDIV>,<&SYSPLL>,<&POSC>,<&SOSC>,<&LPRC>,<&FRCDIV>;
-			microchip,clock-indices = <0>, <1>, <2>, <4>,    <5>,   <7>;
+			clocks = <&FRCDIV>, <&SYSPLL>, <&POSC>, <&SOSC>,
+					<&LPRC>, <&FRCDIV>;
+			microchip,clock-indices = <0>, <1>, <2>, <4>, <5>, <7>;
 			clock-output-names = "sys_clk";
 		};
 
@@ -107,7 +107,7 @@
 			status = "disabled";
 		};
 
-		/* UPLL is integral part of USB PHY; generates UTMI clk for USBCORE */
+		/* UPLL is integral part of USB PHY; UTMI clk for USBCORE */
 		UPLL:usb_phy_clk {
 			#clock-cells = <0>;
 			compatible = "microchip,pic32-usbpll";
@@ -122,7 +122,8 @@
 			compatible = "microchip,pic32-pbclk";
 			clocks = <&SYSCLK>;
 			clock-output-names = "pb1_clk";
-			microchip,ignore-unused; /* always ON, can't be gated even if unused */
+			/* always ON, can't be gated even if unused */
+			microchip,ignore-unused;
 		};
 
 		/* Peripheral bus2(APB) clock */
@@ -132,7 +133,8 @@
 			compatible = "microchip,pic32-pbclk";
 			clocks = <&SYSCLK>;
 			clock-output-names = "pb2_clk";
-			microchip,ignore-unused; /* avoid gating even if unused */
+			/* avoid gating even if unused */
+			microchip,ignore-unused;
 		};
 
 		/* Peripheral bus3 clock */
@@ -151,7 +153,8 @@
 			compatible = "microchip,pic32-pbclk";
 			clocks = <&SYSCLK>;
 			clock-output-names = "pb4_clk";
-			/* I/O ports & GPIO controller uses this clock, so keep it enabled */
+			/* I/O ports & GPIO controller uses this clock, so keep
+			   it enabled */
 			microchip,ignore-unused;
 		};
 
@@ -161,8 +164,8 @@
 			#clock-cells = <0>;
 			compatible = "microchip,pic32-pbclk";
 			clocks = <&SYSCLK>;
-			//clock-output-names = "pb5_clk";
-			clock-output-names = "pb5_clk", "pic32-ether","pic32-rng";
+			clock-output-names = "pb5_clk", "pic32-ether",
+						"pic32-rng";
 		};
 
 		/* Peripheral Bus6 clock; */
@@ -178,9 +181,11 @@
 			reg = <0x1f8013A0 0x10>;
 			#clock-cells = <0>;
 			compatible = "microchip,pic32-pbclk";
-			clock-output-names = "cpu_clk"; /* CPU is driven by this clock; so named */
+			/* CPU is driven by this clock; so named */
+			clock-output-names = "cpu_clk";
 			clocks = <&SYSCLK>;
-			/* EBI drives SRAM in SK+MEB setup, so avoid gating even if unused */
+			/* EBI drives SRAM in SK+MEB setup, so avoid gating even
+			   if unused */
 			microchip,ignore-unused;
 		};
 
@@ -189,8 +194,10 @@
 			reg = <0x1f801280 0x20>;
 			#clock-cells = <0>;
 			compatible = "microchip,pic32-refoclk";
-			clocks = <&SYSCLK>,<&PBCLK1>,<&POSC>,<&FRC>,<&LPRC>,<&SOSC>,<&SYSPLL>,<&REFIx>,<&BFRC>;
-			microchip,clock-indices=<0>,<1>,<2>   ,<3>   ,<4>    , <5>   , <7>   ,     <8>, <9>;
+			clocks = <&SYSCLK>, <&PBCLK1>, <&POSC>, <&FRC>, <&LPRC>,
+				<&SOSC>, <&SYSPLL>, <&REFIx>, <&BFRC>;
+			microchip,clock-indices = <0>, <1>, <2>, <3>, <4>, <5>,
+							<7>, <8>, <9>;
 			clock-output-names = "refo1_clk";
 			clock-frequency = <10000000>;  /* 10Mhz for I2S MCLK */
 		};
@@ -200,8 +207,10 @@
 			reg = <0x1f8012A0 0x20>;
 			#clock-cells = <0>;
 			compatible = "microchip,pic32-refoclk";
-			clocks = <&SYSCLK>,<&PBCLK1>,<&POSC>,<&FRC>,<&LPRC>,<&SOSC>,<&SYSPLL>,<&REFIx>,<&BFRC>;
-			microchip,clock-indices=<0>,<1>,<2>   ,<3>   ,<4>    , <5>   , <7>   ,     <8>, <9>;
+			clocks = <&SYSCLK>, <&PBCLK1>, <&POSC>, <&FRC>, <&LPRC>,
+				<&SOSC>, <&SYSPLL>, <&REFIx>, <&BFRC>;
+			microchip,clock-indices = <0>, <1>, <2>, <3>, <4>, <5>,
+							<7>, <8>, <9>;
 			clock-output-names = "refo2_clk";
 			clock-frequency = <50000000>; /* 50MHz for SQI */
 		};
@@ -210,8 +219,10 @@
 		REFCLKO3:refo3_clk {
 			reg = <0x1f8012C0 0x20>;
 			compatible = "microchip,pic32-refoclk";
-			clocks = <&SYSCLK>,<&PBCLK1>,<&POSC>,<&FRC>,<&LPRC>,<&SOSC>,<&SYSPLL>,<&REFIx>,<&BFRC>;
-			microchip,clock-indices=<0>,<1>,<2>   ,<3>   ,<4>    , <5>   , <7>   ,     <8>, <9>;
+			clocks = <&SYSCLK>, <&PBCLK1>, <&POSC>, <&FRC>, <&LPRC>,
+				<&SOSC>, <&SYSPLL>, <&REFIx>, <&BFRC>;
+			microchip,clock-indices = <0>, <1>, <2>, <3>, <4>, <5>,
+							<7>, <8>, <9>;
 			#clock-cells = <0>;
 			clock-output-names = "refo3_clk";
 			clock-frequency = <10000000>;  /* 1Mhz */
@@ -221,8 +232,10 @@
 		REFCLKO4:refo4_clk {
 			reg = <0x1f8012E0 0x20>;
 			compatible = "microchip,pic32-refoclk";
-			clocks = <&SYSCLK>,<&PBCLK1>,<&POSC>,<&FRC>,<&LPRC>,<&SOSC>,<&SYSPLL>,<&REFIx>,<&BFRC>;
-			microchip,clock-indices=<0>,<1>,<2>   ,<3>   ,<4>    , <5>   , <7>   ,     <8>, <9>;
+			clocks = <&SYSCLK>, <&PBCLK1>, <&POSC>, <&FRC>, <&LPRC>,
+					<&SOSC>, <&SYSPLL>, <&REFIx>, <&BFRC>;
+			microchip,clock-indices = <0>,<1>,<2>,<3>,<4>,<5>,<7>,
+							<8>,<9>;
 			#clock-cells = <0>;
 			clock-output-names = "refo4_clk";
 			clock-frequency = <25000000>;  /* 25Mhz */
@@ -232,8 +245,10 @@
 		REFCLKO5:refo5_clk {
 			reg = <0x1f801300 0x20>;
 			compatible = "microchip,pic32-refoclk";
-			clocks = <&SYSCLK>,<&PBCLK1>,<&POSC>,<&FRC>,<&LPRC>,<&SOSC>,<&SYSPLL>,<&REFIx>,<&BFRC>;
-			microchip,clock-indices=<0>,<1>,<2>   ,<3>   ,<4>    , <5>   , <7>   ,     <8>, <9>;
+			clocks = <&SYSCLK>,<&PBCLK1>,<&POSC>,<&FRC>,<&LPRC>,
+				<&SOSC>,<&SYSPLL>,<&REFIx>,<&BFRC>;
+			microchip,clock-indices = <0>, <1>, <2>, <3>, <4>, <5>,
+						<7>, <8>,<9>;
 			#clock-cells = <0>;
 			clock-output-names = "refo5_clk";
 			clock-frequency = <40000000>;  /* 40Mhz */
@@ -245,7 +260,7 @@
 			#clock-cells = <0>;
 			compatible = "microchip,pic32-rtccclk";
 			clocks = <&SOSC>, <&LPRC>;
-			microchip,clock-indices=<1>,<0>;
+			microchip,clock-indices = <1>, <0>;
 			microchip,bit-width = <2>;
 			microchip,bit-shift = <9>;
 			clock-output-names = "pic32-rtc";
