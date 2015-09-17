@@ -230,7 +230,7 @@ config PINCTRL_ZYNQ
 	  This selectes the pinctrl driver for Xilinx Zynq.
 
 config PINCTRL_PIC32
-	bool "PIC32 pin controller driver"
+	bool "Microchip PIC32 pin controller driver"
 	depends on OF
 	depends on MACH_PIC32
 	select PINMUX
@@ -238,9 +238,9 @@ config PINCTRL_PIC32
 	select GPIOLIB_IRQCHIP
 	select GENERIC_IRQ_CHIP
 	help
-	  This is the pin controller and gpio driver for PIC32 microcontrollers.
-	  This option is selected automatically when specific machine and arch
-	  are selected to build.
+	  This is the pin controller and gpio driver for Microchip PIC32
+	  microcontrollers. This option is selected automatically when specific
+	  machine and arch are selected to build.
 
 config PINCTRL_PIC32MZDA
 	def_bool y if PIC32MZDA

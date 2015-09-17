@@ -416,7 +416,7 @@ static int pic32_gpio_to_irq(struct gpio_chip *chip, unsigned offset)
 		virq = -ENXIO;
 
 	dev_dbg(chip->dev, "%s: request IRQ for GPIO:%d, return:%d\n",
-				__func__ , offset + chip->base, virq);
+				__func__, offset + chip->base, virq);
 	return virq;
 }
 

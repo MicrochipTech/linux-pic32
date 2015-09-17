@@ -211,7 +211,7 @@ static void pic32mzda_build_ppsout_lookup_off(
 	unsigned bank, pin;
 
 	for (bank = 0; bank < MAX_PIO_BANKS; bank++) {
-		for (pin = 0; pin < PINS_PER_BANK; pin ++ )
+		for (pin = 0; pin < PINS_PER_BANK; pin++)
 			if ((*ppsout_lookup_off)[bank][pin] == 0)
 				(*ppsout_lookup_off)[bank][pin] =
 							PIC32_OFF_UNSPEC;
