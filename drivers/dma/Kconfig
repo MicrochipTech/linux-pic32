@@ -508,7 +508,7 @@ config QCOM_BAM_DMA
 	  provides DMA capabilities for a variety of on-chip devices.
 
 config DMA_PIC32
-	tristate "PIC32 DMA engine support"
+	tristate "Microchip PIC32 DMA engine support"
 	depends on MACH_PIC32
 	select DMA_ENGINE
 	select DMA_VIRTUAL_CHANNELS

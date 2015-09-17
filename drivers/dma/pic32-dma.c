@@ -804,7 +804,7 @@ static struct platform_driver pic32_dma_driver = {
 
 module_platform_driver(pic32_dma_driver);
 
-MODULE_DESCRIPTION("PIC32 DMA controller driver");
+MODULE_DESCRIPTION("Microchip PIC32 DMA controller driver");
 MODULE_AUTHOR("Joshua Henderson <joshua.henderson@microchip.com>");
 MODULE_LICENSE("GPL");
 MODULE_ALIAS("platform:" DRV_NAME);
