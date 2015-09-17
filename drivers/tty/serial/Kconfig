@@ -901,7 +901,7 @@ config SERIAL_SGI_L1_CONSOLE
 		say Y.  Otherwise, say N.
 
 config SERIAL_PIC32
-	bool "PIC32 serial support"
+	bool "Microchip PIC32 serial support"
 	select SERIAL_CORE
 	help
 		If you have a PIC32, this driver supports the serial ports.
