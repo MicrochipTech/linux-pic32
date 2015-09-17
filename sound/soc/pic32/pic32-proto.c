@@ -67,22 +67,10 @@ static struct snd_soc_ops snd_pic32_proto_ops = {
 static struct snd_soc_dai_link snd_pic32_proto_dai[] = {
 	{
 		.name		= "WM8731",
-		.stream_name	= "Playback",
+		.stream_name	= "WM8731 PCM",
 		.cpu_dai_name	= "pic32-i2s.0",
 		.codec_dai_name	= "wm8731-hifi",
 		.platform_name	= "pic32-i2s.0",
-		.codec_name	= "wm8731.0-001a",
-		.dai_fmt	= SND_SOC_DAIFMT_I2S
-					| SND_SOC_DAIFMT_NB_NF
-					| SND_SOC_DAIFMT_CBM_CFM,
-		.ops		= &snd_pic32_proto_ops,
-	},
-	{
-		.name		= "WM8731",
-		.stream_name	= "Capture",
-		.cpu_dai_name	= "pic32-i2s.1",
-		.codec_dai_name	= "wm8731-hifi",
-		.platform_name	= "pic32-i2s.1",
 		.codec_name	= "wm8731.0-001a",
 		.dai_fmt	= SND_SOC_DAIFMT_I2S
 					| SND_SOC_DAIFMT_NB_NF
