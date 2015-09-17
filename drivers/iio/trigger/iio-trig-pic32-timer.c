@@ -226,6 +226,6 @@ static struct platform_driver iio_pic32_tmr_trigger_driver = {
 module_platform_driver(iio_pic32_tmr_trigger_driver);
 
 MODULE_AUTHOR("Purna Chandra Mandal <purna.mandal@microchip.org>");
-MODULE_DESCRIPTION("PIC32 timer based ADC trigger for the iio subsystem");
+MODULE_DESCRIPTION("Microchip PIC32 timer based ADC iio trigger");
 MODULE_LICENSE("GPL v2");
 MODULE_ALIAS("platform:iio-trig-pic32-timer");
