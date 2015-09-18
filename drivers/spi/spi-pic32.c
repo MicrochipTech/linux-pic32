@@ -834,7 +834,7 @@ static int pic32_spi_setup(struct spi_device *spi)
 	pic32s = spi_master_get_devdata(spi->master);
 
 	/* SPI master supports only one spi-device at a time.
-	 * So mutiple spi_setup() to different devices is not allowed.
+	 * So multiple spi_setup() to different devices is not allowed.
 	 */
 	if (unlikely(pic32s->spi_dev && (pic32s->spi_dev != spi))) {
 		dev_err(&spi->dev, "spi-master already associated with %s\n",
