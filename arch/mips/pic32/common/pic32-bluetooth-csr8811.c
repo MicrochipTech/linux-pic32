@@ -125,7 +125,7 @@ static struct platform_driver csr8811_bluetooth_driver = {
 
 module_platform_driver(csr8811_bluetooth_driver);
 
-MODULE_DESCRIPTION("PIC32MZ CSR8811 bluetooth rfkill driver");
+MODULE_DESCRIPTION("Microchip PIC32 CSR8811 bluetooth rfkill driver");
 MODULE_AUTHOR("Cristian Birsan <cristian.birsan@microchip.com>");
 MODULE_LICENSE("GPL");
 MODULE_ALIAS("platform:" DRIVER_NAME);
