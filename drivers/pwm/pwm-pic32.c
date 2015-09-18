@@ -129,7 +129,7 @@ static int pic32_pwm_probe(struct platform_device *pdev)
 		goto release_timer;
 	}
 
-	/* initalize PWM chip */
+	/* initialize PWM chip */
 	pic32_pwm->chip.dev = &pdev->dev;
 	pic32_pwm->chip.ops = &pic32_pwm_ops;
 	pic32_pwm->chip.base = -1;
@@ -190,5 +190,5 @@ module_platform_driver(pic32_pwm_driver);
 
 MODULE_ALIAS("platform:pic32-pwm");
 MODULE_AUTHOR("Purna Chandra Mandal <purna.mandal@microchip.com>");
-MODULE_DESCRIPTION("PIC32 PWM driver");
+MODULE_DESCRIPTION("Microchip PIC32 PWM driver");
 MODULE_LICENSE("GPL v2");
