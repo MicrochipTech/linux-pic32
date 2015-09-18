@@ -40,14 +40,14 @@ static const struct reg_default ak4953a_reg_defaults[] = {
 	{ 0x04, 0x10 },	/* 0x04	AK4953A_04_SIGNAL_SELECT3	*/
 	{ 0x05, 0x02 },	/* 0x05	AK4953A_05_MODE_CONTROL1	*/
 	{ 0x06, 0x00 },	/* 0x06	AK4953A_06_MODE_CONTROL2	*/
-	{ 0x07, 0x1D },	/* 0x07	AK4953A_07_MODE_CONTROL3		*/
-	{ 0x08, 0x00 },	/* 0x08	AK4953A_08_DIGITL_MIC	*/
-	{ 0x09, 0x01 },	/* 0x09	AK4953A_09_TIMER_SELECT	*/
+	{ 0x07, 0x1D },	/* 0x07	AK4953A_07_MODE_CONTROL3	*/
+	{ 0x08, 0x00 },	/* 0x08	AK4953A_08_DIGITL_MIC		*/
+	{ 0x09, 0x01 },	/* 0x09	AK4953A_09_TIMER_SELECT		*/
 	{ 0x0a, 0x30 },	/* 0x0A	AK4953A_0A_ALC_TIMER_SELECT	*/
 	{ 0x0b, 0x81 },	/* 0x0B	AK4953A_0B_ALC_MODE_CONTROL1	*/
 	{ 0x0c, 0xE1 },	/* 0x0C	AK4953A_0C_ALC_MODE_CONTROL2	*/
 	{ 0x0d, 0x28 },	/* 0x0D	AK4953A_0D_ALC_MODE_CONTROL3	*/
-	{ 0x0e, 0x91 },	/* 0x0E	AK4953A_0E_ALC_VOLUME	*/
+	{ 0x0e, 0x91 },	/* 0x0E	AK4953A_0E_ALC_VOLUME		*/
 	{ 0x0f, 0x91 },	/* 0x0F	AK4953A_0F_LCH_INPUT_VOLUME_CONTROL	*/
 	{ 0x10, 0x91 },	/* 0x10	AK4953A_10_RCH_INPUT_VOLUME_CONTROL	*/
 	{ 0x11, 0x91 },	/* 0x11	AK4953A_11_LCH_OUTPUT_VOLUME_CONTROL	*/
@@ -59,8 +59,8 @@ static const struct reg_default ak4953a_reg_defaults[] = {
 	{ 0x17, 0x00 },	/* 0x17	AK4953A_17_BEEP_OFF_TIME	*/
 	{ 0x18, 0x00 },	/* 0x18	AK4953A_18_BEEP_REPEAT_COUNT	*/
 	{ 0x19, 0x00 },	/* 0x19	AK4953A_19_BEEP_VOLUME_CONTROL	*/
-	{ 0x1a, 0x00 },	/* 0x1A	AK4953A_1A_RESERVED	*/
-	{ 0x1b, 0x00 },	/* 0x1B	AK4953A_1B_RESERVED	*/
+	{ 0x1a, 0x00 },	/* 0x1A	AK4953A_1A_RESERVED		*/
+	{ 0x1b, 0x00 },	/* 0x1B	AK4953A_1B_RESERVED		*/
 	{ 0x1c, 0x01 },	/* 0x1C	AK4953A_1C_DIGITAL_FILTER_SELECT1	*/
 	{ 0x1d, 0x03 },	/* 0x1D	AK4953A_1D_DIGITAL_FILTER_MODE	*/
 	{ 0x1e, 0xA9 },	/* 0x1E	AK4953A_1E_HPF2_COEFFICIENT0	*/
@@ -71,16 +71,16 @@ static const struct reg_default ak4953a_reg_defaults[] = {
 	{ 0x23, 0x0C },	/* 0x23	AK4953A_23_LPF_COEFFICIENT1	*/
 	{ 0x24, 0xFF },	/* 0x24	AK4953A_24_LPF_COEFFICIENT2	*/
 	{ 0x25, 0x38 },	/* 0x25	AK4953A_25_LPF_COEFFICIENT3	*/
-	{ 0x26, 0x00 },	/* 0x26	AK4953A_26_RESERVED	*/
-	{ 0x27, 0x00 },	/* 0x27	AK4953A_27_RESERVED	*/
-	{ 0x28, 0x00 },	/* 0x28	AK4953A_28_RESERVED	*/
-	{ 0x29, 0x00 },	/* 0x29	AK4953A_29_RESERVED	*/
-	{ 0x2a, 0x00 },	/* 0x2A	AK4953A_2A_RESERVED	*/
-	{ 0x2b, 0x00 },	/* 0x2B	AK4953A_2B_RESERVED	*/
-	{ 0x2c, 0x00 },	/* 0x2C	AK4953A_2C_RESERVED	*/
-	{ 0x2d, 0x00 },	/* 0x2D	AK4953A_2D_RESERVED	*/
-	{ 0x2e, 0x00 },	/* 0x2E	AK4953A_2E_RESERVED	*/
-	{ 0x2f, 0x00 },	/* 0x2F	AK4953A_2F_RESERVED	*/
+	{ 0x26, 0x00 },	/* 0x26	AK4953A_26_RESERVED		*/
+	{ 0x27, 0x00 },	/* 0x27	AK4953A_27_RESERVED		*/
+	{ 0x28, 0x00 },	/* 0x28	AK4953A_28_RESERVED		*/
+	{ 0x29, 0x00 },	/* 0x29	AK4953A_29_RESERVED		*/
+	{ 0x2a, 0x00 },	/* 0x2A	AK4953A_2A_RESERVED		*/
+	{ 0x2b, 0x00 },	/* 0x2B	AK4953A_2B_RESERVED		*/
+	{ 0x2c, 0x00 },	/* 0x2C	AK4953A_2C_RESERVED		*/
+	{ 0x2d, 0x00 },	/* 0x2D	AK4953A_2D_RESERVED		*/
+	{ 0x2e, 0x00 },	/* 0x2E	AK4953A_2E_RESERVED		*/
+	{ 0x2f, 0x00 },	/* 0x2F	AK4953A_2F_RESERVED		*/
 	{ 0x30, 0x00 },	/* 0x30	AK4953A_30_DIGITAL_FILTER_SELECT2	*/
 	{ 0x31, 0x00 },	/* 0x31	AK4953A_31_RESERVED		*/
 	{ 0x32, 0x68 },	/* 0x32	AK4953A_32_E1_COEFFICIENT0	*/
@@ -167,7 +167,7 @@ static DECLARE_TLV_DB_SCALE(dvolr2_tlv, -11550, 50, 1);
  */
 static DECLARE_TLV_DB_SCALE(spkout_tlv, 530, 200, 0);
 
-static const char *ak4953a_dem_select_texts[] = {
+static const char * const ak4953a_dem_select_texts[] = {
 	"44.1kHz", "Off", "48kHz", "32kHz"
 };
 
@@ -228,7 +228,7 @@ static const struct snd_kcontrol_new ak4953a_snd_controls[] = {
 		5, 1, 0),
 };
 
-static const char *ak4953a_adc1_select_texts[] = {
+static const char * const ak4953a_adc1_select_texts[] = {
 	"Stereo", "Mono"
 };
 
@@ -240,7 +240,7 @@ static const struct soc_enum ak4953a_adc1_mux_enum =
 static const struct snd_kcontrol_new ak4953a_adc1_mux_control =
 	SOC_DAPM_ENUM("ADC Switch1", ak4953a_adc1_mux_enum);
 
-static const char *ak4953a_adc2_select_texts[] = {
+static const char * const ak4953a_adc2_select_texts[] = {
 	"Stereo", "Mono"
 };
 
@@ -252,7 +252,7 @@ static const struct soc_enum ak4953a_adc2_mux_enum =
 static const struct snd_kcontrol_new ak4953a_adc2_mux_control =
 	SOC_DAPM_ENUM("ADC Switch2", ak4953a_adc2_mux_enum);
 
-static const char * ak4953a_line_texts[] = {
+static const char * const ak4953a_line_texts[] = {
 	"LRIN1", "LRIN2", "LRIN3"
 };
 
@@ -269,7 +269,7 @@ static const struct soc_enum ak4953a_input_mux_enum =
 static const struct snd_kcontrol_new ak4953a_input_select_controls =
 	SOC_DAPM_ENUM("Input Select", ak4953a_input_mux_enum);
 
-static const char *ak4953a_in1_select_texts[] = {
+static const char * const ak4953a_in1_select_texts[] = {
 	"IN1", "Mic Bias"
 };
 
@@ -281,7 +281,7 @@ static const struct soc_enum ak4953a_in1_mux_enum =
 static const struct snd_kcontrol_new ak4953a_in1_mux_control =
 	SOC_DAPM_ENUM("IN1 Switch", ak4953a_in1_mux_enum);
 
-static const char *ak4953a_in2_select_texts[] = {
+static const char * const ak4953a_in2_select_texts[] = {
 	"IN2", "Mic Bias"
 };
 
@@ -293,7 +293,7 @@ static const struct soc_enum ak4953a_in2_mux_enum =
 static const struct snd_kcontrol_new ak4953a_in2_mux_control =
 	SOC_DAPM_ENUM("IN2 Switch", ak4953a_in2_mux_enum);
 
-static const char *ak4953a_micbias_select_texts[] = {
+static const char * const ak4953a_micbias_select_texts[] = {
 	"IN1", "IN2"
 };
 
@@ -305,7 +305,7 @@ static const struct soc_enum ak4953a_micbias_mux_enum =
 static const struct snd_kcontrol_new ak4953a_micbias_mux_control =
 	SOC_DAPM_ENUM("MIC bias Select", ak4953a_micbias_mux_enum);
 
-static const char *ak4953a_adcpf_select_texts[] = {
+static const char * const ak4953a_adcpf_select_texts[] = {
 	"SDTI", "ADC"
 };
 
@@ -317,7 +317,7 @@ static const struct soc_enum ak4953a_adcpf_mux_enum =
 static const struct snd_kcontrol_new ak4953a_adcpf_mux_control =
 	SOC_DAPM_ENUM("ADCPF Select", ak4953a_adcpf_mux_enum);
 
-static const char *ak4953a_pfsdo_select_texts[] = {
+static const char * const ak4953a_pfsdo_select_texts[] = {
 	"ADC", "PFIL"
 };
 
@@ -329,7 +329,7 @@ static const struct soc_enum ak4953a_pfsdo_mux_enum =
 static const struct snd_kcontrol_new ak4953a_pfsdo_mux_control =
 	SOC_DAPM_ENUM("PFSDO Select", ak4953a_pfsdo_mux_enum);
 
-static const char *ak4953a_pfdac_select_texts[] = {
+static const char * const ak4953a_pfdac_select_texts[] = {
 	"SDTI", "PFIL"
 };
 
@@ -341,7 +341,7 @@ static const struct soc_enum ak4953a_pfdac_mux_enum =
 static const struct snd_kcontrol_new ak4953a_pfdac_mux_control =
 	SOC_DAPM_ENUM("PFDAC Select", ak4953a_pfdac_mux_enum);
 
-static const char *ak4953a_mic_select_texts[] = {
+static const char * const ak4953a_mic_select_texts[] = {
 	"AMIC", "DMIC"
 };
 
@@ -353,7 +353,7 @@ static const struct soc_enum ak4953a_mic_mux_enum =
 static const struct snd_kcontrol_new ak4953a_mic_mux_control =
 	SOC_DAPM_ENUM("MIC Select", ak4953a_mic_mux_enum);
 
-static const char *ak4953a_hpsw_select_texts[] = {
+static const char * const ak4953a_hpsw_select_texts[] = {
 	"Off", "On"
 };
 
@@ -393,10 +393,12 @@ static int ak4953a_spko_event(struct snd_soc_dapm_widget *w,
 static const struct snd_soc_dapm_widget ak4953a_dapm_widgets[] = {
 
 #ifdef PLL_32BICK_MODE
-	SND_SOC_DAPM_SUPPLY("PMPLL", AK4953A_01_POWER_MANAGEMENT2, 0, 0, NULL, 0),
+	SND_SOC_DAPM_SUPPLY("PMPLL", AK4953A_01_POWER_MANAGEMENT2, 0, 0,
+			NULL, 0),
 #else
 #ifdef PLL_64BICK_MODE
-	SND_SOC_DAPM_SUPPLY("PMPLL", AK4953A_01_POWER_MANAGEMENT2, 0, 0, NULL, 0),
+	SND_SOC_DAPM_SUPPLY("PMPLL", AK4953A_01_POWER_MANAGEMENT2, 0, 0,
+			NULL, 0),
 #endif
 #endif
 
@@ -408,33 +410,47 @@ static const struct snd_soc_dapm_widget ak4953a_dapm_widgets[] = {
 	SND_SOC_DAPM_OUTPUT("HPL"),
 	SND_SOC_DAPM_OUTPUT("HPR"),
 	SND_SOC_DAPM_PGA("SPK Amp", SND_SOC_NOPM, 0, 0, NULL, 0),
-	SND_SOC_DAPM_PGA("HPL Amp", AK4953A_01_POWER_MANAGEMENT2, 5, 0, NULL, 0),
-	SND_SOC_DAPM_PGA("HPR Amp", AK4953A_01_POWER_MANAGEMENT2, 4, 0, NULL, 0),
+	SND_SOC_DAPM_PGA("HPL Amp", AK4953A_01_POWER_MANAGEMENT2, 5, 0,
+			NULL, 0),
+	SND_SOC_DAPM_PGA("HPR Amp", AK4953A_01_POWER_MANAGEMENT2, 4, 0,
+			NULL, 0),
 	SND_SOC_DAPM_MIXER_E("SPKO Mixer", AK4953A_00_POWER_MANAGEMENT1, 4, 0,
-			&ak4953a_dacs_mixer_controls[0], ARRAY_SIZE(ak4953a_dacs_mixer_controls),
-			ak4953a_spko_event, (SND_SOC_DAPM_POST_PMU |SND_SOC_DAPM_PRE_PMD
-					|SND_SOC_DAPM_PRE_PMU |SND_SOC_DAPM_POST_PMD)),
-	SND_SOC_DAPM_MUX("DACHP", SND_SOC_NOPM, 0, 0, &ak4953a_hpsw_mux_control),
+			&ak4953a_dacs_mixer_controls[0],
+			ARRAY_SIZE(ak4953a_dacs_mixer_controls),
+			ak4953a_spko_event, (SND_SOC_DAPM_POST_PMU |
+					SND_SOC_DAPM_PRE_PMD |
+					SND_SOC_DAPM_PRE_PMU |
+					SND_SOC_DAPM_POST_PMD)),
+	SND_SOC_DAPM_MUX("DACHP", SND_SOC_NOPM, 0, 0,
+			&ak4953a_hpsw_mux_control),
 	SND_SOC_DAPM_AIF_OUT("SDTO", "Capture", 0, SND_SOC_NOPM, 0, 0),
 	SND_SOC_DAPM_AIF_IN("SDTI", "Playback", 0, SND_SOC_NOPM, 0, 0),
 
 	/* PFIL */
-	SND_SOC_DAPM_MUX("PFDAC MUX", SND_SOC_NOPM, 0, 0, &ak4953a_pfdac_mux_control),
-	SND_SOC_DAPM_MUX("PFSDO MUX", SND_SOC_NOPM, 0, 0, &ak4953a_pfsdo_mux_control),
-	SND_SOC_DAPM_MUX("ADCPF MUX", SND_SOC_NOPM, 0, 0, &ak4953a_adcpf_mux_control),
+	SND_SOC_DAPM_MUX("PFDAC MUX", SND_SOC_NOPM, 0, 0,
+			&ak4953a_pfdac_mux_control),
+	SND_SOC_DAPM_MUX("PFSDO MUX", SND_SOC_NOPM, 0, 0,
+			&ak4953a_pfsdo_mux_control),
+	SND_SOC_DAPM_MUX("ADCPF MUX", SND_SOC_NOPM, 0, 0,
+			&ak4953a_adcpf_mux_control),
 
 	/* Digital Mic */
 	SND_SOC_DAPM_INPUT("DMICLIN"),
 	SND_SOC_DAPM_INPUT("DMICRIN"),
 	SND_SOC_DAPM_ADC("DMICL", "NULL", AK4953A_08_DIGITL_MIC, 4, 0),
 	SND_SOC_DAPM_ADC("DMICR", "NULL", AK4953A_08_DIGITL_MIC, 5, 0),
-	SND_SOC_DAPM_MUX("MIC MUX", SND_SOC_NOPM, 0, 0, &ak4953a_mic_mux_control),
-	SND_SOC_DAPM_MUX("ADC MUX2", SND_SOC_NOPM, 0, 0, &ak4953a_adc2_mux_control),
+	SND_SOC_DAPM_MUX("MIC MUX", SND_SOC_NOPM, 0, 0,
+			&ak4953a_mic_mux_control),
+	SND_SOC_DAPM_MUX("ADC MUX2", SND_SOC_NOPM, 0, 0,
+			&ak4953a_adc2_mux_control),
 
 	/* ADC */
-	SND_SOC_DAPM_ADC("ADC Left", "NULL", AK4953A_00_POWER_MANAGEMENT1, 0, 0),
-	SND_SOC_DAPM_ADC("ADC Right", "NULL", AK4953A_00_POWER_MANAGEMENT1, 1, 0),
-	SND_SOC_DAPM_MUX("ADC MUX1", SND_SOC_NOPM, 0, 0, &ak4953a_adc1_mux_control),
+	SND_SOC_DAPM_ADC("ADC Left", "NULL", AK4953A_00_POWER_MANAGEMENT1,
+			0, 0),
+	SND_SOC_DAPM_ADC("ADC Right", "NULL", AK4953A_00_POWER_MANAGEMENT1,
+			1, 0),
+	SND_SOC_DAPM_MUX("ADC MUX1", SND_SOC_NOPM, 0, 0,
+			&ak4953a_adc1_mux_control),
 	SND_SOC_DAPM_ADC("PFIL", "NULL", AK4953A_00_POWER_MANAGEMENT1, 7, 0),
 
 	/* Analog Input  MIC Bias */
@@ -442,11 +458,14 @@ static const struct snd_soc_dapm_widget ak4953a_dapm_widgets[] = {
 	SND_SOC_DAPM_INPUT("LRIN2"),
 	SND_SOC_DAPM_INPUT("LRIN3"),
 	SND_SOC_DAPM_MICBIAS("Mic Bias", AK4953A_02_SIGNAL_SELECT1, 3, 0),
-	SND_SOC_DAPM_MUX("IN2 MUX", SND_SOC_NOPM, 0, 0, &ak4953a_in2_mux_control),
-	SND_SOC_DAPM_MUX("IN1 MUX", SND_SOC_NOPM, 0, 0, &ak4953a_in1_mux_control),
+	SND_SOC_DAPM_MUX("IN2 MUX", SND_SOC_NOPM, 0, 0,
+			&ak4953a_in2_mux_control),
+	SND_SOC_DAPM_MUX("IN1 MUX", SND_SOC_NOPM, 0, 0,
+			&ak4953a_in1_mux_control),
 	SND_SOC_DAPM_MUX("Input Select MUX", SND_SOC_NOPM, 0, 0,
 			&ak4953a_input_select_controls),
-	SND_SOC_DAPM_MUX("Mic Bias MUX", SND_SOC_NOPM, 0, 0, &ak4953a_micbias_mux_control),
+	SND_SOC_DAPM_MUX("Mic Bias MUX", SND_SOC_NOPM, 0, 0,
+			&ak4953a_micbias_mux_control),
 };
 
 static const struct snd_soc_dapm_route ak4953a_intercon[] = {
@@ -661,7 +680,8 @@ static int ak4953a_set_bias_level(struct snd_soc_codec *codec,
 				SNDRV_PCM_RATE_48000 | SNDRV_PCM_RATE_88200 | \
 				SNDRV_PCM_RATE_96000)
 
-#define AK4953A_FORMATS		SNDRV_PCM_FMTBIT_S16_LE | SNDRV_PCM_FMTBIT_S24_LE
+#define AK4953A_FORMATS		(SNDRV_PCM_FMTBIT_S16_LE | \
+				SNDRV_PCM_FMTBIT_S24_LE)
 
 static struct snd_soc_dai_ops ak4953a_dai_ops = {
 	.hw_params	= ak4953a_hw_params,
