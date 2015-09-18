@@ -26,4 +26,5 @@ config SND_PIC32_SOC_CODEC_AK4953A
 	select SND_PIC32_SOC_I2S
 	select SND_SOC_AK4953
 	help
-	  Say Y if you want to add support for Audio Codec AK4953A.
+	  Say Y if you want to add support for Audio Codec AK4953A on Microchip
+	  PIC32.

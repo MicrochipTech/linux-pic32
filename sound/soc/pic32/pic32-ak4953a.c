@@ -229,5 +229,5 @@ static struct platform_driver snd_pic32_ak4953a_driver = {
 module_platform_driver(snd_pic32_ak4953a_driver);
 
 MODULE_AUTHOR("Joshua Henderson <joshua.henderson@microchip.com>");
-MODULE_DESCRIPTION("ASoC Driver for PIC32 connected to AK4953A");
+MODULE_DESCRIPTION("ASoC Driver for Microchip PIC32 with AK4953A");
 MODULE_LICENSE("GPL");
