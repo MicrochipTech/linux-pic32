@@ -175,5 +175,5 @@ static struct platform_driver snd_pic32_proto_driver = {
 module_platform_driver(snd_pic32_proto_driver);
 
 MODULE_AUTHOR("Joshua Henderson <joshua.henderson@microchip.com>");
-MODULE_DESCRIPTION("ASoC Driver for PIC32 connected to PROTO board (WM8731)");
+MODULE_DESCRIPTION("ASoC Driver for Microchip PIC32 with PROTO board (WM8731)");
 MODULE_LICENSE("GPL");

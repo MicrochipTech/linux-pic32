@@ -13,12 +13,13 @@ config SND_PIC32_SOC
 	  to select the audio interfaces to support below.
 
 config SND_PIC32_SOC_CODEC_PROTO
-	tristate "Support for Audio Codec Board - PROTO (WM8731)"
+	tristate "Support for Audio Codec Board PROTO (WM8731)"
 	depends on SND_PIC32_SOC
 	select SND_PIC32_SOC_I2S
 	select SND_SOC_WM8731
 	help
-	  Say Y if you want to add support for Audio Codec Board - PROTO (WM8731)
+	  Say Y if you want to add support for Audio Codec Board - PROTO
+	  (WM8731) on PIC32.
 
 config SND_PIC32_SOC_CODEC_AK4953A
 	tristate "Support for Audio Codec AK4953A"
