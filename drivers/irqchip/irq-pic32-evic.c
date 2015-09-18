@@ -232,9 +232,12 @@ static int evic_intc_map(struct irq_domain *irqd, unsigned int virq,
 	return 0;
 }
 
-static int evic_irq_domain_xlate(struct irq_domain *d, struct device_node *ctrlr,
-				const u32 *intspec, unsigned int intsize,
-				irq_hw_number_t *out_hwirq, unsigned int *out_type)
+static int evic_irq_domain_xlate(struct irq_domain *d,
+				struct device_node *ctrlr,
+				const u32 *intspec,
+				unsigned int intsize,
+				irq_hw_number_t *out_hwirq,
+				unsigned int *out_type)
 {
 	/* Check for number of params */
 	if (WARN_ON(intsize < 3))
