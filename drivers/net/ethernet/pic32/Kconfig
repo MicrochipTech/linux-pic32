@@ -20,7 +20,7 @@ config NET_PIC32
 
 if NET_PIC32
 
-config MIPS_PIC32_ETHER
+config PIC32_ETHER
 	tristate "Microchip PIC32 Ethernet support"
 	default y
 	select PHYLIB
