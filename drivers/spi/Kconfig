@@ -243,8 +243,8 @@ config SPI_IMG_SPFI
 	  This enables support for the SPFI master controller found on
 	  IMG SoCs.
 
-config SPI_GPIO_PIC32MZ
-	tristate "Microchip PIC32MZ GPIO-based bitbanging SPI Master"
+config SPI_GPIO_PIC32
+	tristate "Microchip PIC32 GPIO-based bitbanging SPI Master"
 	depends on GPIOLIB && !SPI_GPIO
 	select SPI_BITBANG
 	help
