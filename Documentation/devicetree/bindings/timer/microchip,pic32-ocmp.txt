@@ -20,7 +20,7 @@ Example:
 ocmp1@0 {
 	#oc-cells = <0>;
 	compatible = "microchip,pic32-ocmp";
-	reg = <0xbf844000 0x30>;
+	reg = <0x1f844000 0x30>;
 	interrupts = <0>;
 	oc-id = <1>;
 	microchip,oc-32bit; /* class B, 32-bit combined timer; usable for ADC */
