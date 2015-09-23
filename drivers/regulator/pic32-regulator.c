@@ -29,7 +29,7 @@
 #define VIN_SUPPLY_VDD	0
 #define VIN_SUPPLY_VREF	1
 #define CVRR		BIT(5)
-#define CVRON		(BIT(15)|BIT(6)) /* ON + output enable */
+#define CVRON		(BIT(15) | BIT(6)) /* ON + output enable */
 
 struct pic32_regulator {
 	void __iomem *regs;
@@ -65,7 +65,7 @@ static int pic32_regulator_get_voltage_sel(struct regulator_dev *rdev)
 }
 
 static int pic32_regulator_set_voltage_sel(struct regulator_dev *rdev,
-					    unsigned selector)
+					   unsigned selector)
 {
 	struct pic32_regulator *reg;
 	unsigned long v;
@@ -80,7 +80,7 @@ static int pic32_regulator_set_voltage_sel(struct regulator_dev *rdev,
 }
 
 static int pic32_regulator_list_voltage(struct regulator_dev *rdev,
-					 unsigned selector)
+					unsigned selector)
 {
 	int uV;
 	struct pic32_regulator *reg;
@@ -141,11 +141,7 @@ static const struct regulator_desc _reg_desc = {
 	.type		= REGULATOR_VOLTAGE,
 	.owner		= THIS_MODULE,
 	.n_voltages	= 16,
-#if 0
-	.supply_name    = "vref",
-#endif
 };
-
 
 static int pic32_regulator_probe(struct platform_device *pdev)
 {
@@ -155,7 +151,8 @@ static int pic32_regulator_probe(struct platform_device *pdev)
 	struct regulator_dev *regulator;
 	struct regulator_config config = { };
 	struct device_node *np;
-	int vout_range = 0, uVin_supply, vin_supply_src = VIN_SUPPLY_VDD;
+	int vout_range = 0;
+	int uvin_supply, vin_supply_src = VIN_SUPPLY_VDD;
 
 	reg = devm_kzalloc(&pdev->dev, sizeof(*reg), GFP_KERNEL);
 	if (!reg)
@@ -175,9 +172,8 @@ static int pic32_regulator_probe(struct platform_device *pdev)
 		return -EINVAL;
 	}
 
-
-	of_property_read_u32(np, "pic32,regulator-vin-uV", &uVin_supply);
-	if (!uVin_supply) {
+	of_property_read_u32(np, "pic32,regulator-vin-uV", &uvin_supply);
+	if (!uvin_supply) {
 		dev_err(&pdev->dev, "incorrect input supply\n");
 		return -EINVAL;
 	}
@@ -185,7 +181,7 @@ static int pic32_regulator_probe(struct platform_device *pdev)
 	of_property_read_u32(np, "pic32,regulator-vout-select", &vout_range);
 
 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-	if (mem == NULL) {
+	if (!mem) {
 		dev_err(&pdev->dev, "no mem resource ?\n");
 		return -ENOENT;
 	}
@@ -202,7 +198,7 @@ static int pic32_regulator_probe(struct platform_device *pdev)
 	/* force voltage output range */
 	reg->vout_range = vout_range;
 
-	reg->vin_supply = uVin_supply;
+	reg->vin_supply = uvin_supply;
 
 	config.init_data = of_get_regulator_init_data(&pdev->dev, np,
 						      &_reg_desc);
