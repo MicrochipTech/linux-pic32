@@ -7,7 +7,7 @@ running counter. Two consecutive 16-bit timers can be combined to form one
 Required properties:
 
 - compatible : should be one of the followings
-	"microchip,pic32-timer"      16-bit class-B timer.
+	"microchip,pic32-timer"		16-bit class-B timer.
 	"microchip,pic32-timerA"	16-bit class-A timer
 	"microchip,pic32-timer32"	32-bit class-B timer
 	"microchip,pic32-timer-adc"	16-bit ADC event trigger timer.
@@ -34,7 +34,7 @@ Example:
 pbtimer4:pbtimer4 {
 	#timer-cells = <0>;
 	compatible = "microchip,pic32-timer";
-	reg = <0xbf840600 0x400>;
+	reg = <0x1f840600 0x400>;
 	interrupts = <0>;
 	clocks = <&PBCLK3>, <&TxCKI>;
 	timer-id = <4>;
