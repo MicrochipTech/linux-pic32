@@ -1,7 +1,7 @@
 /*
  * pic32 pinctrl core driver.
  *
- * Copyright (C) 2014 Microchip Technology, Inc.
+ * Copyright (C) 2015 Microchip Technology, Inc.
  * Author: Sorin-Andrei Pistirica <andrei.pistirica@microchip.com>
  *
  * Licensed under GPLv2 or later.
@@ -37,7 +37,6 @@
  * @gpio_irqchip: irq chip descriptor related to pin bank
  * @domain: associated irq domain
  * @pio_irq: PIO bank hardware interrupt
- * @port_shadow: shadow port value (detect fall/rise irqs)
  * @type: type of interrupt per pin: RISE, FALL or BOTH.
  **/
 struct pic32_gpio_irq {
@@ -45,7 +44,6 @@ struct pic32_gpio_irq {
 	struct irq_domain	*domain;
 	int			pio_irq;
 
-	u32			port_shadow;
 	u32			type[PINS_PER_BANK];
 };
 
@@ -417,6 +415,7 @@ static int pic32_gpio_to_irq(struct gpio_chip *chip, unsigned offset)
 
 	dev_dbg(chip->dev, "%s: request IRQ for GPIO:%d, return:%d\n",
 				__func__, offset + chip->base, virq);
+
 	return virq;
 }
 
@@ -465,13 +464,61 @@ static void pic32_gpio_ranges_setup(struct platform_device *pdev,
 	dev_dbg(&pdev->dev, "%s: GPIO-%c ranges: (%d,%d)\n", __func__,
 				'A' + range->id,
 				pic32_chip->gpio_base, pic32_chip->ngpio);
+}
 
-	return;
+
+static inline void
+pic32_gpio_irq_rise_dset(struct pic32_gpio_chip *pic32_chip, unsigned pin)
+{
+	struct pic32_reg __iomem *cncon_reg = (struct pic32_reg __iomem *)
+				pic32_pio_get_reg(pic32_chip, PIC32_CNCON);
+	struct pic32_reg __iomem *cnen_reg = (struct pic32_reg __iomem *)
+				pic32_pio_get_reg(pic32_chip, PIC32_CNEN);
+	u32 cn_en = BIT(PIC32_CNCON_ON);
+	u32 cn_edge = BIT(PIC32_CNCON_EDGE);
+	u32 pin_mask = BIT(pin);
+
+	/* enable RISE detection */
+	writel(pin_mask, &cnen_reg->set);
+
+	/* enable CN-EDGE detection */
+	writel(cn_edge, &cncon_reg->set);
+
+	/* enable CN module */
+	writel(cn_en, &cncon_reg->set);
+
+	dev_dbg(pic32_chip->chip.dev, "%s: CN rise edge set for pin:%u\n",
+		__func__, pin);
+}
+
+static inline void
+pic32_gpio_irq_fall_dset(struct pic32_gpio_chip *pic32_chip, unsigned pin)
+{
+	struct pic32_reg __iomem *cncon_reg = (struct pic32_reg __iomem *)
+				pic32_pio_get_reg(pic32_chip, PIC32_CNCON);
+	struct pic32_reg __iomem *cnne_reg = (struct pic32_reg __iomem *)
+				pic32_pio_get_reg(pic32_chip, PIC32_CNNE);
+	u32 cn_en = BIT(PIC32_CNCON_ON);
+	u32 cn_edge = BIT(PIC32_CNCON_EDGE);
+	u32 pin_mask = BIT(pin);
+
+	/* enable FALL detection */
+	writel(pin_mask, &cnne_reg->set);
+
+	/* enable CN-EDGE detection */
+	writel(cn_edge, &cncon_reg->set);
+
+	/* enable CN module */
+	writel(cn_en, &cncon_reg->set);
+
+	dev_dbg(pic32_chip->chip.dev, "%s: CN fall edge set for pin:%u\n",
+		__func__, pin);
 }
 
 static unsigned int gpio_irq_startup(struct irq_data *d)
 {
 	struct pic32_gpio_chip *pic32_chip = irq_data_get_irq_chip_data(d);
+	struct pic32_gpio_irq *gpio_irq = &pic32_chip->gpio_irq;
 	unsigned pin = d->hwirq;
 	int ret;
 
@@ -480,6 +527,22 @@ static unsigned int gpio_irq_startup(struct irq_data *d)
 		dev_err(pic32_chip->chip.dev, "unable to lock pind %lu IRQ\n",
 			d->hwirq);
 		return ret;
+	}
+
+	/* start CN */
+	switch (gpio_irq->type[pin]) {
+	case IRQ_TYPE_EDGE_RISING:
+		pic32_gpio_irq_rise_dset(pic32_chip, pin);
+	break;
+	case IRQ_TYPE_EDGE_FALLING:
+		pic32_gpio_irq_fall_dset(pic32_chip, pin);
+	break;
+	case IRQ_TYPE_EDGE_BOTH:
+		pic32_gpio_irq_rise_dset(pic32_chip, pin);
+		pic32_gpio_irq_fall_dset(pic32_chip, pin);
+	break;
+	default:
+		return -EINVAL;
 	}
 
 	dev_dbg(pic32_chip->chip.dev, "%s: irq lock pin:%u\n", __func__, pin);
@@ -517,25 +580,6 @@ static int gpio_irq_type(struct irq_data *d, unsigned type)
 	}
 }
 
-static inline void
-pic32_gpio_irq_shadow_set(struct pic32_gpio_chip *pic32_chip,
-			  u32 shadow_val)
-{
-	struct pic32_gpio_irq *gpio_irq = &pic32_chip->gpio_irq;
-
-	gpio_irq->port_shadow = shadow_val;
-}
-
-static inline u32
-pic32_gpio_irq_shadow_get(struct pic32_gpio_chip *pic32_chip)
-{
-	struct pic32_gpio_irq *gpio_irq = &pic32_chip->gpio_irq;
-	u32 shadow;
-
-	shadow = gpio_irq->port_shadow;
-	return shadow;
-}
-
 /* map virtual irq on hw irq: domain translation */
 static int pic32_gpio_irq_map(struct irq_domain *d,
 			      unsigned int virq,
@@ -544,32 +588,9 @@ static int pic32_gpio_irq_map(struct irq_domain *d,
 	struct pic32_gpio_chip *pic32_chip = d->host_data;
 	struct pic32_gpio_irq *gpio_irq = &pic32_chip->gpio_irq;
 	struct irq_chip *irqchip = &gpio_irq->gpio_irqchip;
-	struct pic32_reg __iomem *port_reg = (struct pic32_reg __iomem *)
-				pic32_pio_get_reg(pic32_chip, PIC32_PORT);
-	struct pic32_reg __iomem *cncon_reg = (struct pic32_reg __iomem *)
-				pic32_pio_get_reg(pic32_chip, PIC32_CNCON);
-	struct pic32_reg __iomem *cnen_reg = (struct pic32_reg __iomem *)
-				pic32_pio_get_reg(pic32_chip, PIC32_CNEN);
-	u32 cn_en = BIT(PIC32_CNCON_BIT);
-	u32 cnpin_mask = BIT(virq); /* virq is actually the pin */
-	unsigned long flags;
 
 	dev_dbg(pic32_chip->chip.dev, "%s: GPIO-%c:%d map virq:%u\n", __func__,
 				'A' + pic32_chip->pio_idx, virq, virq);
-
-	/* enable irq on pin 'virq' and protect shadow */
-	local_irq_save(flags);
-
-	/* enable CN module */
-	writel(cn_en, &cncon_reg->set);
-
-	/* enable PIN */
-	writel(cnpin_mask, &cnen_reg->set);
-
-	/* set shadow to diferentiate between RISE and FALL edges */
-	pic32_gpio_irq_shadow_set(pic32_chip, readl(&port_reg->val));
-
-	local_irq_restore(flags);
 
 	/* set the gpioX chip */
 	irq_set_chip(virq, irqchip);
@@ -616,13 +637,19 @@ static struct irq_domain_ops pic32_gpio_irqd_ops = {
 };
 
 static unsigned long pic32_gpio_to_isr(struct pic32_gpio_chip *pic32_chip,
-				       int cnstat, int portval)
+					int status)
 {
 	struct pic32_gpio_irq *gpio_irq = &pic32_chip->gpio_irq;
-	u32 shadow = pic32_gpio_irq_shadow_get(pic32_chip);
-	unsigned long isr = (unsigned long)cnstat;
+	struct pic32_reg __iomem *cnne_reg = (struct pic32_reg __iomem *)
+				pic32_pio_get_reg(pic32_chip, PIC32_CNNE);
+	struct pic32_reg __iomem *cnen_reg = (struct pic32_reg __iomem *)
+				pic32_pio_get_reg(pic32_chip, PIC32_CNEN);
+	unsigned long isr = (unsigned long)status;
 	unsigned long visr = 0;
 	int pin;
+
+	int cnen_rise = readl(cnen_reg);
+	int cnne_fall = readl(cnne_reg);
 
 	/* for each change that occured, match with irq type and
 	 *   set it accordingly.
@@ -630,17 +657,15 @@ static unsigned long pic32_gpio_to_isr(struct pic32_gpio_chip *pic32_chip,
 	visr = 0;
 	for_each_set_bit(pin, &isr, BITS_PER_BYTE * sizeof(u32)) {
 		u32 mask = BIT(pin);
-		bool type_rise = gpio_irq->type[pin] == IRQ_TYPE_EDGE_RISING;
-		bool type_fall = gpio_irq->type[pin] == IRQ_TYPE_EDGE_FALLING;
+		bool type_rise = (gpio_irq->type[pin] == IRQ_TYPE_EDGE_RISING);
+		bool type_fall = (gpio_irq->type[pin] == IRQ_TYPE_EDGE_FALLING);
 		bool type_both = gpio_irq->type[pin] == IRQ_TYPE_EDGE_BOTH;
-		bool rise = !(shadow & mask) && (portval & mask);
-		bool fall = (shadow & mask) && !(portval & mask);
+		bool rise = cnen_rise & mask;
+		bool fall = cnne_fall & mask;
 
 		if ((type_rise && rise) || (type_fall && fall) || type_both)
 			visr |= mask;
 	}
-
-	pic32_gpio_irq_shadow_set(pic32_chip, portval);
 
 	return visr;
 }
@@ -651,30 +676,23 @@ static void gpio_irq_handler(unsigned irq, struct irq_desc *desc)
 	struct irq_data *idata = irq_desc_get_irq_data(desc);
 	struct pic32_gpio_chip *pic32_chip = irq_data_get_irq_chip_data(idata);
 	struct pic32_gpio_irq *gpio_irq = &pic32_chip->gpio_irq;
-	struct pic32_reg __iomem *cnstat_reg = (struct pic32_reg __iomem *)
-				pic32_pio_get_reg(pic32_chip, PIC32_CNSTAT);
-	struct pic32_reg __iomem *port_reg = (struct pic32_reg __iomem *)
-				pic32_pio_get_reg(pic32_chip, PIC32_PORT);
-	int cnstat;
-	int portval;
+	struct pic32_reg __iomem *cnf_reg = (struct pic32_reg __iomem *)
+				pic32_pio_get_reg(pic32_chip, PIC32_CNF);
+	u32 cnfstat = 0;
 	unsigned long isr;
-	unsigned long flags;
 	int n;
 
-	/* protect shadow */
-	local_irq_save(flags);
+	/* read CN status */
+	cnfstat = readl(cnf_reg);
 
-	/* read & clear port's change notificaiton register */
-	cnstat = readl(&cnstat_reg->val);
-	portval = readl(&port_reg->val);
+	/* set a logical isr based on CN status */
+	isr = pic32_gpio_to_isr(pic32_chip, cnfstat);
+	dev_dbg(pic32_chip->chip.dev, "%s: isr:0x%lx\n", __func__, isr);
 
-	dev_dbg(pic32_chip->chip.dev, "%s: cnstat:0x%x port:0x%x pioirq:%u\n",
-		 __func__, cnstat, portval, gpio_irq->pio_irq);
+	/* clear CN source */
+	writel(cnfstat, &cnf_reg->clr);
 
 	chained_irq_enter(chip, desc);
-
-	/* set a logical isr based on type and status */
-	isr = pic32_gpio_to_isr(pic32_chip, cnstat, portval);
 
 	/* for each interrupt, call handle */
 	for_each_set_bit(n, &isr, BITS_PER_LONG) {
@@ -684,10 +702,6 @@ static void gpio_irq_handler(unsigned irq, struct irq_desc *desc)
 	}
 
 	chained_irq_exit(chip, desc);
-
-	local_irq_restore(flags);
-
-	return;
 }
 
 static int pic32_gpio_of_irq_setup(struct platform_device *pdev,
@@ -946,8 +960,15 @@ static int pic32_pinconf_set(struct pic32_pinctrl_data *data,
 {
 	struct pic32_caps *caps = &data->caps;
 
-	/* check */
-	PIC32_CHECK_PINCONF_CAPS(data->dev, conf, caps);
+	/* check if pin configuration is supported */
+	if (!(conf & caps->pinconf_caps) &&
+	    !(conf & caps->pinconf_outcaps) &&
+	    !(conf & caps->pinconf_incaps)) {
+
+		dev_err(data->dev, "pin configuration not supported %lu\n",
+			conf);
+		return -EINVAL;
+	}
 
 	/* set direction */
 	pic32_pinconf_set_dir(pic32_chip, pin, conf);
@@ -1163,10 +1184,14 @@ static unsigned pic32_get_ppsout_offset(struct pic32_pinctrl_data *data,
 					unsigned bank, unsigned pin)
 {
 	struct pic32_pps_off *pps_off = data->pps_off;
+	unsigned (*lookup)[MAX_PIO_BANKS][PINS_PER_BANK];
 
-	PIC32_CHECK_PPSOUT_OFF(bank, pin, (*pps_off->ppsout_lookup_off));
+	lookup = pps_off->ppsout_lookup_off;
+	if (bank >= MAX_PIO_BANKS || pin > PINS_PER_BANK ||
+	    (*lookup)[bank][pin] == PIC32_OFF_UNSPEC)
+		return -EINVAL;
 
-	return (*pps_off->ppsout_lookup_off)[bank][pin];
+	return (*lookup)[bank][pin];
 }
 
 /* set a particular OUT mux function for a particular
@@ -1194,10 +1219,12 @@ static unsigned pic32_get_ppsin_offset(struct pic32_pinctrl_data *data,
 				       unsigned ppin)
 {
 	struct pic32_pps_off *pps_off = data->pps_off;
+	unsigned (*lookup)[PP_MAX] = pps_off->ppsin_lookup_off;
 
-	PIC32_CHECK_PPSIN_OFF(ppin, (*pps_off->ppsin_lookup_off));
+	if ((*lookup)[ppin] == PIC32_OFF_UNSPEC)
+		return -EINVAL;
 
-	return (*pps_off->ppsin_lookup_off)[ppin];
+	return (*lookup)[ppin];
 }
 
 /* set a particular IN mux function for a particular
@@ -1306,8 +1333,6 @@ static void pic32_gpio_disable_free(struct pinctrl_dev *pctldev,
 
 	dev_dbg(data->dev, "%s: free pin %u as GPIO-%c:%d\n", __func__,
 			offset, 'A' + range->id, offset - chip->base);
-
-	return;
 }
 
 /* pinmux operations */
@@ -1554,7 +1579,7 @@ static int pic32_pinctrl_parse_single_pins(struct platform_device *pdev,
 		goto out_err;
 	}
 
-	u32array = kzalloc(u32array_size*sizeof(u32), GFP_KERNEL);
+	u32array = kcalloc(u32array_size, sizeof(u32), GFP_KERNEL);
 	if (!u32array) {
 		ret = -ENOMEM;
 		goto out_err;
@@ -1625,7 +1650,7 @@ static int pic32_pinctrl_parse_pins(struct platform_device *pdev,
 
 
 	/* get pinmux entries */
-	u32array = kzalloc(u32array_size*sizeof(u32), GFP_KERNEL);
+	u32array = kcalloc(u32array_size, sizeof(u32), GFP_KERNEL);
 	if (!u32array) {
 		ret = -ENOMEM;
 		goto out_err;
@@ -2001,3 +2026,4 @@ probe_err:
 		devm_kfree(&pdev->dev, data);
 	return ret;
 }
+

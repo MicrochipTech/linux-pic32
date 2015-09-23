@@ -79,18 +79,6 @@ struct pin_conf {
 	u32 dir:2,
 	    conf:30;
 };
-#define PIC32_CHECK_PINCONF_CAPS(dev, pinconf, caps)			\
-	do {								\
-		if (!(pinconf & caps->pinconf_caps) &&			\
-		    !(pinconf & caps->pinconf_outcaps) &&		\
-		    !(pinconf & caps->pinconf_incaps)) {		\
-									\
-			dev_err(dev,					\
-				"pin configuration not supported %lu\n",\
-				pinconf);				\
-			return -EINVAL;					\
-		}							\
-	} while (0)
 
 /* struct pic32_reg - pic register
  * @val: register value
@@ -136,7 +124,8 @@ enum pic32_pio_regs {
 		if (reg > size || lookup[reg] == PIC32_OFF_UNSPEC)	\
 			BUG();						\
 	} while (0)
-#define PIC32_CNCON_BIT	15
+#define PIC32_CNCON_EDGE	11
+#define PIC32_CNCON_ON		15
 
 
 /* struct pic32_pps_off - pps registers mapping
@@ -153,18 +142,6 @@ struct pic32_pps_off {
 	unsigned (*ppsout_lookup_off)[MAX_PIO_BANKS][PINS_PER_BANK];
 	unsigned (*ppsin_lookup_off)[PP_MAX];
 };
-#define PIC32_CHECK_PPSOUT_OFF(bank, pin, lookup)		\
-	do {							\
-		if (bank >= MAX_PIO_BANKS ||			\
-		    pin > PINS_PER_BANK ||			\
-		    lookup[bank][pin] == PIC32_OFF_UNSPEC)	\
-			return -EINVAL;				\
-	} while (0)
-#define PIC32_CHECK_PPSIN_OFF(pin, lookup)			\
-	do {							\
-		if (lookup[pin] == PIC32_OFF_UNSPEC)		\
-			return -EINVAL;				\
-	} while (0)
 
 /* struct pic32_caps - pin configuration capabilities
  * @pinconf_incaps: pin configuration input capabilities

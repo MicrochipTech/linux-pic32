@@ -1,7 +1,7 @@
 /*
  * This header provides constants for PIC32MZDA pinctrl bindings.
  *
- * Copyright (C) 2014 Sorin-Andrei Pistirica <andrei.pistirica@microchip.com>
+ * Copyright (C) 2015 Sorin-Andrei Pistirica <andrei.pistirica@microchip.com>
  *
  * GPLv2 or later.
 */
@@ -265,7 +265,6 @@
 #define PIC32_RP_IN_RPD5	(RP(PORT_D, 5, BUCKET_D, DIR_IN) | COD(0x6))
 #define PIC32_RP_IN_RPB2	(RP(PORT_B, 2, BUCKET_D, DIR_IN) | COD(0x7))
 #define PIC32_RP_IN_RPF3	(RP(PORT_F, 3, BUCKET_D, DIR_IN) | COD(0x8))
-#define PIC32_RP_IN_RPF13	(RP(PORT_F, 13, BUCKET_D, DIR_IN) | COD(0x9))
 #define PIC32_RP_IN_RPF2	(RP(PORT_F, 2, BUCKET_D, DIR_IN) | COD(0xB))
 #define PIC32_RP_IN_RPC2	(RP(PORT_C, 2, BUCKET_D, DIR_IN) | COD(0xC))
 #define PIC32_RP_IN_RPE8	(RP(PORT_E, 8, BUCKET_D, DIR_IN) | COD(0xD))
@@ -320,7 +319,6 @@
 #define PIC32_RP_OUT_RPD5	(RP(PORT_D, 5, BUCKET_D, DIR_OUT))
 #define PIC32_RP_OUT_RPB2	(RP(PORT_B, 2, BUCKET_D, DIR_OUT))
 #define PIC32_RP_OUT_RPF3	(RP(PORT_F, 3, BUCKET_D, DIR_OUT))
-#define PIC32_RP_OUT_RPF13	(RP(PORT_F, 13, BUCKET_D, DIR_OUT))
 #define PIC32_RP_OUT_RPC2	(RP(PORT_C, 2, BUCKET_D, DIR_OUT))
 #define PIC32_RP_OUT_RPE8	(RP(PORT_E, 8, BUCKET_D, DIR_OUT))
 #define PIC32_RP_OUT_RPF2	(RP(PORT_F, 2, BUCKET_D, DIR_OUT))
