@@ -24,8 +24,6 @@
 #include <asm/mach-pic32/pbtimer.h>
 #include <asm/mach-pic32/pic32.h>
 
-struct pic32_pb_timer;
-
 struct pic32_ocmp {
 	/* provided by OF */
 	unsigned int id;
@@ -35,24 +33,24 @@ struct pic32_ocmp {
 	unsigned long capability;
 	/* internal */
 	struct list_head link;
-	struct mutex mutex;
+	struct mutex _mutex; /* multi client*/
 	spinlock_t lock;
 	unsigned long flags;
 	struct pic32_pb_timer *tmr;
 };
 
 /* Output Compare Registers */
-#define OCxCON	0x00
-#define OCxR	0x10
-#define OCxRS	0x20
+#define OCCON		0x00
+#define OCR		0x10
+#define OCRS		0x20
 
 /* Output Compare Control Register fields */
-#define OCxCON_OCM	0x07    /* select OC operating mode */
-#define OCxCON_OCM_SHIFT	0
-#define OCxCON_ON	BIT(15) /* enable/disable module */
-#define OCxCON_OC32	BIT(5)  /* 32-bit dual module */
-#define OCxCON_OCFLT	BIT(4)  /* detect PWM fault */
-#define OCxCON_OCTSEL	BIT(3)  /* select Time source(TimerY) */
+#define OCCON_OCM		0x07    /* select OC operating mode */
+#define OCCON_OCM_SHIFT		0
+#define OCCON_ON		BIT(15) /* enable/disable module */
+#define OCCON_OC32		BIT(5)  /* 32-bit dual module */
+#define OCCON_OCFLT		BIT(4)  /* detect PWM fault */
+#define OCCON_OCTSEL		BIT(3)  /* select Time source(TimerY) */
 
 /* OC capability/flags */
 #define PIC32_OC_BUSY		BIT(0)
@@ -66,7 +64,7 @@ struct pic32_ocmp {
 #define oc_set_busy(__oc)	((__oc)->flags |= PIC32_OC_BUSY)
 #define oc_clr_busy(__oc)	((__oc)->flags &= ~PIC32_OC_BUSY)
 
-#if 0
+#ifdef DEBUG
 #define dbg_oc(fmt, args...) \
 	pr_info("%s:%d::" fmt, __func__, __LINE__, ##args)
 #else
@@ -95,72 +93,72 @@ static inline u32 oc_readl(struct pic32_ocmp *oc, unsigned long offset)
 
 static inline void oc_disable(struct pic32_ocmp *oc)
 {
-	oc_writel(OCxCON_ON, oc, PIC32_CLR(OCxCON));
+	oc_writel(OCCON_ON, oc, PIC32_CLR(OCCON));
 }
 
 static inline void oc_enable(struct pic32_ocmp *oc)
 {
-	oc_writel(OCxCON_ON, oc, PIC32_SET(OCxCON));
+	oc_writel(OCCON_ON, oc, PIC32_SET(OCCON));
 }
 
 static inline void oc_set_32bit(u8 v, struct pic32_ocmp *oc)
 {
 	if (v)
-		oc_writel(OCxCON_OC32, oc, PIC32_SET(OCxCON));
+		oc_writel(OCCON_OC32, oc, PIC32_SET(OCCON));
 	else
-		oc_writel(OCxCON_OC32, oc, PIC32_CLR(OCxCON));
+		oc_writel(OCCON_OC32, oc, PIC32_CLR(OCCON));
 }
 
 static inline void oc_set_timer_id(u8 v, struct pic32_ocmp *oc)
 {
 	if (v & 1) /* TimerY is time-base */
-		oc_writel(OCxCON_OCTSEL, oc, PIC32_SET(OCxCON));
+		oc_writel(OCCON_OCTSEL, oc, PIC32_SET(OCCON));
 	else
-		oc_writel(OCxCON_OCTSEL, oc, PIC32_CLR(OCxCON));
+		oc_writel(OCCON_OCTSEL, oc, PIC32_CLR(OCCON));
 }
 
 static inline void oc_set_mode(u8 mode, struct pic32_ocmp *oc)
 {
 	u32 v;
 
-	v = oc_readl(oc, OCxCON);
-	v &= ~(OCxCON_OCM << OCxCON_OCM_SHIFT);
-	v |= (mode << OCxCON_OCM_SHIFT);
-	if (v != oc_readl(oc, OCxCON))
-		oc_writel(v, oc, OCxCON);
+	v = oc_readl(oc, OCCON);
+	v &= ~(OCCON_OCM << OCCON_OCM_SHIFT);
+	v |= (mode << OCCON_OCM_SHIFT);
+	if (v != oc_readl(oc, OCCON))
+		oc_writel(v, oc, OCCON);
 }
 
 static inline u8 oc_get_mode(struct pic32_ocmp *oc)
 {
 	u32 v;
 
-	v = oc_readl(oc, OCxCON);
-	return (v >> OCxCON_OCM_SHIFT) & OCxCON_OCM;
+	v = oc_readl(oc, OCCON);
+	return (v >> OCCON_OCM_SHIFT) & OCCON_OCM;
 }
 
 static inline int oc_is_fault(struct pic32_ocmp *oc)
 {
-	return !!(oc_readl(oc, OCxCON) & OCxCON_OCFLT);
+	return !!(oc_readl(oc, OCCON) & OCCON_OCFLT);
 }
 
 static inline u32 oc_read_comp(struct pic32_ocmp *oc)
 {
-	return oc_readl(oc, OCxR);
+	return oc_readl(oc, OCR);
 }
 
 static inline u32 oc_read_sec_comp(struct pic32_ocmp *oc)
 {
-	return oc_readl(oc, OCxRS);
+	return oc_readl(oc, OCRS);
 }
 
 static inline void oc_write_comp(u32 v, struct pic32_ocmp *oc)
 {
-	oc_writel(v, oc, OCxR);
+	oc_writel(v, oc, OCR);
 }
 
 static inline void oc_write_sec_comp(u32 v, struct pic32_ocmp *oc)
 {
-	oc_writel(v, oc, OCxRS);
+	oc_writel(v, oc, OCRS);
 }
 
 #define __oc_get_name(__oc)	((__oc)->np->name)
@@ -221,17 +219,17 @@ static struct pic32_ocmp *oc_request(
 	int found = 0;
 
 	list_for_each_entry_safe(oc, next, &pic32_oc_list, link) {
-		mutex_lock(&oc->mutex);
+		mutex_lock(&oc->_mutex);
 
 		/* ignore, if busy */
 		if (oc_is_busy(oc)) {
-			mutex_unlock(&oc->mutex);
+			mutex_unlock(&oc->_mutex);
 			continue;
 		}
 
 		found = match(oc, data);
 		if (!found) {
-			mutex_unlock(&oc->mutex);
+			mutex_unlock(&oc->_mutex);
 			continue;
 		}
 
@@ -254,7 +252,7 @@ static struct pic32_ocmp *oc_request(
 
 		/* unlock */
 		__oc_unlock(oc, flags);
-		mutex_unlock(&oc->mutex);
+		mutex_unlock(&oc->_mutex);
 		break;
 	}
 
@@ -300,7 +298,7 @@ int pic32_oc_free(struct pic32_ocmp *oc)
 	if (unlikely(!oc))
 		return -EINVAL;
 
-	mutex_lock(&oc->mutex);
+	mutex_lock(&oc->_mutex);
 
 	/* disable oc */
 	oc_disable(oc);
@@ -311,7 +309,7 @@ int pic32_oc_free(struct pic32_ocmp *oc)
 
 	oc->flags = 0;
 
-	mutex_unlock(&oc->mutex);
+	mutex_unlock(&oc->_mutex);
 
 	return 0;
 }
@@ -324,13 +322,13 @@ EXPORT_SYMBOL(pic32_oc_free);
  */
 int pic32_oc_set_time_base(struct pic32_ocmp *oc, struct pic32_pb_timer *timer)
 {
-	mutex_lock(&oc->mutex);
+	mutex_lock(&oc->_mutex);
 
 	oc->tmr = timer;
-	/* set time src bit of OCxCON depending on timer->id */
+	/* set time src bit of OCCON depending on timer->id */
 	oc_set_timer_id(timer->id, oc);
 
-	mutex_unlock(&oc->mutex);
+	mutex_unlock(&oc->_mutex);
 
 	return 0;
 }
@@ -359,7 +357,7 @@ int pic32_oc_settime(struct pic32_ocmp *oc, int mode, uint64_t timeout_nsec)
 	/* convert timeout(nsecs) to timer count */
 	dty = __clk_timeout_ns_to_period(timeout_nsec, rate);
 
-	mutex_lock(&oc->mutex);
+	mutex_lock(&oc->_mutex);
 	oc_set_mode(mode, oc);
 
 	switch (mode) {
@@ -385,15 +383,16 @@ int pic32_oc_settime(struct pic32_ocmp *oc, int mode, uint64_t timeout_nsec)
 		break;
 	}
 
-	mutex_unlock(&oc->mutex);
+	mutex_unlock(&oc->_mutex);
 	return 0;
 }
 EXPORT_SYMBOL(pic32_oc_settime);
 
 /* pic32_oc_gettime - get timeout (nanosecs) programmed.
  */
-int pic32_oc_gettime(struct pic32_ocmp *oc, uint64_t *comp_p,
-	uint64_t *sec_comp_p)
+int pic32_oc_gettime(struct pic32_ocmp *oc,
+		     u64 *comp_p,
+		     u64 *sec_comp_p)
 {
 	unsigned long rate;
 	u32 count2, count;
@@ -401,7 +400,7 @@ int pic32_oc_gettime(struct pic32_ocmp *oc, uint64_t *comp_p,
 	if (!oc)
 		return -EINVAL;
 
-	mutex_lock(&oc->mutex);
+	mutex_lock(&oc->_mutex);
 
 	/* get timer rate */
 	rate = pic32_pb_timer_get_rate(oc->tmr);
@@ -427,7 +426,7 @@ int pic32_oc_gettime(struct pic32_ocmp *oc, uint64_t *comp_p,
 
 	dbg_oc("count %x, count2 %x", count, count2);
 out_unlock:
-	mutex_unlock(&oc->mutex);
+	mutex_unlock(&oc->_mutex);
 	return 0;
 }
 EXPORT_SYMBOL(pic32_oc_gettime);
@@ -488,16 +487,14 @@ static int of_oc_setup_one(struct device_node *np, const void *data)
 	struct pic32_ocmp *oc;
 	int ret;
 
-	dbg_oc("np %s\n", np->name);
-
 	oc = kzalloc(sizeof(*oc), GFP_KERNEL);
-	if (oc == NULL)
+	if (!oc)
 		return -ENOMEM;
 
 	oc->np = of_node_get(np);
 
 	oc->regs = of_iomap(np, 0);
-	if (oc->regs == NULL) {
+	if (!oc->regs) {
 		pr_err("Unable to map regs for %s", np->name);
 		ret = -ENOMEM;
 		goto out_oc;
@@ -510,9 +507,7 @@ static int of_oc_setup_one(struct device_node *np, const void *data)
 	}
 
 	spin_lock_init(&oc->lock);
-	mutex_init(&oc->mutex);
-
-	dbg_oc("np %s\n", np->name);
+	mutex_init(&oc->_mutex);
 
 	/* disable OC */
 	oc_disable(oc);
