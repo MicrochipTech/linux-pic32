@@ -17,12 +17,12 @@
 #define DIR_OFF		15
 #define COD_OFF		16
 
-#define BANK(x)		((x)<<(BANK_OFF))
-#define RPIN(x)		((x)<<(RP_OFF))
-#define PPIN(x)		((x)<<(PP_OFF))
-#define BUCKET(x)	((x)<<(BUCKET_OFF))
-#define PINDIR(x)	((x)<<(DIR_OFF))
-#define COD(x)		((x)<<(COD_OFF))
+#define BANK(x)		((x) << (BANK_OFF))
+#define RPIN(x)		((x) << (RP_OFF))
+#define PPIN(x)		((x) << (PP_OFF))
+#define BUCKET(x)	((x) << (BUCKET_OFF))
+#define PINDIR(x)	((x) << (DIR_OFF))
+#define COD(x)		((x) << (COD_OFF))
 
 #define PP(x_pin, x_bucket, x_dir) \
 		((PPIN(x_pin)) | (BUCKET(x_bucket)) | (PINDIR(x_dir)))
@@ -359,7 +359,7 @@
 #define PIC32_PP_OUT_OC5	(PP(PP_OC5, BUCKET_C, DIR_OUT) | COD(0xB))
 #define PIC32_PP_OUT_OC8	(PP(PP_OC8, BUCKET_C, DIR_OUT) | COD(0xC))
 #define PIC32_PP_OUT_C1OUT	(PP(PP_C1OUT, BUCKET_C, DIR_OUT) | COD(0xE))
-#define PIC32_PP_OUT_REFCLK03	(PP(PP_REFCLK03, BUCKET_C, DIR_OUT) | COD(0xF))
+#define PIC32_PP_OUT_REFCLKO3	(PP(PP_REFCLKO3, BUCKET_C, DIR_OUT) | COD(0xF))
 
 #define PIC32_PP_OUT_U1RTS	(PP(PP_U1RTS, BUCKET_D, DIR_OUT) | COD(0x1))
 #define PIC32_PP_OUT_U2TX	(PP(PP_U2TX, BUCKET_D, DIR_OUT) | COD(0x2))
@@ -373,8 +373,8 @@
 /* pin configurations flags */
 #define CONF_DIR_OFF			0
 #define CONF_COD_OFF			2
-#define CONF_DIR(x)			((x)<<(CONF_DIR_OFF))
-#define CONF_COD(x)			((x)<<(CONF_COD_OFF))
+#define CONF_DIR(x)			((x) << (CONF_DIR_OFF))
+#define CONF_COD(x)			((x) << (CONF_COD_OFF))
 
 #define PIC32_PIN_CONF_NONE		(CONF_DIR(DIR_NONE) | CONF_COD(0x0))
 
