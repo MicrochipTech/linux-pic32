@@ -11,7 +11,6 @@ Required properties:
 
 Optional properties:
 - max-clock-frequency: SPI clock maximum output rate (in HZ)
-- microchip,sqi-v1: Should be set for Michigan devices.
 - microchip,sqi-num-cs: Number of chip-select lines to drive (default, 2).
 
 Example:
@@ -19,7 +18,7 @@ Example:
 		#address-cells = <1>;
 		#size-cells = <0>;
 		compatible = "microchip,pic32-sqi";
-		reg = <0xbf8e2000 0x200>;
+		reg = <0x1f8e2000 0x200>;
 		clocks = <&REFCLKO2>, <&PBCLK5>;
 		clock-names = "spi_ck","sfr_ck";
 		interrupt-parent = <&evic>;
