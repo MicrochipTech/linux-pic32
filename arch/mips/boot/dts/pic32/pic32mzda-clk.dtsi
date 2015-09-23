@@ -91,6 +91,7 @@
 		SYSCLK:sys_clk {
 			#clock-cells = <0>;
 			compatible = "microchip,pic32-sysclk-v2";
+			reg = <0x1f8013c0 0x04>; /* SLEWCON */
 			clocks = <&FRCDIV>, <&SYSPLL>, <&POSC>, <&SOSC>,
 					<&LPRC>, <&FRCDIV>;
 			microchip,clock-indices = <0>, <1>, <2>, <4>, <5>, <7>;
@@ -252,18 +253,6 @@
 			#clock-cells = <0>;
 			clock-output-names = "refo5_clk";
 			clock-frequency = <40000000>;  /* 40Mhz */
-		};
-
-		/* Realtime Clock & Calendar clock */
-		RTCCLK: rtcc_clk {
-			reg = <0x1f800C00 0x10>;
-			#clock-cells = <0>;
-			compatible = "microchip,pic32-rtccclk";
-			clocks = <&SOSC>, <&LPRC>;
-			microchip,clock-indices = <1>, <0>;
-			microchip,bit-width = <2>;
-			microchip,bit-shift = <9>;
-			clock-output-names = "pic32-rtc";
 		};
 	};
 };
