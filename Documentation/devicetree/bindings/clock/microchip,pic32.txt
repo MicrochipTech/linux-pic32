@@ -60,119 +60,212 @@ Optional properties (for subnodes):
 
 Example:
 
-	clocks {
-		reg = <0xfee62000 0xb48>;
-		compatible = "microchip,pic32-clk";
-		interrupts = <fscm-irq>;
+/* PIC32 specific clks */
+pic32_clktree {
+	#address-cells = <1>;
+	#size-cells = <1>;
+	reg = <0x1f801200 0x200>;
+	compatible = "microchip,pic32-clk";
+	interrupts = <12>;
+	ranges;
 
-		SYS_PLL: spll_clk {
-			reg = </* PLLCON-Register */
-			       /* PLL-Status-Register */ >
-			#clock-cells = <0>;
-			compatible = "microchip,pic32-syspll";
-			clocks = <&POSC>;
-			clock-output-names = "pic32-spll";
-			microchip,status-bit-mask=<>; /* SLOCK/SPLLRDY bitmask */
-		};
-
-		FRCDIV: frcdiv_clk {
-			#clock-cells = <0>;
-			compatible = "microchip,pic32-frcdivclk";
-			clocks = <&FRC>
-			clock-output-names = "pic32-frcdiv";
-		};
-
-		/* Sys clock mux with postdiv & slew; available in Darlington or later devices */
-		SCLKDA: sys_clk {
-			#clock-cells = <0>;
-			compatible = "microchip,pic32-sysclk-v2";
-			clocks = <&FRCDIV>,
-				 <&SPLL>, /* SYS PLL */
-				 <&POSC>, /* POSC */
-				 <&SOSC>,
-				 <&LPRC>,
-				 <&FRCDIV>;
-			microchip,clock-indices = <0>, <1>, <2>,<4>,<5>,<7>;
-			clock-output-names = "pic32-sclk";
-		};
-
-		/* sys clock with only mux */
-		SCLK: sys_clk {
-			#clock-cells = <0>;
-			compatible = "microchip,pic32-sysclk";
-			clocks = <&FRCDIV>,
-				 <&SPLL>, /* SYS PLL */
-				 <&POSC>, /* POSC */
-				 <&SOSC>,
-				 <&LPRC>,
-				 <&FRCDIV>;
-			microchip,clock-indices = <0>, <1>, <2>,<4>,<5>,<7>;
-			clock-output-names = "pic32-sclk";
-		};
-
-		UPLL: CLK_UPLL {
-			#clock-cells = <0>;
-			compatible = "microchip,pic32-usbpll";
-			clocks = <&POSC>;
-			clock-output-names = "pic32-usb";
-		};
-
-		/* DDR Ctrl & DDR PHY PLL: available in Darlington SoC */
-		MPLL: CLK_MPLL {
-			#clock-cells = <0>;
-			compatible = "microchip,pic32-mpll";
-			reg = <0xbf800100 0x04>; /* CFGMPLL */
-			clocks = <&POSC>;
-			clock-output-names = "pic32-mpll";
-			status = "disabled";
-		};
-
-		PB1DIV: CLK_PB1DIV {
-			reg = <0xfee62000 0xb48>;
-			#clock-cells = <1>;
-			compatible = "microchip,pic32-pbclk";
-			clocks = <&SYS>;
-			clock-output-names = "pic32-pb1div","pic32-osc2out";
-		};
-
-		PB2DIV: CLK_PB2DIV {
-			reg = <0xfee62000 0xb48>;
-			#clock-cells = <1>;
-			compatible = "microchip,pic32-pbclk";
-			clocks = <&FRC>;
-			clock-output-names = "pic32-pb2div";
-		};
-
-		REF1OSC:Oscillator {
-			reg = <0xfee62000 0xb48>;
-			#clock-cells = <1>;
-			compatible = "microchip,pic32-refoclk";
-			clocks = <&SPLL>, <&PB1DIV>, <&POSC>, /* POSC */ <&FRC>, <&LPRC>,
-				 <&SOSC>, <&SYS>, <&REFI>, /* Reference Input */ <&BFRC>;
-			clock-output-names = "pic32-ref1osc";
-		};
-
-		SOSC: clk_sosc {
-			reg = </* enable-register */
-			       /* status-register */>
-			#clock-cells = <0>;
-			compatible = "microchip,pic32-sosc";
-			clock-output-names = "sosc_clk";
-			microchip,bitmask = <0x2>;
-			microchip,status-bitmask = <0x400000>;
-			clock-frequency= <32000>;
-		};
-
-		RTCCCLK: clk_rtcc {
-			reg = <>;
-			#clock-cells = <0>;
-			compatible = "microchip,pic32-rtccclk";
-			clocks = <&SOSC>,<&LPRC>;
-			clock-output-names = "pic32-rtcc-clk";
-			microchip,bit-shift = <9>;
-			microchip,bit-width = <2>;
-		};
+	/* secondary oscillator; external input on SOSCI pin */
+	SOSC:sosc_clk {
+		#clock-cells = <0>;
+		compatible = "microchip,pic32-sosc";
+		clock-frequency = <32768>;
+		reg = <0x1f801200 0x10   /* enable reg */
+			0x1f801390 0x10>; /* status reg */
+		microchip,bit-mask = <0x02>; /* enable mask */
+		microchip,status-bit-mask = <0x10>; /* status-mask*/
 	};
+
+	FRCDIV:frcdiv_clk {
+		#clock-cells = <0>;
+		compatible = "microchip,pic32-frcdivclk";
+		clocks = <&FRC>;
+		clock-output-names = "frcdiv_clk";
+	};
+
+	/* System PLL clock */
+	SYSPLL:spll_clk {
+		#clock-cells = <0>;
+		compatible = "microchip,pic32-syspll";
+		reg = <0x1f801220 0x10 /* SPLL register */
+			0x1f801390 0x10>; /* CLKSTAT register */
+		clocks = <&POSC>, <&FRC>;
+		clock-output-names = "sys_pll";
+		microchip,status-bit-mask = <0x80>; /* SPLLRDY */
+	};
+
+	/* system clock; mux with postdiv & slew */
+	SYSCLK:sys_clk {
+		#clock-cells = <0>;
+		compatible = "microchip,pic32-sysclk-v2";
+		reg = <0x1f8013c0 0x10>; /* SLEWCON */
+		clocks = <&FRCDIV>, <&SYSPLL>, <&POSC>, <&SOSC>,
+				<&LPRC>, <&FRCDIV>;
+		microchip,clock-indices = <0>, <1>, <2>, <4>, <5>, <7>;
+		clock-output-names = "sys_clk";
+	};
+
+	/* DDR Ctrl & DDR PHY PLL: available in Darlington SoC */
+	MPLL: CLK_MPLL {
+		#clock-cells = <0>;
+		compatible = "microchip,pic32-mpll";
+		reg = <0x1f800100 0x04>; /* CFGMPLL */
+		clocks = <&POSC>;
+		clock-output-names = "pic32-mpll";
+		status = "disabled";
+	};
+
+	/* UPLL is integral part of USB PHY; UTMI clk for USBCORE */
+	UPLL:usb_phy_clk {
+		#clock-cells = <0>;
+		compatible = "microchip,pic32-usbpll";
+		clocks = <&POSC>;
+		clock-output-names = "usbphy_clk";
+	};
+
+	/* Peripheral bus1 clock */
+	PBCLK1:pb1_clk {
+		reg = <0x1f801340 0x10>;
+		#clock-cells = <0>;
+		compatible = "microchip,pic32-pbclk";
+		clocks = <&SYSCLK>;
+		clock-output-names = "pb1_clk";
+		/* always ON, can't be gated even if unused */
+		microchip,ignore-unused;
+	};
+
+	/* Peripheral bus2(APB) clock */
+	PBCLK2:pb2_clk {
+		reg = <0x1f801350 0x10>;
+		#clock-cells = <0>;
+		compatible = "microchip,pic32-pbclk";
+		clocks = <&SYSCLK>;
+		clock-output-names = "pb2_clk";
+		/* avoid gating even if unused */
+		microchip,ignore-unused;
+	};
+
+	/* Peripheral bus3 clock */
+	PBCLK3:pb3_clk {
+		reg = <0x1f801360 0x10>;
+		#clock-cells = <0>;
+		compatible = "microchip,pic32-pbclk";
+		clocks = <&SYSCLK>;
+		clock-output-names = "pb3_clk";
+	};
+
+	/* Peripheral bus4 clock(I/O ports, GPIO) */
+	PBCLK4:pb4_clk {
+		reg = <0x1f801370 0x10>;
+		#clock-cells = <0>;
+		compatible = "microchip,pic32-pbclk";
+		clocks = <&SYSCLK>;
+		clock-output-names = "pb4_clk";
+		/* I/O ports & GPIO controller uses this clock, so keep
+		   it enabled */
+		microchip,ignore-unused;
+	};
+
+	/* Peripheral AHB bus clock */
+	PBCLK5:pb5_clk {
+		reg = <0x1f801380 0x10>;
+		#clock-cells = <0>;
+		compatible = "microchip,pic32-pbclk";
+		clocks = <&SYSCLK>;
+		clock-output-names = "pb5_clk", "pic32-ether",
+					"pic32-rng";
+	};
+
+	/* Peripheral Bus6 clock; */
+	PBCLK6:pb6_clk {
+		reg = <0x1f801390 0x10>;
+		compatible = "microchip,pic32-pbclk";
+		clocks = <&SYSCLK>;
+		#clock-cells = <0>;
+	};
+
+	/* Peripheral bus7 clock */
+	PBCLK7:pb7_clk {
+		reg = <0x1f8013A0 0x10>;
+		#clock-cells = <0>;
+		compatible = "microchip,pic32-pbclk";
+		/* CPU is driven by this clock; so named */
+		clock-output-names = "cpu_clk";
+		clocks = <&SYSCLK>;
+		/* EBI drives SRAM in SK+MEB setup, so avoid gating even
+		   if unused */
+		microchip,ignore-unused;
+	};
+
+	/* Reference Oscillator clock for SPI/I2S */
+	REFCLKO1:refo1_clk {
+		reg = <0x1f801280 0x20>;
+		#clock-cells = <0>;
+		compatible = "microchip,pic32-refoclk";
+		clocks = <&SYSCLK>, <&PBCLK1>, <&POSC>, <&FRC>, <&LPRC>,
+			<&SOSC>, <&SYSPLL>, <&REFIx>, <&BFRC>;
+		microchip,clock-indices = <0>, <1>, <2>, <3>, <4>, <5>,
+						<7>, <8>, <9>;
+		clock-output-names = "refo1_clk";
+		clock-frequency = <10000000>;  /* 10Mhz for I2S MCLK */
+	};
+
+	/* Reference Oscillator clock for SQI */
+	REFCLKO2:refo2_clk {
+		reg = <0x1f8012A0 0x20>;
+		#clock-cells = <0>;
+		compatible = "microchip,pic32-refoclk";
+		clocks = <&SYSCLK>, <&PBCLK1>, <&POSC>, <&FRC>, <&LPRC>,
+			<&SOSC>, <&SYSPLL>, <&REFIx>, <&BFRC>;
+		microchip,clock-indices = <0>, <1>, <2>, <3>, <4>, <5>,
+						<7>, <8>, <9>;
+		clock-output-names = "refo2_clk";
+		clock-frequency = <50000000>; /* 50MHz for SQI */
+	};
+
+	/* Reference Oscillator clock, ADC */
+	REFCLKO3:refo3_clk {
+		reg = <0x1f8012C0 0x20>;
+		compatible = "microchip,pic32-refoclk";
+		clocks = <&SYSCLK>, <&PBCLK1>, <&POSC>, <&FRC>, <&LPRC>,
+			<&SOSC>, <&SYSPLL>, <&REFIx>, <&BFRC>;
+		microchip,clock-indices = <0>, <1>, <2>, <3>, <4>, <5>,
+						<7>, <8>, <9>;
+		#clock-cells = <0>;
+		clock-output-names = "refo3_clk";
+		clock-frequency = <10000000>;  /* 1Mhz */
+	};
+
+	/* Reference Oscillator clock */
+	REFCLKO4:refo4_clk {
+		reg = <0x1f8012E0 0x20>;
+		compatible = "microchip,pic32-refoclk";
+		clocks = <&SYSCLK>, <&PBCLK1>, <&POSC>, <&FRC>, <&LPRC>,
+				<&SOSC>, <&SYSPLL>, <&REFIx>, <&BFRC>;
+		microchip,clock-indices = <0>,<1>,<2>,<3>,<4>,<5>,<7>,
+						<8>,<9>;
+		#clock-cells = <0>;
+		clock-output-names = "refo4_clk";
+		clock-frequency = <25000000>;  /* 25Mhz */
+	};
+
+	/* Reference Oscillator clock, LCD */
+	REFCLKO5:refo5_clk {
+		reg = <0x1f801300 0x20>;
+		compatible = "microchip,pic32-refoclk";
+		clocks = <&SYSCLK>,<&PBCLK1>,<&POSC>,<&FRC>,<&LPRC>,
+			<&SOSC>,<&SYSPLL>,<&REFIx>,<&BFRC>;
+		microchip,clock-indices = <0>, <1>, <2>, <3>, <4>, <5>,
+					<7>, <8>,<9>;
+		#clock-cells = <0>;
+		clock-output-names = "refo5_clk";
+		clock-frequency = <40000000>;  /* 40Mhz */
+	};
+};
 
 The clock consumer should specify the desired clock by having the clocks in its
 "clock" phandle cell. For example for UART:
@@ -181,5 +274,5 @@ uart2: serial@<> {
 	compatible = "microchip,pic32-uart";
 	reg = <>;
 	interrupts = <>;
-	clocks = <&PB2DIV>;
+	clocks = <&PBCLK2>;
 }
