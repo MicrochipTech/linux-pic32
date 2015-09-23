@@ -148,7 +148,8 @@ struct sqi_desc {
 #define SQI_BD_COUNT		(PAGE_SIZE / SQI_BD_BUF_LEN)
 #define SQI_BD_COUNT_MASK	(SQI_BD_COUNT - 1)
 
-#define SQI_VERBOSE	0
+/* debug for spi transfer */
+static u8 sqi_msg_verbose;
 
 struct pic32_sqi {
 	void __iomem		*regs;
@@ -157,11 +158,8 @@ struct pic32_sqi {
 	struct clk		*reg_clk;
 	struct spi_master	*master;
 	int			num_cs;
-	spinlock_t		lock;
+	spinlock_t		lock; /* lock */
 	unsigned long		irq_flags;
-
-#define SQI_IP_V1	BIT(0)	/* SQI IP version */
-	u32			flags;
 	struct completion	xfer_done;
 
 	/* Resources */
@@ -176,9 +174,6 @@ struct pic32_sqi {
 	u32			speed_hz; /* spi-clk rate */
 	u8			spi_mode;
 };
-
-static void pic32_sqi_hw_init(struct pic32_sqi *sqi);
-
 
 static inline void sqi_soft_reset(struct pic32_sqi *sqi)
 {
@@ -205,7 +200,7 @@ static inline void sqi_enable_spi(struct pic32_sqi *sqi)
 {
 	u32 v = readl(sqi->regs + SQI_CONF_REG);
 
-	v |= (sqi->flags & SQI_IP_V1) ? SQI_EN_V1 : SQI_EN;
+	v |= SQI_EN;
 	writel(v, sqi->regs + SQI_CONF_REG);
 }
 
@@ -213,7 +208,7 @@ static inline void sqi_disable_spi(struct pic32_sqi *sqi)
 {
 	u32 v = readl(sqi->regs + SQI_CONF_REG);
 
-	v &= (sqi->flags & SQI_IP_V1) ? ~SQI_EN_V1 : ~SQI_EN;
+	v &= ~SQI_EN;
 	writel(v, sqi->regs + SQI_CONF_REG);
 }
 
@@ -222,7 +217,7 @@ static inline void sqi_set_spi_mode(struct pic32_sqi *sqi, int spi_mode)
 	u32 v;
 
 	v = readl(sqi->regs + SQI_CONF_REG);
-	v &= ~(SQI_CPOL|SQI_CPHA|SQI_LSBF);
+	v &= ~(SQI_CPOL | SQI_CPHA | SQI_LSBF);
 
 	/* active low ? */
 	if (spi_mode & SPI_CPOL)
@@ -244,7 +239,7 @@ static inline void sqi_enable_clk(struct pic32_sqi *sqi)
 
 	/* enable clock */
 	v = readl(sqi->regs + SQI_CLK_CTRL_REG);
-	writel(v|SQI_CLK_EN, sqi->regs + SQI_CLK_CTRL_REG);
+	writel(v | SQI_CLK_EN, sqi->regs + SQI_CLK_CTRL_REG);
 
 	/* wait for stability */
 	for (;;) {
@@ -270,7 +265,7 @@ static inline void sqi_set_clk_rate(struct pic32_sqi *sqi, u32 sck)
 	u16 div;
 
 	v = readl(sqi->regs + SQI_CLK_CTRL_REG);
-	v &= ~(SQI_CLK_STABLE|(SQI_CLKDIV << SQI_CLKDIV_SHIFT));
+	v &= ~(SQI_CLK_STABLE | (SQI_CLKDIV << SQI_CLKDIV_SHIFT));
 
 	/* sck = clk_in / [2 * div]
 	 * ie. div = clk_in / (2 * sck)
@@ -339,19 +334,9 @@ static inline void sqi_set_tx_intr(struct pic32_sqi *sqi, int fifo_lvl)
 static inline void sqi_enable_int(struct pic32_sqi *sqi)
 {
 	u32 mask = DMAERR;
-#if 0
-	/* tx fifo */
-	mask |= TXEMPTY|TXFULL|TXTHR;
 
-	/* rx fifo */
-	mask |= RXEMPTY|RXFULL;
-	mask |= RXTHR;
-
-	/* ctrl fifo */
-	mask |= CONEMPTY|CONFULL|CONTHR;
-#endif
 	/* BD */
-	mask |= BDDONE|PKTCOMP;
+	mask |= BDDONE | PKTCOMP;
 	writel(mask, sqi->regs + SQI_INT_ENABLE_REG);
 	writel(mask, sqi->regs + SQI_INT_SIGEN_REG);
 }
@@ -365,7 +350,7 @@ static inline void sqi_disable_int(struct pic32_sqi *sqi)
 
 static inline void sqi_enable_dma(struct pic32_sqi *sqi)
 {
-	writel(DMA_EN|POLL_EN|BDP_START, sqi->regs + SQI_BD_CTRL_REG);
+	writel(DMA_EN | POLL_EN | BDP_START, sqi->regs + SQI_BD_CTRL_REG);
 }
 
 static inline void sqi_disable_dma(struct pic32_sqi *sqi)
@@ -408,7 +393,6 @@ static void pic32_debug_sqi(struct pic32_sqi *sqi, const char *fmt)
 			(void *)&desc->bd, desc->bd->bd_addr,
 			desc->bd->bd_ctrl);
 	}
-
 }
 
 static irqreturn_t pic32_sqi_isr(int irq, void *dev_id)
@@ -433,11 +417,11 @@ static irqreturn_t pic32_sqi_isr(int irq, void *dev_id)
 	}
 
 	if (status & TXTHR)
-		mask |= (TXTHR|TXFULL|TXEMPTY);
+		mask |= (TXTHR | TXFULL | TXEMPTY);
 
 	if (status & RXTHR) {
-		mask |= RXTHR|RXFULL|RXEMPTY;
-		mask |= CONTHR|CONFULL|CONEMPTY;
+		mask |= RXTHR | RXFULL | RXEMPTY;
+		mask |= CONTHR | CONFULL | CONEMPTY;
 	}
 
 	if (status & BDDONE) {
@@ -485,8 +469,8 @@ static void sqi_desc_put(struct pic32_sqi *sqi, struct sqi_desc *bd)
 }
 
 static int sqi_desc_fill(struct sqi_desc *desc,
-	struct spi_transfer *xfer, int remaining,
-	u32 xfer_bd_ctrl, dma_addr_t dma_handle)
+			 struct spi_transfer *xfer, int remaining,
+			 u32 xfer_bd_ctrl, dma_addr_t dma_handle)
 {
 	struct hw_bd *bd;
 	int offset = xfer->len - remaining;
@@ -511,23 +495,19 @@ static int sqi_desc_fill(struct sqi_desc *desc,
 		if (xfer->tx_buf) {
 			desc->xfer_buf = (void *)xfer->tx_buf + offset;
 			memcpy(desc->buf, desc->xfer_buf, desc->xfer_len);
-		} else
+		} else {
 			desc->xfer_buf = xfer->rx_buf + offset;
-
+		}
 		bd->bd_addr = desc->buf_dma;
 	} else {
 		bd->bd_addr = dma_handle + offset;
 	}
-#if 0
-	/* BD NEXTPTR: already initialized to next BD */
-	bd->bd_nextp = 0;
-#endif
 
 	return desc->xfer_len;
 }
 
 static inline dma_addr_t sqi_map_buf(struct pic32_sqi *sqi,
-					const void *buf, size_t len, int tx)
+				     const void *buf, size_t len, int tx)
 {
 	dma_addr_t dma_buf;
 	struct device *dev = &sqi->master->dev;
@@ -535,36 +515,36 @@ static inline dma_addr_t sqi_map_buf(struct pic32_sqi *sqi,
 
 	if (is_vmalloc_addr(buf))
 		dma_buf = dma_map_page(dev, vmalloc_to_page(buf),
-					offset_in_page(buf), len, dir);
+				       offset_in_page(buf), len, dir);
 	else
 		dma_buf = dma_map_single(dev, (void *)buf, len, dir);
 
 	if (dma_mapping_error(dev, dma_buf))
 		dma_buf = 0;
 
-	dev_dbg(dev, "%s: buf %p, len %u, dma_buf %p, tx %d\n", __func__,
-			buf, len, (void *)dma_buf, tx);
+	dev_dbg(dev, "%s: buf %p, len %u, dma_buf %p, tx %d\n",
+		__func__, buf, len, (void *)dma_buf, tx);
 	return dma_buf;
 }
 
 static inline void sqi_unmap_buf(struct pic32_sqi *sqi, const void *buf,
-					dma_addr_t dma_buf, size_t len, int tx)
+				 dma_addr_t dma_buf, size_t len, int tx)
 {
 	struct device *dev = &sqi->master->dev;
 	enum dma_data_direction dir = tx ? DMA_TO_DEVICE : DMA_FROM_DEVICE;
 
-	dev_dbg(dev, "%s: buf %p, len %u, dma_buf %p, tx %d\n", __func__,
-			buf, len, (void *)dma_buf, tx);
+	dev_dbg(dev, "%s: buf %p, len %u, dma_buf %p, tx %d\n",
+		__func__, buf, len, (void *)dma_buf, tx);
 
 	if (is_vmalloc_addr(buf))
 		dma_unmap_page(dev, dma_buf, len, dir);
 	else
 		dma_unmap_single(dev, dma_buf, len, dir);
-
 }
 
 static int pic32_sqi_one_transfer(struct pic32_sqi *sqi,
-	struct spi_message *mesg, struct spi_transfer *xfer)
+				  struct spi_message *mesg,
+				  struct spi_transfer *xfer)
 {
 	struct sqi_desc *desc;
 	int remaining, ret;
@@ -572,7 +552,10 @@ static int pic32_sqi_one_transfer(struct pic32_sqi *sqi,
 	u32 nbits;
 	dma_addr_t dma_buf;
 
-	dma_buf = xfer->rx_dma = xfer->tx_dma = 0;
+	dma_buf = 0;
+	xfer->rx_dma = 0;
+	xfer->tx_dma = 0;
+
 	/* BD CTRL: length */
 	bd_ctrl = 0;
 
@@ -605,15 +588,11 @@ mapping_done:
 	/* LSB first */
 	if (mesg->spi->mode & SPI_LSB_FIRST)
 		bd_ctrl |= BD_LSBF;
-#if 0
-	/* interrupt on this BD */
-	common_bd_ctrl |= BD_CBD_INT_EN;
-#endif
+
 	/* Ownership to hw */
 	bd_ctrl |= BD_EN;
 
 	for (remaining = xfer->len; remaining;) {
-
 		/* Alloc buffer descriptor */
 		desc = sqi_desc_get(sqi);
 		if (!desc)
@@ -634,7 +613,7 @@ static int pic32_sqi_one_message(struct spi_master *master,
 {
 	int ret = 0;
 	struct hw_bd *bd;
-	struct sqi_desc *desc, *ndesc;
+	struct sqi_desc *desc, *next;
 	struct pic32_sqi *sqi;
 	struct spi_transfer *xfer;
 	struct spi_device *spi = msg->spi;
@@ -645,22 +624,23 @@ static int pic32_sqi_one_message(struct spi_master *master,
 	sqi = spi_master_get_devdata(master);
 
 	msg->status = 0;
-	msg->state = (void *) -2; /* running */
+	msg->state = (void *)-2; /* running */
 	msg->actual_length = 0;
 
-#if (SQI_VERBOSE >= 2)
-	/* debug msg */
-	list_for_each_entry(xfer, &msg->transfers, transfer_list) {
-		dev_vdbg(&spi->dev, "  xfer %p: len %u tx %p rx %p\n",
-			 xfer, xfer->len, xfer->tx_buf, xfer->rx_buf);
-		if (xfer->tx_buf)
-			print_hex_dump(KERN_DEBUG, "tx_buf",
-				DUMP_PREFIX_ADDRESS, 16, 1, xfer->tx_buf,
-				min_t(u32, xfer->len, 16), 1);
-		else
-			memset(xfer->rx_buf, 0, xfer->len);
+	if (sqi_msg_verbose >= 2) {
+		/* debug msg */
+		list_for_each_entry(xfer, &msg->transfers, transfer_list) {
+			dev_vdbg(&spi->dev, "  xfer %p: len %u tx %p rx %p\n",
+				 xfer, xfer->len, xfer->tx_buf, xfer->rx_buf);
+			if (xfer->tx_buf)
+				print_hex_dump(KERN_DEBUG, "tx_buf",
+					       DUMP_PREFIX_ADDRESS, 16, 1,
+					       xfer->tx_buf,
+					       min_t(u32, xfer->len, 16), 1);
+			else
+				memset(xfer->rx_buf, 0, xfer->len);
+		}
 	}
-#endif
 
 	/* init completion */
 	reinit_completion(&sqi->xfer_done);
@@ -684,17 +664,16 @@ static int pic32_sqi_one_message(struct spi_master *master,
 	/* CS deassert on last BD */
 	bd->bd_ctrl |= BD_CS_DEASSERT;
 	 /* interrupt on pkt-done */
-	bd->bd_ctrl |= BD_LIFM|BD_PKT_INT_EN;
+	bd->bd_ctrl |= BD_LIFM | BD_PKT_INT_EN;
 
-#if (SQI_VERBOSE >= 2)
-	/* debug */
-	list_for_each_entry_safe(desc, ndesc, &sqi->bd_list_used, list) {
-		bd = desc->bd;
-		pr_info("bd %p: bd_ctrl %08x bd_addr %08x bd_stat %08x bd_next %08x\n",
-			(void *)bd, bd->bd_ctrl,
-			bd->bd_addr, bd->bd_status, bd->bd_nextp);
+	if (sqi_msg_verbose >= 2) {
+		list_for_each_entry(desc, &sqi->bd_list_used, list) {
+			bd = desc->bd;
+			pr_info("bd %p: bd_ctrl %08x bd_addr %08x bd_stat %08x bd_next %08x\n",
+				(void *)bd, bd->bd_ctrl, bd->bd_addr,
+				bd->bd_status, bd->bd_nextp);
+		}
 	}
-#endif
 
 	/* interrupt lock */
 	sqi_spin_lock(sqi);
@@ -718,7 +697,7 @@ static int pic32_sqi_one_message(struct spi_master *master,
 		}
 
 		/* set spi mode */
-		ret = spi->mode & (SPI_MODE_3|SPI_LSB_FIRST);
+		ret = spi->mode & (SPI_MODE_3 | SPI_LSB_FIRST);
 		if (sqi->spi_mode != ret) {
 			sqi->spi_mode = ret;
 			sqi_set_spi_mode(sqi, spi->mode);
@@ -728,12 +707,6 @@ static int pic32_sqi_one_message(struct spi_master *master,
 	/* set BD base address */
 	desc = list_first_entry(&sqi->bd_list_used, struct sqi_desc, list);
 	writel(desc->bd_dma, sqi->regs + SQI_BD_BASE_ADDR_REG);
-
-	/* set tx/rx threshold */
-	if (sqi->flags & SQI_IP_V1) {
-		sqi_set_tx_thr(sqi, 31);
-		sqi_set_rx_thr(sqi, 31);
-	}
 
 	/* enable SPI */
 	sqi_enable_spi(sqi);
@@ -753,7 +726,8 @@ static int pic32_sqi_one_message(struct spi_master *master,
 	if (ret <= 0) {
 		dev_err(&sqi->master->dev, "wait timedout/interrupted\n");
 		pic32_debug_sqi(sqi, " -- TIMEDOUT -- ");
-		msg->status = ret = -EIO;
+		ret = -EIO;
+		msg->status = ret;
 		goto xfer_done;
 	}
 
@@ -772,15 +746,17 @@ static int pic32_sqi_one_message(struct spi_master *master,
 		memcpy(desc->xfer_buf, desc->buf, desc->xfer_len);
 	}
 
-#if (SQI_VERBOSE >= 1)
-	/* debug msg */
-	list_for_each_entry(xfer, &msg->transfers, transfer_list) {
-		if (xfer->tx_buf)
-			continue;
-		print_hex_dump(KERN_DEBUG, "rx_buf: ", DUMP_PREFIX_ADDRESS,
-		       16, 1, xfer->rx_buf, min_t(u32, xfer->len, 256), 1);
+	if (sqi_msg_verbose) {
+		list_for_each_entry(xfer, &msg->transfers, transfer_list) {
+			if (xfer->tx_buf)
+				continue;
+
+			print_hex_dump(KERN_DEBUG, "rx_buf: ",
+				       DUMP_PREFIX_ADDRESS, 16, 1, xfer->rx_buf,
+				       min_t(u32, xfer->len, 256), 1);
+		}
 	}
-#endif
+
 	/* update msg status */
 	msg->state = NULL;
 	msg->status = 0;
@@ -804,33 +780,15 @@ xfer_out:
 	list_for_each_entry(xfer, &msg->transfers, transfer_list) {
 		if (xfer->tx_buf && xfer->tx_dma)
 			sqi_unmap_buf(sqi, xfer->tx_buf,
-					xfer->tx_dma, xfer->len, 1);
+				      xfer->tx_dma, xfer->len, 1);
 		else if (xfer->rx_dma)
 			sqi_unmap_buf(sqi, xfer->rx_buf,
-					xfer->rx_dma, xfer->len, 0);
+				      xfer->rx_dma, xfer->len, 0);
 	}
 
 	/* release all used bds */
-	list_for_each_entry_safe_reverse(desc, ndesc, &sqi->bd_list_used, list)
+	list_for_each_entry_safe_reverse(desc, next, &sqi->bd_list_used, list)
 		sqi_desc_put(sqi, desc);
-
-#if 0
-	/* reset controller, when failed */
-
-	/* Keeping this reset logic disabled, by default. Transfer failure
-	 * could be due to various of reasons (incorrect programming sequence,
-	 * dead spi client, etc). And recovery might also vary.
-	 */
-	if (ret) {
-		dev_err(&sqi->master->dev, "reset & re-init h/w.\n");
-
-		/* allow sometime to settle */
-		udelay(10);
-
-		/* reset */
-		pic32_sqi_hw_init(sqi);
-	}
-#endif
 
 	spi_finalize_current_message(spi->master);
 
@@ -933,7 +891,7 @@ static int sqi_desc_ring_alloc(struct pic32_sqi *sqi)
 	for (i = 0, d = &desc[0]; i < SQI_BD_COUNT; i++, d++) {
 		hw_bd[i].bd_addr = d->buf_dma;
 		if (i)
-			hw_bd[i-1].bd_nextp = d->bd_dma;
+			hw_bd[i - 1].bd_nextp = d->bd_dma;
 	}
 
 	return 0;
@@ -992,16 +950,6 @@ static void pic32_sqi_hw_init(struct pic32_sqi *sqi)
 	/* CSEN - all CS */
 	v |= ((BIT(sqi->num_cs) - 1) << SQI_CSEN_SHIFT);
 
-	if (sqi->flags & SQI_IP_V1) {
-		/* SERMODE disabled */
-		v &= ~SQI_SERMODE;
-
-		/* CSCON - hardware */
-		v |= SQI_CS_CTRL_HW;
-
-		/* RXLATCH */
-		v |= SQI_RXLATCH;
-	}
 	writel(v, sqi->regs + SQI_CONF_REG);
 
 	/* write poll count */
@@ -1036,7 +984,7 @@ static int pic32_sqi_probe(struct platform_device *pdev)
 
 	/* io resource */
 	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-	if (r == NULL) {
+	if (!r) {
 		dev_err(&pdev->dev, "no mem resource?\n");
 		ret = -ENOENT;
 		goto err_free_master;
@@ -1087,12 +1035,6 @@ static int pic32_sqi_probe(struct platform_device *pdev)
 
 		/* max frequency */
 		of_property_read_u32(np, "max-clock-frequency", &max_spi_hz);
-
-		/* module version */
-		if (of_find_property(np, "microchip,sqi-v1", NULL)) {
-			dev_info(&pdev->dev, "SQI-V1 detected\n");
-			sqi->flags |= SQI_IP_V1;
-		}
 	}
 
 	init_completion(&sqi->xfer_done);
@@ -1123,8 +1065,8 @@ static int pic32_sqi_probe(struct platform_device *pdev)
 	master->max_speed_hz	= max_spi_hz;
 	master->dma_alignment	= 32;
 	master->dev.of_node	= of_node_get(pdev->dev.of_node);
-	master->mode_bits	= SPI_MODE_3|SPI_MODE_0|SPI_TX_DUAL|
-				  SPI_RX_DUAL|SPI_TX_QUAD|SPI_RX_QUAD;
+	master->mode_bits	= SPI_MODE_3 | SPI_MODE_0 | SPI_TX_DUAL |
+				  SPI_RX_DUAL | SPI_TX_QUAD | SPI_RX_QUAD;
 	master->flags			= SPI_MASTER_HALF_DUPLEX;
 	master->bits_per_word_mask	= SPI_BPW_RANGE_MASK(8, 32);
 	master->transfer_one_message	= pic32_sqi_one_message;
