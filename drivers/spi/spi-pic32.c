@@ -27,35 +27,35 @@
 #include <linux/sizes.h>
 
 /* SPI Register offsets */
-#define SPIxCON		0x00
-#define SPIxCON_CLR	0x04
-#define SPIxCON_SET	0x08
-#define SPIxSTAT	0x10
-#define SPIxSTAT_CLR	0x14
-#define SPIxBUF		0x20
-#define SPIxBRG		0x30
-#define SPIxCON2	0x40
-#define SPIxCON2_CLR	0x44
-#define SPIxCON2_SET	0x48
+#define SPICON		0x00
+#define SPICON_CLR	0x04
+#define SPICON_SET	0x08
+#define SPISTAT		0x10
+#define SPISTAT_CLR	0x14
+#define SPIBUF		0x20
+#define SPIBRG		0x30
+#define SPICON2		0x40
+#define SPICON2_CLR	0x44
+#define SPICON2_SET	0x48
 
-/* Bit fields in SPIxCON Register */
-#define SPIxCON_RXI_SHIFT	0  /* Rx interrupt generation condition */
-#define SPIxCON_TXI_SHIFT	2  /* TX interrupt generation condition */
-#define SPIxCON_MSTEN		BIT(5) /* Enable SPI Master */
-#define SPIxCON_CKP		BIT(6) /* active low */
-#define SPIxCON_CKE		BIT(8) /* Tx on falling edge */
-#define SPIxCON_SMP		BIT(9) /* Rx at middle or end of tx */
-#define SPIxCON_BPW		0x03	 /* Bits per word/audio-sample */
-#define SPIxCON_BPW_SHIFT	10
-#define SPIxCON_SIDL		BIT(13) /* STOP on idle */
-#define SPIxCON_ON		BIT(15) /* Macro enable */
-#define SPIxCON_ENHBUF		BIT(16) /* Enable enhanced buffering */
-#define SPIxCON_MCLKSEL		BIT(23) /* Select SPI Clock src */
-#define SPIxCON_MSSEN		BIT(28) /* SPI macro will drive SS */
-#define SPIxCON_FRMPOL		BIT(29) /* SPI SS polarity */
-#define SPIxCON_FRMEN		BIT(31) /* Enable framing mode */
+/* Bit fields in SPICON Register */
+#define SPICON_RXI_SHIFT	0  /* Rx interrupt generation condition */
+#define SPICON_TXI_SHIFT	2  /* TX interrupt generation condition */
+#define SPICON_MSTEN		BIT(5) /* Enable SPI Master */
+#define SPICON_CKP		BIT(6) /* active low */
+#define SPICON_CKE		BIT(8) /* Tx on falling edge */
+#define SPICON_SMP		BIT(9) /* Rx at middle or end of tx */
+#define SPICON_BPW		0x03	 /* Bits per word/audio-sample */
+#define SPICON_BPW_SHIFT	10
+#define SPICON_SIDL		BIT(13) /* STOP on idle */
+#define SPICON_ON		BIT(15) /* Macro enable */
+#define SPICON_ENHBUF		BIT(16) /* Enable enhanced buffering */
+#define SPICON_MCLKSEL		BIT(23) /* Select SPI Clock src */
+#define SPICON_MSSEN		BIT(28) /* SPI macro will drive SS */
+#define SPICON_FRMPOL		BIT(29) /* SPI SS polarity */
+#define SPICON_FRMEN		BIT(31) /* Enable framing mode */
 
-/* Bit fields in SPIxSTAT Register */
+/* Bit fields in SPISTAT Register */
 #define STAT_RF_FULL		BIT(0) /* RX fifo full */
 #define STAT_TF_FULL		BIT(1) /* TX fifo full */
 #define STAT_TX_EMPTY		BIT(3) /* standard buffer mode */
@@ -70,11 +70,11 @@
 #define STAT_RF_LVL_MASK	0x1F
 #define STAT_RF_LVL_SHIFT	24
 
-/* Bit fields in SPIxBRG Register */
-#define SPIxBRG_MASK		0x1ff
-#define SPIxBRG_SHIFT		0x0
+/* Bit fields in SPIBRG Register */
+#define SPIBRG_MASK		0x1ff
+#define SPIBRG_SHIFT		0x0
 
-/* Bit fields in SPIxCON2 Register */
+/* Bit fields in SPICON2 Register */
 #define SPI_INT_TX_UR_EN	BIT(10) /* Enable int on Tx under-run */
 #define SPI_INT_RX_OV_EN	BIT(11) /* Enable int on Rx over-run */
 #define SPI_INT_FRM_ERR_EN	BIT(12) /* Enable frame err int */
@@ -111,7 +111,7 @@ struct pic32_spi {
 	int			tx_irq;
 	u32			fifo_n_byte; /* FIFO depth in bytes */
 	struct clk		*clk;
-	spinlock_t		lock;
+	spinlock_t		lock;	/* lock */
 	struct spi_master	*master;
 
 	/* Current SPI device specific */
@@ -142,28 +142,30 @@ struct pic32_spi {
 	void (*tx_fifo)(struct pic32_spi *);
 };
 
+static bool spi_msg_debug;
+
 static inline u32 spi_rx_fifo_level(struct pic32_spi *pic32s)
 {
-	u32 sr = readl(pic32s->regs + SPIxSTAT);
+	u32 sr = readl(pic32s->regs + SPISTAT);
 
 	return (sr >> STAT_RF_LVL_SHIFT) & STAT_RF_LVL_MASK;
 }
 
 static inline u32 spi_tx_fifo_level(struct pic32_spi *pic32s)
 {
-	u32 sr = readl(pic32s->regs + SPIxSTAT);
+	u32 sr = readl(pic32s->regs + SPISTAT);
 
 	return (sr >> STAT_TF_LVL_SHIFT) & STAT_TF_LVL_MASK;
 }
 
 static inline void spi_enable_chip(struct pic32_spi *pic32s)
 {
-	writel(SPIxCON_ON, pic32s->regs + SPIxCON_SET);
+	writel(SPICON_ON, pic32s->regs + SPICON_SET);
 }
 
 static inline void spi_disable_chip(struct pic32_spi *pic32s)
 {
-	writel(SPIxCON_ON, pic32s->regs + SPIxCON_CLR);
+	writel(SPICON_ON, pic32s->regs + SPICON_CLR);
 	cpu_relax();
 }
 
@@ -172,26 +174,26 @@ static inline void spi_set_clk_mode(struct pic32_spi *pic32s, int mode)
 	u32 conset = 0, conclr = 0;
 
 	if (mode & SPI_CPOL)  /* active low */
-		conset |= SPIxCON_CKP;
+		conset |= SPICON_CKP;
 	else
-		conclr |= SPIxCON_CKP;
+		conclr |= SPICON_CKP;
 
 	if (mode & SPI_CPHA) /* tx on rising edge of clk */
-		conclr |= SPIxCON_CKE;
+		conclr |= SPICON_CKE;
 	else
-		conset |= SPIxCON_CKE;
+		conset |= SPICON_CKE;
 
 	/* rx at end of tx */
-	conset |= SPIxCON_SMP;
+	conset |= SPICON_SMP;
 
-	writel(conclr, pic32s->regs + SPIxCON_CLR);
-	writel(conset, pic32s->regs + SPIxCON_SET);
+	writel(conclr, pic32s->regs + SPICON_CLR);
+	writel(conset, pic32s->regs + SPICON_SET);
 }
 
 static inline void spi_set_ws(struct pic32_spi *pic32s, int ws)
 {
-	writel(SPIxCON_BPW << SPIxCON_BPW_SHIFT, pic32s->regs + SPIxCON_CLR);
-	writel(ws << SPIxCON_BPW_SHIFT, pic32s->regs + SPIxCON_SET);
+	writel(SPICON_BPW << SPICON_BPW_SHIFT, pic32s->regs + SPICON_CLR);
+	writel(ws << SPICON_BPW_SHIFT, pic32s->regs + SPICON_SET);
 }
 
 static inline void spi_drain_rx_buf(struct pic32_spi *pic32s)
@@ -200,15 +202,15 @@ static inline void spi_drain_rx_buf(struct pic32_spi *pic32s)
 
 	/* drain rx bytes until empty */
 	for (;;) {
-		sr = readl(pic32s->regs + SPIxSTAT);
+		sr = readl(pic32s->regs + SPISTAT);
 		if (sr & STAT_RF_EMPTY)
 			break;
 
-		(void)readl(pic32s->regs + SPIxBUF);
+		(void)readl(pic32s->regs + SPIBUF);
 	}
 
 	/* clear rx overflow */
-	writel(STAT_RX_OV, pic32s->regs + SPIxSTAT_CLR);
+	writel(STAT_RX_OV, pic32s->regs + SPISTAT_CLR);
 }
 
 static inline void spi_set_clk_rate(struct pic32_spi *pic32s, u32 sck)
@@ -219,20 +221,20 @@ static inline void spi_set_clk_rate(struct pic32_spi *pic32s, u32 sck)
 	 * ie. clk_div = [clk_in / (2 * sck)] - 1
 	 */
 	clk_div = (clk_get_rate(pic32s->clk) / (2 * sck)) - 1;
-	clk_div &= SPIxBRG_MASK;
+	clk_div &= SPIBRG_MASK;
 
-	writel(clk_div, pic32s->regs + SPIxBRG);
+	writel(clk_div, pic32s->regs + SPIBRG);
 }
 
 static inline void spi_set_clk(struct pic32_spi *pic32s, int clk_id)
 {
 	switch (clk_id) {
 	case SPI_CLKSRC_PBCLK:
-		writel(SPIxCON_MCLKSEL, pic32s->regs + SPIxCON_CLR);
+		writel(SPICON_MCLKSEL, pic32s->regs + SPICON_CLR);
 		break;
 
 	case SPI_CLKSRC_MCLK:
-		writel(SPIxCON_MCLKSEL, pic32s->regs + SPIxCON_SET);
+		writel(SPICON_MCLKSEL, pic32s->regs + SPICON_SET);
 		break;
 	}
 }
@@ -247,23 +249,25 @@ static inline void spi_set_ss_auto(struct pic32_spi *pic32s, u8 mst, u32 mode)
 	 * the ongoing transfer.
 	 */
 
-	v = readl(pic32s->regs + SPIxCON);
-	v &= ~SPIxCON_MSSEN;
+	v = readl(pic32s->regs + SPICON);
+	v &= ~SPICON_MSSEN;
 	if (mst) {
-		v |= SPIxCON_MSSEN;
+		v |= SPICON_MSSEN;
 		if (mode & SPI_CS_HIGH)
-			v |= SPIxCON_FRMPOL;
+			v |= SPICON_FRMPOL;
 		else
-			v &= ~SPIxCON_FRMPOL;
+			v &= ~SPICON_FRMPOL;
 	}
 
-	writel(v, pic32s->regs + SPIxCON);
+	writel(v, pic32s->regs + SPICON);
 }
 
 static inline void spi_set_err_int(struct pic32_spi *pic32s)
 {
-	writel(SPI_INT_TX_UR_EN|SPI_INT_RX_OV_EN|SPI_INT_FRM_ERR_EN,
-		pic32s->regs + SPIxCON2_SET);
+	u32 mask;
+
+	mask = SPI_INT_TX_UR_EN | SPI_INT_RX_OV_EN | SPI_INT_FRM_ERR_EN;
+	writel(mask, pic32s->regs + SPICON2_SET);
 }
 
 /* Return the max entries we can fill into tx fifo */
@@ -284,7 +288,7 @@ static inline u32 pic32_tx_max(struct pic32_spi *pic32s, int n_bytes)
 	 */
 	rxtx_gap = ((pic32s->rx_end - pic32s->rx) -
 		    (pic32s->tx_end - pic32s->tx)) / n_bytes;
-	return min3(tx_left, tx_room, (u32) (pic32s->fifo_n_elm - rxtx_gap));
+	return min3(tx_left, tx_room, (u32)(pic32s->fifo_n_elm - rxtx_gap));
 }
 
 /* Return the max entries we should read out of rx fifo */
@@ -301,7 +305,7 @@ static void pic32_spi_rx_##__name(struct pic32_spi *pic32s)	\
 	__type v;						\
 	u32 mx = pic32_rx_max(pic32s, sizeof(__type));		\
 	for (; mx; mx--) {					\
-		v = read##__bwl(pic32s->regs + SPIxBUF);	\
+		v = read##__bwl(pic32s->regs + SPIBUF);	\
 		if (pic32s->rx_end - pic32s->len)		\
 			*(__type *)(pic32s->rx) = v;		\
 		pic32s->rx += sizeof(__type);			\
@@ -313,13 +317,14 @@ static void pic32_spi_tx_##__name(struct pic32_spi *pic32s)	\
 	__type v;						\
 	u32 mx = pic32_tx_max(pic32s, sizeof(__type));		\
 	for (; mx ; mx--) {					\
-		v = (__type) ~0U;				\
+		v = (__type)~0U;				\
 		if (pic32s->tx_end - pic32s->len)		\
 			v = *(__type *)(pic32s->tx);		\
-		write##__bwl(v, pic32s->regs + SPIxBUF);	\
+		write##__bwl(v, pic32s->regs + SPIBUF);	\
 		pic32s->tx += sizeof(__type);			\
 	}							\
 }
+
 BUILD_SPI_FIFO_RW(byte, u8, b);
 BUILD_SPI_FIFO_RW(word, u16, w);
 BUILD_SPI_FIFO_RW(dword, u32, l);
@@ -348,12 +353,12 @@ static irqreturn_t pic32_spi_fault_irq(int irq, void *dev_id)
 
 	spin_lock(&pic32s->lock);
 
-	status = readl(pic32s->regs + SPIxSTAT);
+	status = readl(pic32s->regs + SPISTAT);
 
 	/* Error handling */
 	if (status & (STAT_RX_OV | STAT_FRM_ERR | STAT_TX_UR)) {
-		writel(STAT_RX_OV, pic32s->regs + SPIxSTAT_CLR);
-		writel(STAT_TX_UR, pic32s->regs + SPIxSTAT_CLR);
+		writel(STAT_RX_OV, pic32s->regs + SPISTAT_CLR);
+		writel(STAT_TX_UR, pic32s->regs + SPISTAT_CLR);
 		pic32_err_stop(pic32s, "err_irq: fifo ov/ur-run\n");
 		goto irq_handled;
 	}
@@ -439,7 +444,7 @@ static inline void pic32_spi_cs_deassert(struct pic32_spi *pic32s)
 }
 
 static int pic32_spi_poll_transfer(struct pic32_spi *pic32s,
-	unsigned long timeout)
+				   unsigned long timeout)
 {
 	unsigned long deadline;
 
@@ -464,7 +469,8 @@ static int pic32_spi_poll_transfer(struct pic32_spi *pic32s,
 }
 
 static bool pic32_spi_can_dma(struct spi_master *master,
-	struct spi_device *spi, struct spi_transfer *xfer)
+			      struct spi_device *spi,
+			      struct spi_transfer *xfer)
 {
 	struct pic32_spi *pic32s = spi_master_get_devdata(master);
 
@@ -513,7 +519,7 @@ static inline void pic32_spi_dma_abort(struct pic32_spi *pic32s)
 }
 
 static int pic32_spi_dma_transfer(struct pic32_spi *pic32s,
-	struct spi_transfer *xfer)
+				  struct spi_transfer *xfer)
 {
 	dma_cookie_t cookie;
 	struct spi_master *master = pic32s->master;
@@ -524,21 +530,25 @@ static int pic32_spi_dma_transfer(struct pic32_spi *pic32s,
 		return -ENODEV;
 
 	desc_rx = dmaengine_prep_slave_sg(master->dma_rx,
-			xfer->rx_sg.sgl, xfer->rx_sg.nents,
-			DMA_FROM_DEVICE, DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
+					  xfer->rx_sg.sgl,
+					  xfer->rx_sg.nents,
+					  DMA_FROM_DEVICE,
+					  DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
 	if (!desc_rx)
 		goto err_dma;
 
 	desc_tx = dmaengine_prep_slave_sg(master->dma_tx,
-			xfer->tx_sg.sgl, xfer->tx_sg.nents,
-			DMA_TO_DEVICE, DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
+					  xfer->tx_sg.sgl,
+					  xfer->tx_sg.nents,
+					  DMA_TO_DEVICE,
+					  DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
 	if (!desc_tx)
 		goto err_dma;
 
 	dev_vdbg(&master->dev, "dma_xfer %p: len %u, tx %p(%p), rx %p(%p)\n",
-		xfer, xfer->len,
-		xfer->tx_buf, (void *)xfer->tx_dma,
-		xfer->rx_buf, (void *)xfer->rx_dma);
+		 xfer, xfer->len,
+		 xfer->tx_buf, (void *)xfer->tx_dma,
+		 xfer->rx_buf, (void *)xfer->rx_dma);
 
 	/* Put callback on the RX transfer, that should finish last */
 	desc_rx->callback = pic32_spi_dma_rx_notify;
@@ -569,8 +579,8 @@ static int pic32_spi_dma_config(struct pic32_spi *pic32s, u32 dma_width)
 	struct spi_master *master = pic32s->master;
 
 	cfg.device_fc		= true;
-	cfg.dst_addr		= pic32s->phys_base + SPIxBUF;
-	cfg.src_addr		= pic32s->phys_base + SPIxBUF;
+	cfg.dst_addr		= pic32s->phys_base + SPIBUF;
+	cfg.src_addr		= pic32s->phys_base + SPIBUF;
 	cfg.dst_addr_width	= dma_width;
 	cfg.src_addr_width	= dma_width;
 	cfg.src_maxburst	= pic32s->fifo_n_elm >> 1; /* fill one-half */
@@ -700,7 +710,8 @@ out_wait_for_xfer:
 	ret = wait_for_completion_timeout(&pic32s->xfer_done, 2 * HZ);
 	if (ret <= 0) {
 		dev_err(&master->dev, "wait timedout/interrupted\n");
-		message->status = ret = -EIO;
+		ret = -EIO;
+		message->status = ret;
 		pic32_spi_dma_abort(pic32s);
 		goto err_xfer_done;
 	}
@@ -730,19 +741,19 @@ static int pic32_spi_one_message(struct spi_master *master,
 	pic32s = spi_master_get_devdata(master);
 
 	msg->status = 0;
-	msg->state = (void *) -2; /* running */
+	msg->state = (void *)-2; /* running */
 	msg->actual_length = 0;
 
-#if 0 /* debug msg */
-	list_for_each_entry(xfer, &msg->transfers, transfer_list) {
-		dev_info(&spi->dev, "  xfer %p: len %u tx %p rx %p cschg %x\n",
-			 xfer, xfer->len, xfer->tx_buf, xfer->rx_buf,
-			 xfer->cs_change);
-		print_hex_dump(KERN_DEBUG, "tx_buf ", DUMP_PREFIX_ADDRESS,
-			       16, 1, xfer->tx_buf, min_t(u32, xfer->len, 16),
-			       1);
+	if (spi_msg_debug) {
+		list_for_each_entry(xfer, &msg->transfers, transfer_list) {
+			dev_info(&spi->dev, "  xfer %p: len %u tx %p rx %p\n",
+				 xfer, xfer->len, xfer->tx_buf, xfer->rx_buf);
+			print_hex_dump(KERN_DEBUG, "tx_buf ",
+				       DUMP_PREFIX_ADDRESS,
+				       16, 1, xfer->tx_buf,
+				       min_t(u32, xfer->len, 16), 1);
+		}
 	}
-#endif
 
 	pic32s->mesg = msg;
 
@@ -789,13 +800,14 @@ xfer_done:
 
 	spi_disable_chip(pic32s);
 
-#if 0 /* debug msg */
-	list_for_each_entry(xfer, &msg->transfers, transfer_list) {
-		print_hex_dump(KERN_DEBUG, "rx_buf ", DUMP_PREFIX_ADDRESS,
-			       16, 1, xfer->rx_buf, min_t(u32, xfer->len, 32),
-			       1);
+	if (spi_msg_debug) { /* debug msg */
+		list_for_each_entry(xfer, &msg->transfers, transfer_list) {
+			print_hex_dump(KERN_DEBUG, "rx_buf ",
+				       DUMP_PREFIX_ADDRESS,
+				       16, 1, xfer->rx_buf,
+				       min_t(u32, xfer->len, 32), 1);
+		}
 	}
-#endif
 
 	spi_finalize_current_message(spi->master);
 
@@ -848,8 +860,8 @@ static int pic32_spi_setup(struct spi_device *spi)
 	pic32s->spi_dev = spi;
 
 	/* set POLL mode, if invalid irq is provided */
-	if ((pic32s->fault_irq <= 0) || (pic32s->rx_irq <= 0)
-	    || (pic32s->tx_irq <= 0))
+	if ((pic32s->fault_irq <= 0) || (pic32s->rx_irq <= 0) ||
+	    (pic32s->tx_irq <= 0))
 		pic32s->flags |= SPI_XFER_POLL;
 
 	if (!spi->bits_per_word) {
@@ -883,8 +895,8 @@ static int pic32_spi_setup(struct spi_device *spi)
 			gpio_direction_output(spi->cs_gpio, !cs_high);
 			pic32s->flags &= ~SPI_SS_MASTER;
 			dev_vdbg(&spi->dev,
-				"gpio-%d configured for spics (%s)\n",
-				spi->cs_gpio, cs_high ? "cs_high":"cs_low");
+				 "gpio-%d configured for spics (%s)\n",
+				 spi->cs_gpio, cs_high ? "cs_high" : "cs_low");
 		}
 	}
 	spi_set_ss_auto(pic32s, pic32s->flags & SPI_SS_MASTER, spi->mode);
@@ -929,8 +941,8 @@ static int pic32_spi_dma_prep(struct pic32_spi *pic32s, struct device *dev)
 	pic32s->flags |= SPI_DMA_PREP;
 
 	dev_dbg(dev, "Using %s (tx) and %s (rx) for DMA transfers\n",
-			dma_chan_name(master->dma_tx),
-			dma_chan_name(master->dma_rx));
+		dma_chan_name(master->dma_tx),
+		dma_chan_name(master->dma_rx));
 	return 0;
 
 out_err:
@@ -966,27 +978,27 @@ static void pic32_spi_hw_init(struct pic32_spi *pic32s)
 	/* drain rx buf */
 	spi_drain_rx_buf(pic32s);
 
-	v = readl(pic32s->regs + SPIxCON);
+	v = readl(pic32s->regs + SPICON);
 
 	/* enable fifo: fifo-depth is fixed to 128bit(= 16B) */
-	v |= SPIxCON_ENHBUF;
+	v |= SPICON_ENHBUF;
 	pic32s->fifo_n_byte = 16;
 
 	/* disable framing mode */
-	v &= ~SPIxCON_FRMEN;
+	v &= ~SPICON_FRMEN;
 
 	/* enable master mode while disabled */
-	v |= SPIxCON_MSTEN;
+	v |= SPICON_MSTEN;
 
 	/* set tx fifo threshold interrupt */
-	v &= ~(0x3 << SPIxCON_TXI_SHIFT);
-	v |= (SPI_TX_FIFO_HALF_EMPTY << SPIxCON_TXI_SHIFT);
+	v &= ~(0x3 << SPICON_TXI_SHIFT);
+	v |= (SPI_TX_FIFO_HALF_EMPTY << SPICON_TXI_SHIFT);
 
 	/* set rx fifo threshold interrupt */
-	v &= ~(0x3 << SPIxCON_RXI_SHIFT);
-	v |= (SPI_RX_FIFO_NOT_EMPTY << SPIxCON_RXI_SHIFT);
+	v &= ~(0x3 << SPICON_RXI_SHIFT);
+	v |= (SPI_RX_FIFO_NOT_EMPTY << SPICON_RXI_SHIFT);
 
-	writel(v, pic32s->regs + SPIxCON);
+	writel(v, pic32s->regs + SPICON);
 
 	spi_set_err_int(pic32s);
 }
@@ -998,7 +1010,7 @@ static int pic32_spi_hw_probe(struct platform_device *pdev,
 	struct resource *mem;
 
 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-	if (mem == NULL) {
+	if (!mem) {
 		dev_err(&pdev->dev, "mem resource not found\n");
 		return -ENOENT;
 	}
@@ -1090,12 +1102,12 @@ static int pic32_spi_probe(struct platform_device *pdev)
 	}
 
 	master->dev.of_node	= of_node_get(pdev->dev.of_node);
-	master->mode_bits	= SPI_MODE_3|SPI_MODE_0|SPI_CS_HIGH;
+	master->mode_bits	= SPI_MODE_3 | SPI_MODE_0 | SPI_CS_HIGH;
 	master->num_chipselect	= 1;
 	master->max_speed_hz	= max_spi_rate;
 	master->setup		= pic32_spi_setup;
 	master->cleanup		= pic32_spi_cleanup;
-	master->flags		= SPI_MASTER_MUST_TX|SPI_MASTER_MUST_RX;
+	master->flags		= SPI_MASTER_MUST_TX | SPI_MASTER_MUST_RX;
 	master->bits_per_word_mask	= SPI_BPW_RANGE_MASK(8, 32);
 	master->transfer_one_message	= pic32_spi_one_message;
 	if (pic32s->flags & SPI_DMA_PREP)
