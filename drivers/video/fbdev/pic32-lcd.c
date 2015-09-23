@@ -1061,7 +1061,6 @@ static int pic32_lcd_remove(struct platform_device *pdev)
 	unregister_framebuffer(info);
 	pic32_lcd_stop_clock(sinfo);
 	fb_dealloc_cmap(&info->cmap);
-	free_irq(sinfo->irq, info);
 	iounmap(sinfo->mmio);
 	release_mem_region(info->fix.mmio_start, info->fix.mmio_len);
 	pic32_lcd_free_video_memory(sinfo);
