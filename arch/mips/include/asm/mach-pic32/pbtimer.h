@@ -103,7 +103,7 @@ struct pic32_pb_timer {
 	u8 save_prescaler;
 	struct dentry *dentry;
 	struct debugfs_regset32 regs;
-	spinlock_t lock;
+	spinlock_t lock; /* lock */
 	struct mutex mutex;
 	ulong enable_count;
 	ulong usage_count;
@@ -133,7 +133,7 @@ static inline u16 pbt_readw(struct pic32_pb_timer *tmr, ulong offs)
 }
 
 static int __pbt_wait_for_write_done(struct pic32_pb_timer *timer,
-	ulong offs)
+				     ulong offs)
 {
 	u16 conf;
 
@@ -153,8 +153,7 @@ static int __pbt_wait_for_write_done(struct pic32_pb_timer *timer,
 	}
 }
 
-static inline void pbt_writel(u32 val, struct pic32_pb_timer *timer,
-		 ulong offs)
+static inline void pbt_writel(u32 val, struct pic32_pb_timer *timer, ulong offs)
 {
 	if (timer_is_async(timer))
 		__pbt_wait_for_write_done(timer, offs);
@@ -163,7 +162,7 @@ static inline void pbt_writel(u32 val, struct pic32_pb_timer *timer,
 }
 
 static inline void pbt_writew(u16 val, struct pic32_pb_timer *timer,
-		 ulong offs)
+			      ulong offs)
 {
 	if (timer_is_async(timer))
 		__pbt_wait_for_write_done(timer, offs);
@@ -176,7 +175,7 @@ static inline u16 __pbt_ps(struct pic32_pb_timer *timer)
 	return timer_is_type_a(timer) ? TIMER_CKPS_A : TIMER_CKPS;
 }
 
-static inline void pbt_write_prescaler(uint8_t v, struct pic32_pb_timer *timer)
+static inline void pbt_write_prescaler(u8 v, struct pic32_pb_timer *timer)
 {
 	pbt_writew(__pbt_ps(timer), timer, PIC32_TIMER_CTRL_CLR);
 	pbt_writew(v << TIMER_CKPS_SHIFT, timer, PIC32_TIMER_CTRL_SET);
@@ -210,24 +209,19 @@ static int __used pbt_is_enabled(struct pic32_pb_timer *timer)
 	return !!(pbt_readw(timer, PIC32_TIMER_CTRL) & TIMER_ON);
 }
 
-static inline u16 __pbt_gate(struct pic32_pb_timer *timer)
-{
-	return (timer_version(timer) == 2) ? TIMER_GATE : TIMER_GATE_V1;
-}
-
 static inline void pbt_enable_gate(struct pic32_pb_timer *timer)
 {
-	pbt_writew(__pbt_gate(timer), timer, PIC32_TIMER_CTRL_SET);
+	pbt_writew(TIMER_GATE, timer, PIC32_TIMER_CTRL_SET);
 }
 
 static inline void pbt_disable_gate(struct pic32_pb_timer *timer)
 {
-	pbt_writew(__pbt_gate(timer), timer, PIC32_TIMER_CTRL_CLR);
+	pbt_writew(TIMER_GATE, timer, PIC32_TIMER_CTRL_CLR);
 }
 
 static __used int pbt_is_gate_enabled(struct pic32_pb_timer *timer)
 {
-	return !!(pbt_readw(timer, PIC32_TIMER_CTRL) & __pbt_gate(timer));
+	return !!(pbt_readw(timer, PIC32_TIMER_CTRL) & TIMER_GATE);
 }
 
 static inline void pbt_set_32bit(int enable, struct pic32_pb_timer *timer)
@@ -286,14 +280,14 @@ static inline ulong __clk_timeout_ns_to_period(u64 ns, ulong rate)
 
 	do_div(ns, T);
 
-	return (ulong) ns;
+	return (ulong)ns;
 }
 
 static inline u64 __clk_period_to_timeout_ns(ulong period, ulong rate)
 {
 	u32 T = NSEC_PER_SEC / rate;
 
-	return (u64) period * T;
+	return (u64)period * T;
 }
 
 static inline u64
@@ -302,18 +296,18 @@ pb_timer_clk_get_max_timeout(struct pic32_pb_timer *timer, ulong rate)
 	u64 count;
 
 	if (timer_is_32bit(timer))
-		count = (u64) U32_MAX;
+		count = (u64)U32_MAX;
 	else
-		count = (u64) U16_MAX;
+		count = (u64)U16_MAX;
 
 	return __clk_period_to_timeout_ns(count, rate);
 }
 
 int pic32_pb_timer_settime(struct pic32_pb_timer *timer,
-	ulong flags, u64 timeout_nsec);
+			   ulong flags, u64 timeout_nsec);
 
-int pic32_pb_timer_gettime(struct pic32_pb_timer *timer, u64 *timeout,
-	u64 *elapsed);
+int pic32_pb_timer_gettime(struct pic32_pb_timer *timer,
+			   u64 *timeout, u64 *elapsed);
 
 static inline int pic32_pb_timer_getoverrun(struct pic32_pb_timer *timer)
 {
@@ -321,6 +315,22 @@ static inline int pic32_pb_timer_getoverrun(struct pic32_pb_timer *timer)
 		return 0;
 
 	return timer->overrun;
+}
+
+static inline void pic32_pb_timer_irq_overrun(struct pic32_pb_timer *timer)
+{
+	timer->overrun++;
+}
+
+static inline void pic32_pb_timer_irq_one_shot(struct pic32_pb_timer *timer)
+{
+	pbt_disable(timer);
+	pbt_write_period(0, timer);
+}
+
+static inline void pic32_pb_timer_irq_gate(struct pic32_pb_timer *timer)
+{
+	pbt_disable(timer);
 }
 
 int pic32_pb_timer_start(struct pic32_pb_timer *timer);
@@ -334,7 +344,7 @@ struct pbtimer_platform_data {
 
 void __init of_pic32_pb_timer_init(void);
 
-extern int pic32_of_clk_get_parent_indices(struct device_node *np,
-	u32 **table_p, int count);
+int pic32_of_clk_get_parent_indices(struct device_node *np,
+				    u32 **table_p, int count);
 
 #endif /* __PIC32_TIMER_H */

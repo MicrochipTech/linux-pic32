@@ -20,7 +20,7 @@
 
 #define PIC32_TIMER_UPPER	0x0200
 
-#if 0
+#ifdef DEBUG
 #define dbg_timer(fmt, args...) \
 	pr_info("%s:%d::" fmt, __func__, __LINE__, ##args)
 #else
@@ -89,7 +89,7 @@ static u32 read_pbt_period16(struct pic32_pb_timer *timer)
 
 static void write_pbt_period16(u32 v, struct pic32_pb_timer *timer)
 {
-	pbt_writew((u16) v, timer, PIC32_TIMER_PERIOD);
+	pbt_writew((u16)v, timer, PIC32_TIMER_PERIOD);
 }
 
 static u32 read_pbt_count_dual(struct pic32_pb_timer *timer)
@@ -165,7 +165,7 @@ static int pbt_clk_set_parent(struct clk_hw *hw, u8 idx)
 
 	default:
 		/* extended clock source */
-		if (timer_is_type_a(timer) && (timer_version(timer) == 2)) {
+		if (timer_is_type_a(timer)) {
 			v = pbt_readw(timer, PIC32_TIMER_CTRL);
 			idx = (idx >> 1) & TIMER_ECS;
 			v &= ~(TIMER_ECS << TIMER_ECS_SHIFT);
@@ -190,10 +190,10 @@ static u8 pbt_clk_get_parent(struct clk_hw *hw)
 	v = pbt_readw(timer, PIC32_TIMER_CTRL);
 
 	idx = (v & TIMER_CS) >> TIMER_CS_SHIFT;
-	if (timer_is_type_a(timer) && (timer_version(timer) == 2))
+	if (timer_is_type_a(timer))
 		idx |= ((v >> TIMER_ECS_SHIFT) & TIMER_ECS) << 1;
 
-	if (timer->clk_idx == NULL)
+	if (!timer->clk_idx)
 		goto done;
 
 	for (i = 0; i < __clk_get_num_parents(hw->clk); i++) {
@@ -208,7 +208,7 @@ done:
 }
 
 static long pbt_clk_round_rate(struct clk_hw *hw, unsigned long rate,
-	unsigned long *parent_rate)
+			       unsigned long *parent_rate)
 {
 	struct pic32_pb_timer *timer = clk_hw_to_pic32_pb_timer(hw);
 	unsigned int idx, div, delta;
@@ -230,13 +230,13 @@ static long pbt_clk_round_rate(struct clk_hw *hw, unsigned long rate,
 
 	new_rate = *parent_rate / timer->dividers[best_idx];
 	dbg_timer("%s: parent_rate %lu, target_rate %lu/index %d, rate = %lu\n",
-		__timer_name(timer), *parent_rate, rate, best_idx, new_rate);
+		  __timer_name(timer), *parent_rate, rate, best_idx, new_rate);
 
 	return new_rate;
 }
 
 static int pbt_clk_set_rate(struct clk_hw *hw, unsigned long rate,
-	unsigned long parent_rate)
+			    unsigned long parent_rate)
 {
 	struct pic32_pb_timer *timer = clk_hw_to_pic32_pb_timer(hw);
 	unsigned int idx, div, delta;
@@ -253,9 +253,9 @@ static int pbt_clk_set_rate(struct clk_hw *hw, unsigned long rate,
 	}
 
 	dbg_timer("%s(%lu, prate %lu), new_rate %lu, delta %d, idx %d\n",
-		__timer_name(timer), rate, parent_rate,
-		parent_rate / timer->dividers[best_idx],
-		best_delta, best_idx);
+		  __timer_name(timer), rate, parent_rate,
+		  parent_rate / timer->dividers[best_idx],
+		  best_delta, best_idx);
 
 	__timer_lock(timer, flags);
 
@@ -269,7 +269,7 @@ static int pbt_clk_set_rate(struct clk_hw *hw, unsigned long rate,
 }
 
 static unsigned long pbt_clk_get_rate(struct clk_hw *hw,
-	unsigned long parent_rate)
+				      unsigned long parent_rate)
 {
 	struct pic32_pb_timer *timer = clk_hw_to_pic32_pb_timer(hw);
 	unsigned long rate;
@@ -281,7 +281,7 @@ static unsigned long pbt_clk_get_rate(struct clk_hw *hw,
 	rate = parent_rate / timer->dividers[prescaler];
 
 	dbg_timer("(%s, parent_rate = %lu) / rate %lu, idx %u\n",
-		__timer_name(timer), parent_rate, rate, prescaler);
+		  __timer_name(timer), parent_rate, rate, prescaler);
 
 	return rate;
 }
@@ -399,14 +399,12 @@ static struct pic32_pb_timer *pb_timer_request(
 	int found = 0;
 
 	list_for_each_entry_safe(timer, next, &pic32_timers_list, link) {
-
 		mutex_lock(&timer->mutex);
 
 		found = match(timer, data);
 
 		/* a match found */
 		if (found) {
-
 			/* multi-client timer ? */
 			if (++timer->usage_count > 1) {
 				mutex_unlock(&timer->mutex);
@@ -464,7 +462,7 @@ struct pic32_pb_timer *pic32_pb_timer_request_by_node(struct device_node *np)
 	struct of_phandle_args spec;
 
 	ret = of_parse_phandle_with_args(np, "microchip,timer",
-		"#timer-cells", 0, &spec);
+					 "#timer-cells", 0, &spec);
 	if (ret)
 		return ERR_PTR(ret);
 
@@ -519,7 +517,7 @@ out_unlock:
 EXPORT_SYMBOL(pic32_pb_timer_free);
 
 static int pb_timer_set_timeout(struct pic32_pb_timer *timer,
-	u64 timeout_nsec)
+				u64 timeout_nsec)
 {
 	unsigned long rate = clk_get_rate(timer->clk);
 	u64 max_timeout, timeout;
@@ -530,7 +528,7 @@ static int pb_timer_set_timeout(struct pic32_pb_timer *timer,
 	max_timeout = pb_timer_clk_get_max_timeout(timer, rate);
 	if (max_timeout < timeout_nsec) {
 		pr_err("pic32-timer: couldn't support requested timeout %llu\n",
-			timeout_nsec);
+		       timeout_nsec);
 		return -EINVAL;
 	}
 
@@ -542,7 +540,7 @@ static int pb_timer_set_timeout(struct pic32_pb_timer *timer,
 	delta = abs(timeout - timeout_nsec);
 
 	dbg_timer("%s: target_timeout %llu, timeout %llu, delta %u\n",
-		__timer_name(timer), timeout_nsec, timeout, delta);
+		  __timer_name(timer), timeout_nsec, timeout, delta);
 
 	__timer_lock(timer, flags);
 
@@ -556,7 +554,9 @@ static int pb_timer_set_timeout(struct pic32_pb_timer *timer,
 }
 
 static long __determine_clk_rate_from_timeout(struct pic32_pb_timer *timer,
-	u64 timeout_nsec, int algo, struct clk **parent_clk_p)
+					      u64 timeout_nsec,
+					      int algo,
+					      struct clk **parent_clk_p)
 {
 	unsigned long rate;
 	u32 period, best_period;
@@ -567,14 +567,12 @@ static long __determine_clk_rate_from_timeout(struct pic32_pb_timer *timer,
 	struct clk *parent_clk, *best_clk = NULL;
 
 	for (c = 0; (c < __clk_get_num_parents(timer->clk)) && delta; c++) {
-
 		parent_clk = clk_get_parent_by_index(timer->clk, c);
 		parent_rate = clk_get_rate(parent_clk);
 		dbg_timer("parent_clk %s, parent_rate %lu\n",
-			__clk_get_name(parent_clk), parent_rate);
+			  __clk_get_name(parent_clk), parent_rate);
 
 		for (idx = 0; idx < timer->num_dividers; idx++) {
-
 			/* rate = tck_rate / prescaler */
 			rate = parent_rate / timer->dividers[idx];
 
@@ -582,7 +580,7 @@ static long __determine_clk_rate_from_timeout(struct pic32_pb_timer *timer,
 			max_timeout = pb_timer_clk_get_max_timeout(timer, rate);
 			if (max_timeout < timeout_nsec) {
 				dbg_timer("max_timeout %llu < timeout %llu.\n",
-					max_timeout, timeout_nsec);
+					  max_timeout, timeout_nsec);
 				continue;
 			}
 
@@ -606,21 +604,20 @@ static long __determine_clk_rate_from_timeout(struct pic32_pb_timer *timer,
 			}
 
 			dbg_timer("rate %lu, count %u/ timeout %llu, delt %u\n",
-				rate, period, timeout, delta);
+				  rate, period, timeout, delta);
 
 			if (algo == PIC32_TIMER_PRESCALE_HIGH_RES)
 				break;
-
 		}
 	}
 
 	dbg_timer("parent(%s, %lu), best_idx %d, best_timeout %llu, delta %u\n",
-		best_clk ? __clk_get_name(best_clk) : NULL, best_parent_rate,
-		best_div_idx, best_timeout, best_delta);
+		  best_clk ? __clk_get_name(best_clk) : NULL, best_parent_rate,
+		  best_div_idx, best_timeout, best_delta);
 
 	if (unlikely(best_delta == -1)) {
 		pr_err("pic32-%s: timeout %lluns not supported\n",
-			__timer_name(timer), timeout_nsec);
+		       __timer_name(timer), timeout_nsec);
 		return -EINVAL;
 	}
 
@@ -631,7 +628,8 @@ static long __determine_clk_rate_from_timeout(struct pic32_pb_timer *timer,
 }
 
 int pic32_pb_timer_settime(struct pic32_pb_timer *timer,
-	unsigned long flags, u64 timeout_nsec)
+			   unsigned long flags,
+			   u64 timeout_nsec)
 {
 	int ret = 0;
 	long rate, algo_flag;
@@ -642,10 +640,12 @@ int pic32_pb_timer_settime(struct pic32_pb_timer *timer,
 		goto out_done;
 
 	if (flags & PIC32_TIMER_MAY_RATE) {
-		algo_flag = flags & (PIC32_TIMER_PRESCALE_HIGH_RES|
+		algo_flag = flags & (PIC32_TIMER_PRESCALE_HIGH_RES |
 					PIC32_TIMER_PRESCALE_BEST_MATCH);
 		rate = __determine_clk_rate_from_timeout(timer,
-				timeout_nsec, algo_flag, &parent_clk);
+							 timeout_nsec,
+							 algo_flag,
+							 &parent_clk);
 		if (rate <= 0)
 			goto out_done;
 
@@ -668,8 +668,9 @@ out_done:
 }
 EXPORT_SYMBOL(pic32_pb_timer_settime);
 
-int pic32_pb_timer_gettime(struct pic32_pb_timer *timer, u64 *timeout,
-	u64 *elapsed)
+int pic32_pb_timer_gettime(struct pic32_pb_timer *timer,
+			   u64 *timeout,
+			   u64 *elapsed)
 {
 	unsigned long rate;
 	u32 period, count;
@@ -749,14 +750,6 @@ int pic32_pb_timer_start(struct pic32_pb_timer *timer)
 	if (timer_is_oneshot(timer))
 		handle_intr = 1;
 
-#ifdef PIC32_TIMER_HANDLE_IRQ
-	if (timer->irq) {
-		if (handle_intr)
-			enable_irq(timer->irq);
-		else
-			disable_irq_nosync(timer->irq);
-	}
-#endif
 	pbt_enable(timer);
 
 out_unlock:
@@ -786,10 +779,6 @@ int pic32_pb_timer_stop(struct pic32_pb_timer *timer)
 	if (--timer->enable_count > 0)
 		goto out_unlock;
 
-#ifdef PIC32_TIMER_HANDLE_IRQ
-	if (timer->irq)
-		disable_irq_nosync(timer->irq);
-#endif
 	pbt_disable(timer);
 
 out_unlock:
@@ -798,32 +787,6 @@ out_unlock:
 	return 0;
 }
 EXPORT_SYMBOL(pic32_pb_timer_stop);
-
-#ifdef PIC32_TIMER_HANDLE_IRQ
-static irqreturn_t pbt_irq_handler(int irq, void *dev_id)
-{
-	u32 count;
-	struct pic32_pb_timer *timer = (struct pic32_pb_timer *)dev_id;
-
-	timer->overrun++;
-
-	/* oneshot mode */
-	if (timer_is_oneshot(timer)) {
-		pbt_disable(timer);
-		pbt_write_period(0, timer);
-	}
-
-	/* gated timer */
-	if (timer_is_gated(timer)) {
-		count = pbt_read_count(timer);
-		pbt_disable(timer);
-		pr_info("%s:gated accumulation count %08x\n",
-			__timer_name(timer), count);
-	}
-
-	return IRQ_RETVAL(1);
-}
-#endif
 
 static int of_pb_timer_setup(struct device_node *np, const void *data)
 {
@@ -837,13 +800,13 @@ static int of_pb_timer_setup(struct device_node *np, const void *data)
 	dbg_timer("np %s\n", np->name);
 
 	timer = kzalloc(sizeof(*timer), GFP_KERNEL);
-	if (timer == NULL)
+	if (!timer)
 		return -ENOMEM;
 
 	timer->np = of_node_get(np);
 
 	timer->base = of_iomap(np, 0);
-	if (timer->base == NULL) {
+	if (!timer->base) {
 		pr_err("Unable to map regs for %s", np->name);
 		ret = -ENOMEM;
 		goto out_timer;
@@ -894,17 +857,9 @@ static int of_pb_timer_setup(struct device_node *np, const void *data)
 		goto out_unmap;
 	}
 
-	/* install interrupt */
+	/* interrupt */
 	timer->irq = irq_of_parse_and_map(np, 0);
 
-#ifdef PIC32_TIMER_HANDLE_IRQ
-	if (timer->irq) {
-		ret = request_irq(timer->irq, pbt_irq_handler, IRQF_SHARED,
-			np->name, timer);
-		if (ret)
-			pr_err("%s: irq install failed!\n", __func__);
-	}
-#endif
 	/* prepare clk */
 	clk_prepare_enable(timer->clk);
 
@@ -931,13 +886,13 @@ out_timer:
 
 #ifdef CONFIG_OF
 #define PIC32_TIMER_DEFAULT_FLAGS \
-	(PIC32_TIMER_PS_FIXUP_COUNT|PIC32_TIMER_PS_FIXUP_DISABLE)
+	(PIC32_TIMER_PS_FIXUP_COUNT | PIC32_TIMER_PS_FIXUP_DISABLE)
 
 static const struct pbtimer_platform_data pic32_data[] = {
 	{ .timer_capability = PIC32_TIMER_DEFAULT_FLAGS, },
-	{ .timer_capability = PIC32_TIMER_DEFAULT_FLAGS|PIC32_TIMER_CLASS_A,},
+	{ .timer_capability = PIC32_TIMER_DEFAULT_FLAGS | PIC32_TIMER_CLASS_A,},
 	{ .timer_capability = PIC32_TIMER_DEFAULT_FLAGS|PIC32_TIMER_TRIG_ADC,},
-	{ .timer_capability = PIC32_TIMER_DEFAULT_FLAGS|PIC32_TIMER_32BIT, },
+	{ .timer_capability = PIC32_TIMER_DEFAULT_FLAGS | PIC32_TIMER_32BIT, },
 };
 
 static const struct of_device_id pic32_timer_match[] = {
@@ -956,7 +911,6 @@ void __init of_pic32_pb_timer_init(void)
 
 	for_each_matching_node_and_match(np, pic32_timer_match, &match)
 		of_pb_timer_setup(np, match->data);
-
 }
 
 #ifdef CONFIG_DEBUG_FS
@@ -971,17 +925,18 @@ static int pb_timer_summary_show(struct seq_file *s, void *data)
 
 	parent_clk = clk_get_parent(timer->clk);
 	seq_printf(s, "%s:%lukH, parent:%lukH, div:%u, PRx:0x%08x, TMRx:0x%08x",
-		__clk_get_name(timer->clk), clk_get_rate(timer->clk) / 1000,
-		clk_get_rate(parent_clk) / 1000,
-		timer->dividers[pbt_read_prescaler(timer)],
-		pbt_read_period(timer), pbt_read_count(timer));
+		   __clk_get_name(timer->clk),
+		   clk_get_rate(timer->clk) / 1000,
+		   clk_get_rate(parent_clk) / 1000,
+		   timer->dividers[pbt_read_prescaler(timer)],
+		   pbt_read_period(timer), pbt_read_count(timer));
 
 	seq_puts(s, "\n - - parents - -\n");
 	for (i = 0; i < __clk_get_num_parents(timer->clk); i++) {
 		p = timer->clk_idx ? timer->clk_idx[i] : i;
 		c = clk_get_parent_by_index(timer->clk, i);
 		seq_printf(s, "<%d> %s%c\n", p, __clk_get_name(c),
-			(c == parent_clk) ? '*' : ' ');
+			   (c == parent_clk) ? '*' : ' ');
 	}
 
 	seq_puts(s, "\n");
@@ -1023,7 +978,7 @@ static int debugfs_timeout_get(void *data, u64 *val)
 	return 0;
 }
 DEFINE_SIMPLE_ATTRIBUTE(fops_timeout,
-	debugfs_timeout_get, debugfs_timeout_set, "%llu\n");
+			debugfs_timeout_get, debugfs_timeout_set, "%llu\n");
 
 static int debugfs_enable_set(void *data, u64 val)
 {
@@ -1044,7 +999,7 @@ static int debugfs_enable_get(void *data, u64 *val)
 	return 0;
 }
 DEFINE_SIMPLE_ATTRIBUTE(fops_enable,
-	debugfs_enable_get, debugfs_enable_set, "%llu\n");
+			debugfs_enable_get, debugfs_enable_set, "%llu\n");
 
 static int debugfs_request_set(void *data, u64 val)
 {
@@ -1064,12 +1019,12 @@ static int debugfs_is_ready(void *data, u64 *val)
 	return 0;
 }
 DEFINE_SIMPLE_ATTRIBUTE(fops_request,
-	debugfs_is_ready, debugfs_request_set, "%llu\n");
+			debugfs_is_ready, debugfs_request_set, "%llu\n");
 
 #define DEFINE_TIMER_DEBUGFS_RW(_pfx)					\
 static int debugfs_set_##_pfx(void *data, u64 val)			\
 {									\
-	pbt_write_##_pfx((u32) val, (struct pic32_pb_timer *)data);	\
+	pbt_write_##_pfx((u32)val, (struct pic32_pb_timer *)data);	\
 	return 0;							\
 }									\
 									\
@@ -1080,14 +1035,16 @@ static int debugfs_get_##_pfx(void *data, u64 *val)			\
 }									\
 									\
 DEFINE_SIMPLE_ATTRIBUTE(fops_##_pfx,					\
-	debugfs_get_##_pfx, debugfs_set_##_pfx, "%llu\n")		\
+			debugfs_get_##_pfx, debugfs_set_##_pfx, "%llu\n")
 
 DEFINE_TIMER_DEBUGFS_RW(count);
 DEFINE_TIMER_DEBUGFS_RW(period);
 DEFINE_TIMER_DEBUGFS_RW(prescaler);
 
 static ssize_t pb_timer_show_cap(struct file *file,
-		char __user *userbuf, size_t count, loff_t *ppos)
+				 char __user *userbuf,
+				 size_t count,
+				 loff_t *ppos)
 
 {
 	u32 len = 0, cap;
@@ -1096,13 +1053,13 @@ static ssize_t pb_timer_show_cap(struct file *file,
 	cap = *(u32 *)file->private_data;
 
 	len = snprintf(buf, sizeof(buf), "%s%s%s%s%s%s (0x%08x)\n",
-		(cap & PIC32_TIMER_CLASS_A) ? "A" : "B",
-		(cap & PIC32_TIMER_32BIT) ? "|32B" : "|16B",
-		(cap & PIC32_TIMER_ASYNC) ? "|ASYN" : "|SYNC",
-		(cap & PIC32_TIMER_CLK_EXT) ? "|EXT" : " ",
-		(cap & PIC32_TIMER_GATED) ? "|GAT" : " ",
-		(cap & PIC32_TIMER_TRIG_ADC) ? "|ADC" : " ",
-		cap);
+		       (cap & PIC32_TIMER_CLASS_A) ? "A" : "B",
+		       (cap & PIC32_TIMER_32BIT) ? "|32B" : "|16B",
+		       (cap & PIC32_TIMER_ASYNC) ? "|ASYN" : "|SYNC",
+		       (cap & PIC32_TIMER_CLK_EXT) ? "|EXT" : " ",
+		       (cap & PIC32_TIMER_GATED) ? "|GAT" : " ",
+		       (cap & PIC32_TIMER_TRIG_ADC) ? "|ADC" : " ",
+		       cap);
 
 	return simple_read_from_buffer(userbuf, count, ppos, buf, len);
 }
@@ -1116,7 +1073,7 @@ static const struct file_operations pb_timer_cap_fops = {
 
 /* caller must hold prepare_lock */
 static int pb_timer_debug_create_one(struct pic32_pb_timer *timer,
-	struct dentry *pdentry)
+				     struct dentry *pdentry)
 {
 	struct dentry *d;
 	int ret = -ENOMEM;
@@ -1133,17 +1090,18 @@ static int pb_timer_debug_create_one(struct pic32_pb_timer *timer,
 	timer->dentry = d;
 
 	d = debugfs_create_u32("id", S_IRUGO, timer->dentry,
-			(u32 *)&timer->id);
+			       (u32 *)&timer->id);
 	if (!d)
 		goto err_out;
 
 	d = debugfs_create_u32_array("prescalers", S_IRUGO, timer->dentry,
-			(u32 *)timer->dividers, timer->num_dividers);
+				     (u32 *)timer->dividers,
+				     timer->num_dividers);
 	if (!d)
 		goto err_out;
 
 	d = debugfs_create_x32("regbase", S_IRUGO, timer->dentry,
-			(u32 *)&timer->base);
+			       (u32 *)&timer->base);
 	if (!d)
 		goto err_out;
 
@@ -1152,55 +1110,52 @@ static int pb_timer_debug_create_one(struct pic32_pb_timer *timer,
 	timer->regs.nregs = ARRAY_SIZE(pb_timer_regset);
 
 	d = debugfs_create_regset32("regdump", S_IRUGO, timer->dentry,
-			&timer->regs);
+				    &timer->regs);
 	if (!d)
 		goto err_out;
 
 	d = debugfs_create_file("summary", S_IRUGO, timer->dentry, timer,
-			&pb_timer_summary_fops);
+				&pb_timer_summary_fops);
 	if (!d)
 		goto err_out;
 
-
 	d = debugfs_create_file("capability", S_IRUGO, timer->dentry,
-			&timer->capability, &pb_timer_cap_fops);
+				&timer->capability, &pb_timer_cap_fops);
 	if (!d)
 		goto err_out;
 
 	d = debugfs_create_file("flags", S_IRUGO, timer->dentry, &timer->flags,
-			&pb_timer_cap_fops);
+				&pb_timer_cap_fops);
 	if (!d)
 		goto err_out;
 
-	d = debugfs_create_file("request", S_IALLUGO, timer->dentry, timer,
-			&fops_request);
+	d = debugfs_create_file("request", S_IRWXU, timer->dentry, timer,
+				&fops_request);
 	if (!d)
 		goto err_out;
 
-
-	d = debugfs_create_file("count", S_IALLUGO, timer->dentry, timer,
-			&fops_count);
+	d = debugfs_create_file("count", S_IRWXU, timer->dentry, timer,
+				&fops_count);
 	if (!d)
 		goto err_out;
 
-	d = debugfs_create_file("period", S_IALLUGO, timer->dentry, timer,
-			&fops_period);
+	d = debugfs_create_file("period", S_IRWXU, timer->dentry, timer,
+				&fops_period);
 	if (!d)
 		goto err_out;
 
-	d = debugfs_create_file("prescaler", S_IALLUGO, timer->dentry, timer,
-			&fops_prescaler);
+	d = debugfs_create_file("prescaler", S_IRWXU, timer->dentry, timer,
+				&fops_prescaler);
 	if (!d)
 		goto err_out;
 
-
-	d = debugfs_create_file("timeout_msec", S_IALLUGO, timer->dentry, timer,
-			&fops_timeout);
+	d = debugfs_create_file("timeout_msec", S_IRWXU, timer->dentry, timer,
+				&fops_timeout);
 	if (!d)
 		goto err_out;
 
-	d = debugfs_create_file("enable", S_IALLUGO, timer->dentry, timer,
-			&fops_enable);
+	d = debugfs_create_file("enable", S_IRWXU, timer->dentry, timer,
+				&fops_enable);
 	if (!d)
 		goto err_out;
 	return 0;
