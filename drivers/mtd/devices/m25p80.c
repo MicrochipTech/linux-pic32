@@ -80,7 +80,7 @@ static void m25p80_write(struct spi_nor *nor, loff_t to, size_t len,
 {
 	struct m25p *flash = nor->priv;
 	struct spi_device *spi = flash->spi;
-	struct spi_transfer t[2] = {};
+	struct spi_transfer t[3] = {};
 	struct spi_message m;
 	int cmd_sz = m25p_cmdsz(nor);
 
@@ -96,9 +96,25 @@ static void m25p80_write(struct spi_nor *nor, loff_t to, size_t len,
 	t[0].len = cmd_sz;
 	spi_message_add_tail(&t[0], &m);
 
-	t[1].tx_buf = buf;
-	t[1].len = len;
-	spi_message_add_tail(&t[1], &m);
+	if (nor->program_opcode == SPINOR_OP_QUAD_PP) {
+		t[0].len = 1; /* only command */
+
+		/* address in quad mode */
+		t[1].tx_buf = &flash->command[1];
+		t[1].len = nor->addr_width;
+		t[1].tx_nbits = 4;
+		spi_message_add_tail(&t[1], &m);
+
+		/* data in quad mode */
+		t[2].tx_buf = buf;
+		t[2].len = len;
+		t[2].tx_nbits = 4;
+		spi_message_add_tail(&t[2], &m);
+	} else {
+		t[1].tx_buf = buf;
+		t[1].len = len;
+		spi_message_add_tail(&t[1], &m);
+	}
 
 	spi_sync(spi, &m);
 
