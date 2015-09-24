@@ -55,6 +55,7 @@ struct flash_info {
 #define	SPI_NOR_DUAL_READ	0x20    /* Flash supports Dual Read */
 #define	SPI_NOR_QUAD_READ	0x40    /* Flash supports Quad Read */
 #define	USE_FSR			0x80	/* use flag status register */
+#define SST_UNLOCK		0x200	/* SST unlock block protect */
 };
 
 #define JEDEC_MFR(info)	((info)->id[0])
@@ -638,6 +639,8 @@ static const struct spi_device_id spi_nor_ids[] = {
 	{ "sst25wf020",  INFO(0xbf2503, 0, 64 * 1024,  4, SECT_4K | SST_WRITE) },
 	{ "sst25wf040",  INFO(0xbf2504, 0, 64 * 1024,  8, SECT_4K | SST_WRITE) },
 	{ "sst25wf080",  INFO(0xbf2505, 0, 64 * 1024, 16, SECT_4K | SST_WRITE) },
+	{ "sst26vf032",  INFO(0xbf2602, 0, 64 * 1024, 64, SECT_4K | SST_UNLOCK) },
+	{ "sst26vf032b", INFO(0xbf2642, 0, 64 * 1024, 64, SECT_4K | SPI_NOR_QUAD_READ | SST_UNLOCK) },
 
 	/* ST Microelectronics -- newer production may have feature updates */
 	{ "m25p05",  INFO(0x202010,  0,  32 * 1024,   2, 0) },
@@ -1082,6 +1085,30 @@ int spi_nor_scan(struct spi_nor *nor, const char *name, enum read_mode mode)
 	if (nor->flash_lock && nor->flash_unlock) {
 		mtd->_lock = spi_nor_lock;
 		mtd->_unlock = spi_nor_unlock;
+	}
+
+	if ((JEDEC_MFR(info) == CFI_MFR_SST) && (info->flags & SST_UNLOCK)) {
+		u8 *buf, len = 18; /* 18 byte block protect data */
+
+		buf = devm_kzalloc(dev, len, GFP_KERNEL);
+		if (!buf)
+			return -ENOMEM;
+
+		/* Disable write protection by filling zeros */
+		write_enable(nor);
+		ret = nor->write_reg(nor, SPINOR_OP_WRBP, buf, len, 0);
+		if (ret)
+			dev_err(dev, "disabling block protection failed\n");
+
+		/* read back to confirm protection is disabled, */
+		ret = nor->read_reg(nor, SPINOR_OP_RDBP, buf, len);
+		if (ret)
+			dev_err(dev, "block protection read failed\n");
+
+		ret = (buf[0] << 24) | (buf[1] << 16) | (buf[2] << 8) | buf[3];
+		dev_warn(dev, "block protection bitmap: 0x%08x\n", ret);
+
+		devm_kfree(dev, buf);
 	}
 
 	/* sst nor chips use AAI word program */
