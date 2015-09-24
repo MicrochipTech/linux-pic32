@@ -64,7 +64,7 @@
 			compatible = "microchip,pic32-sosc";
 			clock-frequency = <32768>;
 			reg = <0x1f801200 0x10   /* enable reg */
-				0x1f801390 0x10>; /* status reg */
+			       0x1f8013d0 0x10>; /* status reg */
 			microchip,bit-mask = <0x02>; /* enable mask */
 			microchip,status-bit-mask = <0x10>; /* status-mask*/
 		};
@@ -81,7 +81,7 @@
 			#clock-cells = <0>;
 			compatible = "microchip,pic32-syspll";
 			reg = <0x1f801220 0x10 /* SPLL register */
-				0x1f801390 0x10>; /* CLKSTAT register */
+			       0x1f8013d0 0x10>; /* CLKSTAT register */
 			clocks = <&POSC>, <&FRC>;
 			clock-output-names = "sys_pll";
 			microchip,status-bit-mask = <0x80>; /* SPLLRDY */
@@ -93,7 +93,7 @@
 			compatible = "microchip,pic32-sysclk-v2";
 			reg = <0x1f8013c0 0x04>; /* SLEWCON */
 			clocks = <&FRCDIV>, <&SYSPLL>, <&POSC>, <&SOSC>,
-					<&LPRC>, <&FRCDIV>;
+				 <&LPRC>, <&FRCDIV>;
 			microchip,clock-indices = <0>, <1>, <2>, <4>, <5>, <7>;
 			clock-output-names = "sys_clk";
 		};
@@ -123,7 +123,7 @@
 			compatible = "microchip,pic32-pbclk";
 			clocks = <&SYSCLK>;
 			clock-output-names = "pb1_clk";
-			/* always ON, can't be gated even if unused */
+			/* used by system modules, not gateable */
 			microchip,ignore-unused;
 		};
 
@@ -154,9 +154,6 @@
 			compatible = "microchip,pic32-pbclk";
 			clocks = <&SYSCLK>;
 			clock-output-names = "pb4_clk";
-			/* I/O ports & GPIO controller uses this clock, so keep
-			   it enabled */
-			microchip,ignore-unused;
 		};
 
 		/* Peripheral AHB bus clock */
@@ -165,8 +162,7 @@
 			#clock-cells = <0>;
 			compatible = "microchip,pic32-pbclk";
 			clocks = <&SYSCLK>;
-			clock-output-names = "pb5_clk", "pic32-ether",
-						"pic32-rng";
+			clock-output-names = "pb5_clk";
 		};
 
 		/* Peripheral Bus6 clock; */
@@ -185,9 +181,6 @@
 			/* CPU is driven by this clock; so named */
 			clock-output-names = "cpu_clk";
 			clocks = <&SYSCLK>;
-			/* EBI drives SRAM in SK+MEB setup, so avoid gating even
-			   if unused */
-			microchip,ignore-unused;
 		};
 
 		/* Reference Oscillator clock for SPI/I2S */
@@ -197,8 +190,8 @@
 			compatible = "microchip,pic32-refoclk";
 			clocks = <&SYSCLK>, <&PBCLK1>, <&POSC>, <&FRC>, <&LPRC>,
 				<&SOSC>, <&SYSPLL>, <&REFIx>, <&BFRC>;
-			microchip,clock-indices = <0>, <1>, <2>, <3>, <4>, <5>,
-							<7>, <8>, <9>;
+			microchip,clock-indices = <0>, <1>, <2>, <3>, <4>,
+						  <5>, <7>, <8>, <9>;
 			clock-output-names = "refo1_clk";
 			clock-frequency = <10000000>;  /* 10Mhz for I2S MCLK */
 		};
@@ -210,8 +203,8 @@
 			compatible = "microchip,pic32-refoclk";
 			clocks = <&SYSCLK>, <&PBCLK1>, <&POSC>, <&FRC>, <&LPRC>,
 				<&SOSC>, <&SYSPLL>, <&REFIx>, <&BFRC>;
-			microchip,clock-indices = <0>, <1>, <2>, <3>, <4>, <5>,
-							<7>, <8>, <9>;
+			microchip,clock-indices = <0>, <1>, <2>, <3>, <4>,
+						  <5>, <7>, <8>, <9>;
 			clock-output-names = "refo2_clk";
 			clock-frequency = <50000000>; /* 50MHz for SQI */
 		};
@@ -222,8 +215,8 @@
 			compatible = "microchip,pic32-refoclk";
 			clocks = <&SYSCLK>, <&PBCLK1>, <&POSC>, <&FRC>, <&LPRC>,
 				<&SOSC>, <&SYSPLL>, <&REFIx>, <&BFRC>;
-			microchip,clock-indices = <0>, <1>, <2>, <3>, <4>, <5>,
-							<7>, <8>, <9>;
+			microchip,clock-indices = <0>, <1>, <2>, <3>, <4>,
+						  <5>, <7>, <8>, <9>;
 			#clock-cells = <0>;
 			clock-output-names = "refo3_clk";
 			clock-frequency = <10000000>;  /* 1Mhz */
@@ -235,8 +228,8 @@
 			compatible = "microchip,pic32-refoclk";
 			clocks = <&SYSCLK>, <&PBCLK1>, <&POSC>, <&FRC>, <&LPRC>,
 					<&SOSC>, <&SYSPLL>, <&REFIx>, <&BFRC>;
-			microchip,clock-indices = <0>,<1>,<2>,<3>,<4>,<5>,<7>,
-							<8>,<9>;
+			microchip,clock-indices = <0>, <1>, <2>, <3>, <4>,
+						  <5>, <7>, <8>, <9>;
 			#clock-cells = <0>;
 			clock-output-names = "refo4_clk";
 			clock-frequency = <25000000>;  /* 25Mhz */
@@ -248,8 +241,8 @@
 			compatible = "microchip,pic32-refoclk";
 			clocks = <&SYSCLK>,<&PBCLK1>,<&POSC>,<&FRC>,<&LPRC>,
 				<&SOSC>,<&SYSPLL>,<&REFIx>,<&BFRC>;
-			microchip,clock-indices = <0>, <1>, <2>, <3>, <4>, <5>,
-						<7>, <8>,<9>;
+			microchip,clock-indices = <0>, <1>, <2>, <3>, <4>,
+						  <5>, <7>, <8>, <9>;
 			#clock-cells = <0>;
 			clock-output-names = "refo5_clk";
 			clock-frequency = <40000000>;  /* 40Mhz */
