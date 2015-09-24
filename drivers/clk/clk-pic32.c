@@ -1639,7 +1639,7 @@ static void __init of_sosc_clk_setup(struct device_node *np)
 	if (of_property_read_u32(np, "microchip,bit-mask", &bitmask))
 		bitmask = OSC_SOSCEN_MASK;
 
-	if (!of_property_read_u32(np, "microchip,status-bit-mask", &stsmask))
+	if (of_property_read_u32(np, "microchip,status-bit-mask", &stsmask))
 		stsmask = OSC_SOSC_READY;
 
 	/* allocate fixed-rate clock */
