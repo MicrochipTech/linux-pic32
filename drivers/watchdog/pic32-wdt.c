@@ -27,8 +27,7 @@
 #include <asm/mach-pic32/pic32.h>
 
 /* Watchdog Timer Registers */
-#define WDTCON_REG	0x00
-#define RESETCON_REG	0x10
+#define WDTCON_REG		0x00
 
 /* Watchdog Timer Control Register fields */
 #define WDTCON_WIN_EN		0x0001
@@ -47,6 +46,7 @@
 struct pic32_wdt {
 	spinlock_t	lock; /* lock */
 	void __iomem	*regs;
+	void __iomem	*rst_base;
 	struct clk	*clk;
 	unsigned long	next_heartbeat;
 	unsigned long	timeout;
@@ -100,7 +100,10 @@ static inline void wdt_keepalive(struct pic32_wdt *wdt)
 
 static int pic32_wdt_bootstatus(struct pic32_wdt *wdt)
 {
-	u32 v = readl(wdt->regs + RESETCON_REG);
+	u32 v = readl(wdt->rst_base);
+
+	/* clear WDT_TIMEOUT */
+	writel(RESETCON_WDT_TIMEOUT, PIC32_CLR(wdt->rst_base));
 
 	return v & RESETCON_WDT_TIMEOUT;
 }
@@ -114,7 +117,7 @@ static int pic32_wdt_get_timeout_secs(struct pic32_wdt *wdt)
 	pr_debug("wdt: clk_id %d, clk_rate %lu (prescale)\n",
 		 wdt_get_clk_id(wdt), rate);
 
-	/* default, prescaler of 32 (i.e. div/32) is implicit. */
+	/* default, prescaler of 32 (i.e. div-by-32) is implicit. */
 	rate >>= 5;
 
 	/* calculate terminal count from postscaler. */
@@ -226,6 +229,10 @@ static int pic32_wdt_drv_probe(struct platform_device *pdev)
 	wdt->regs = devm_ioremap_resource(&pdev->dev, mem);
 	if (IS_ERR(wdt->regs))
 		return PTR_ERR(wdt->regs);
+
+	wdt->rst_base = devm_ioremap(&pdev->dev, PIC32_BASE_RESET, 0x10);
+	if (IS_ERR(wdt->rst_base))
+		return PTR_ERR(wdt->rst_base);
 
 	wdt->clk = devm_clk_get(&pdev->dev, NULL);
 	if (IS_ERR(wdt->clk)) {
