@@ -293,7 +293,8 @@ int pic32_sdhci_probe(struct platform_device *pdev)
 		host->quirks |= SDHCI_QUIRK_BROKEN_ADMA |
 			SDHCI_QUIRK_BROKEN_DMA;
 
-	host->quirks |= SDHCI_QUIRK_INVERTED_WRITE_PROTECT;
+	host->quirks |= SDHCI_QUIRK_INVERTED_WRITE_PROTECT |
+		SDHCI_QUIRK_NO_HISPD_BIT;
 
 	host->mmc->ocr_avail = PIC32_MMC_OCR;
 
