@@ -15,7 +15,8 @@ void pic32_clk_init(void);
 u32 pic32_get_cpuclk(void);
 void pic32_clk_add(const char *dev, u32 rate);
 
-/* Hard coded early console port */
-#define EARLY_CONSOLE_PORT    2
+/* Default early console parameters */
+#define EARLY_CONSOLE_PORT	1
+#define EARLY_CONSOLE_BAUDRATE	115200
 
 #endif

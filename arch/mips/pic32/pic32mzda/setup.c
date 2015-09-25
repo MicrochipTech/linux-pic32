@@ -18,6 +18,7 @@
 
 #include <asm/bootinfo.h>
 #include <asm/mips-boards/generic.h>
+
 #include <asm/prom.h>
 #include <asm/fw/fw.h>
 
@@ -85,6 +86,10 @@ void __init plat_mem_setup(void)
 #endif
 	if (dtb != __dtb_start)
 		strlcpy(arcs_cmdline, boot_command_line, COMMAND_LINE_SIZE);
+
+#ifdef CONFIG_EARLY_PRINTK
+	fw_init_early_console(-1);
+#endif
 }
 
 void __init device_tree_init(void)

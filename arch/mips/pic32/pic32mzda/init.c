@@ -24,74 +24,31 @@
 #include <asm/prom.h>
 #include <asm/mips-boards/generic.h>
 
-#include "common.h"
-
-int prom_argc;
-int *_prom_argv, *_prom_envp;
-
-#define prom_envp(index) ((char *)(long)_prom_envp[(index)])
-#define prom_argv(index) ((char *)(long)_prom_argv[(index)])
-
-char * __init prom_getcmdline(void)
+static __init void pic32_init_cmdline(int argc, char *argv[])
 {
-	return &(arcs_cmdline[0]);
-}
+	unsigned int count = COMMAND_LINE_SIZE - 1;
+	int i;
+	char *dst = &(arcs_cmdline[0]);
+	char *src;
 
-void  __init prom_init_cmdline(void)
-{
-	char *cp;
-	int actr;
-
-	actr = 1;		/* Always ignore argv[0] */
-
-	cp = &(arcs_cmdline[0]);
-	while (actr < prom_argc) {
-		strcpy(cp, prom_argv(actr));
-		cp += strlen(prom_argv(actr));
-		*cp++ = ' ';
-		actr++;
+	for (i = 1; i < argc && count; ++i) {
+		src = argv[i];
+		while (*src && count) {
+			*dst++ = *src++;
+			--count;
+		}
+		*dst++ = ' ';
 	}
-	if (cp != &(arcs_cmdline[0])) {
-		/* get rid of trailing space */
-		--cp;
-		*cp = '\0';
-	}
-}
+	if (i > 1)
+		--dst;
 
-char *prom_getenv(char *envname)
-{
-	/*
-	 * Return a pointer to the given environment variable.
-	 * In 64-bit mode: we're using 64-bit pointers, but all pointers
-	 * in the PROM structures are only 32-bit, so we need some
-	 * workarounds, if we are running in 64-bit mode.
-	 */
-	int i, index = 0;
-
-	i = strlen(envname);
-
-	while (prom_envp(index)) {
-		if (strncmp(envname, prom_envp(index), i) == 0)
-			return prom_envp(index + 1);
-		index += 2;
-	}
-
-	return NULL;
+	*dst = 0;
 }
 
 void __init prom_init(void)
 {
-	prom_argc = fw_arg0;
-	_prom_argv = (int *)fw_arg1;
-	_prom_envp = (int *)fw_arg2;
-
-	fw_init_cmdline();
-
-#ifdef CONFIG_EARLY_PRINTK
-	fw_init_early_console(EARLY_CONSOLE_PORT);
-#endif
+	pic32_init_cmdline((int)fw_arg0, (char **)fw_arg1);
 }
 
 void __init prom_free_prom_memory(void)
-{
-}
+{}
