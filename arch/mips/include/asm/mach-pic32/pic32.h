@@ -19,9 +19,9 @@
 /*
  * PIC32 register offsets for SET/CLR/INV where supported.
  */
-#define PIC32_CLR(reg)		(reg+0x04)
-#define PIC32_SET(reg)		(reg+0x08)
-#define PIC32_INV(reg)		(reg+0x0C)
+#define PIC32_CLR(reg)		(reg + 0x04)
+#define PIC32_SET(reg)		(reg + 0x08)
+#define PIC32_INV(reg)		(reg + 0x0C)
 
 /*
  * PIC32 Base Register Offsets
@@ -33,8 +33,6 @@
 #define PIC32_BASE_DMA		0x1f811000
 #define PIC32_BASE_UART		0x1f822000
 #define PIC32_BASE_PORT		0x1f860000
-#define PIC32_BASE_PREFETCH	0x1f8e0000
-#define PIC32_BASE_EBI		0x1f8e1000
 #define PIC32_BASE_DEVCFG2	0x1fc4ff44
 
 /*

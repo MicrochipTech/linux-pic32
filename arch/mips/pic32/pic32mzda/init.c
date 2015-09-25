@@ -15,14 +15,8 @@
 #include <linux/string.h>
 #include <linux/kernel.h>
 
-#include <asm/bootinfo.h>
-#include <asm/io.h>
-#include <asm/cacheflush.h>
-#include <asm/traps.h>
-
 #include <asm/fw/fw.h>
 #include <asm/prom.h>
-#include <asm/mips-boards/generic.h>
 
 static __init void pic32_init_cmdline(int argc, char *argv[])
 {
