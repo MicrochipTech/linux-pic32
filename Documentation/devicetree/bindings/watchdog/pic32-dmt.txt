@@ -10,7 +10,9 @@ Required properties:
 
 Example:
 
-	watchdog: wdt@bf800800 {
-		compatible = "microchip,pic32-wdt";
-		reg = <0xbf800800 0x200>;
+	watchdog2: dmt@1f800a00 {
+		compatible = "microchip,pic32-dmt";
+		reg = <0x1f800a00 0x80>;
+		clocks = <&PBCLK7>;
 	};
+
