@@ -23,9 +23,12 @@ config PIC32MZDA
 	select PINCTRL
 	select SERIAL_PIC32 if TTY
 	help
-	  Microchip PIC32MZDA microcontroller.
+	  Support for the Microchip PIC32MZDA microcontroller.
 
-	  32-bit microcontroller with support for external DDR2.
+	  This is a 32-bit microcontroller with support for external or
+	  internally packaged DDR2 memory up to 128MB.
+
+	  For more information, see <http://www.microchip.com/>.
 
 endchoice
 
