@@ -985,10 +985,11 @@ config FB_PIC32_LCD
 	select FB_MODE_HELPERS
 	select VIDEOMODE_HELPERS
 	help
-	  This enables support for the PIC32 LCD framebuffer driver.
+	  This enables support for the PIC32 LCD framebuffer controller driver
+	  sometimes referred to as the Graphics LCD (GLCD) Controller.
 
 	  The PIC32 LCD framebuffer driver is used in PIC32 devices to
-	  communicate with an LCD.
+	  communicate with an LCD through a parallel RGB interface.
 
 config FB_S1D13XXX
 	tristate "Epson S1D13XXX framebuffer support"
