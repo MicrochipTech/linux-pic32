@@ -1,0 +1,23 @@
+Microchip ASoC driver with AK4953A Codec
+
+Required properties:
+  - compatible: "microchip,snd-pic32-ak4953a"
+
+    AK4953A pins:
+
+    * MCKI
+    * BICK
+    * LRCK
+    * SDTO
+    * SDTI
+
+  - microchip,cpu-dai: The phandle of I2S peripherals
+  - microchip,audio-codec: The phandle of the AK4953A audio codec
+
+Example:
+
+	sound {
+		compatible = "microchip,snd-pic32-ak4953a";
+		microchip,cpu-dai = <&i2s1 &i2s2>;
+		microchip,audio-codec = <&ak4953a>;
+	};
