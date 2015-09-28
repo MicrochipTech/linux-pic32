@@ -10,6 +10,6 @@ Example:
 
 rng {
         compatible = "microchip,pic32-rng";
-	reg = <0xbf8e6000 0x1000>;
+	reg = <0x1f8e6000 0x1000>;
 	clocks = <&PBCLK5>;
 };
