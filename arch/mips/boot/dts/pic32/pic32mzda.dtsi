@@ -51,7 +51,7 @@
 		#size-cells = <0>;
 
 		cpu@0 {
-			compatible = "mips,mips14KEc";
+			compatible = "mti,mips14KEc";
 			device_type = "cpu";
 		};
 	};
