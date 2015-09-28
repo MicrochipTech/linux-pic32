@@ -1,0 +1,19 @@
+Microchip PIC32 Real Time Clock
+
+Required properties:
+- compatible: should be: "microchip,pic32-rtc"
+- reg: physical base address of the controller and length of memory mapped
+  region.
+- interrupts: rtc alarm/event interrupt
+- clocks: rtc clock
+
+Example:
+
+	rtc@1f8c0000 {
+		compatible = "microchip,pic32-rtc";
+		reg = <0x1f8c0000 0x60>;
+		interrupts = <REAL_TIME_CLOCK DEFAULT_INT_PRI
+				IRQ_TYPE_EDGE_RISING>;
+		clocks = <&PBCLK6>;
+	};
+
