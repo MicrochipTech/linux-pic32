@@ -11,8 +11,8 @@ Required properties:
 
 Example:
 
-	watchdog: wdt@bf800800 {
-		compatible = "microchip,pic32-wdt";
+	watchdog0: wdt@1f800800 {
+		compatible = "microchip,pic32-wdt-v2";
 		reg = <0x1f800800 0x200>;
 		clocks = <&LPRC>;
 	};
