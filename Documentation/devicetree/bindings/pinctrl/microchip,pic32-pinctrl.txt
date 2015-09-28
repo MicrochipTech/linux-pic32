@@ -52,17 +52,17 @@ NOTEs:
 5. The gpio controller must be described in the pinctrl simple-bus.
 
 Example:
-pinctrl@bf800000{
+pinctrl@1f800000{
 	#address-cells = <1>;
 	#size-cells = <1>;
 	compatible = "microchip,pic32-pinctrl", "simple-bus";
 	ranges;
-	reg = <0xbf801404 0x3c>, /* in  */
-	      <0xbf801538 0x57>; /* out */
+	reg = <0x1f801404 0x3c>, /* in  */
+	      <0x1f801538 0x57>; /* out */
 
-	pioA: gpio@bf860000 {
+	pioA: gpio@1f860000 {
 		compatible = "microchip,pic32-gpio";
-		reg = <0xbf860000 0x24>;
+		reg = <0x1f860000 0x24>;
 		gpio-controller;
 	};
 
@@ -82,7 +82,7 @@ pinctrl@bf800000{
 	};
 };
 
-uart1: serial@bf822000 {
+uart1: serial@1f822000 {
 	compatible = "microchip,pic32-uart";
 
 	pinctrl-names = "default";
