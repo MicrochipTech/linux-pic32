@@ -14,7 +14,7 @@ Optional properties:
 - microchip,sqi-num-cs: Number of chip-select lines to drive (default, 2).
 
 Example:
-	sqi1:spi@0xbf8e2000 {
+	sqi1:spi@0x1f8e2000 {
 		#address-cells = <1>;
 		#size-cells = <0>;
 		compatible = "microchip,pic32-sqi";
