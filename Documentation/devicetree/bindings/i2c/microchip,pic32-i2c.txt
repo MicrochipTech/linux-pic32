@@ -5,11 +5,25 @@ Required properties:
 
 Example:
 
-	i2c@bf820000 {
+	i2c@1f820000 {
 		compatible = "microchip,pic32-i2c";
-		reg = <0xbf820000 0x100>;
+		reg = <0x1f820000 0x100>;
 		interrupts = <I2C1_MASTER_EVENT DEFAULT_INT_PRI IRQ_TYPE_NONE>;
+		clock-frequency = <100000>;
+		clocks = <&PBCLK2>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_i2c1>;
 		#address-cells = <1>;
 		#size-cells = <0>;
-		clocks = <&PBCLK2>;
+
+		wm8731: wm8731@1a {
+                        compatible = "wlf,wm8731";
+                        reg = <0x1a>;
+                };
+
+		ak4953a: ak4953a@12 {
+			compatible = "asahi-kasei,ak4953a";
+			reg = <0x12>;
+			reset-gpio = <&pioH 3 0>;
+		};
 	};
