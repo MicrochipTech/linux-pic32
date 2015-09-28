@@ -14,9 +14,9 @@ Trigger Nodes:
   - microchip,timer: A handle for the associated timer trigger
 
 Examples:
-adc1: adc@bf84b000 {
+adc1: adc@1f84b000 {
 	compatible = "microchip,pic32-adc";
-	reg = <0xbf84b000 0x300>;
+	reg = <0x1f84b000 0x300>;
 	interrupts = <ADC1_GLOBAL DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_adc1>;
