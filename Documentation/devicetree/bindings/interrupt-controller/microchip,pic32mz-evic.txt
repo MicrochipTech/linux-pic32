@@ -33,11 +33,11 @@ IRQ_TYPE_EDGE_RISING or IRQ_TYPE_EDGE_FALLING to select the desired polarity.
 Example
 -------
 
-evic: interrupt-controller@bf810000 {
+evic: interrupt-controller@1f810000 {
         compatible = "microchip,evic-v2";
         interrupt-controller;
         #interrupt-cells = <3>;
-        reg = <0xbf810000 0x1000>;
+        reg = <0x1f810000 0x1000>;
         device_type="evic-v2";
 };
 
@@ -47,7 +47,7 @@ polarity
 Internal interrupt DTS snippet
 ------------------------------
 
-device@bf800000 {
+device@1f800000 {
     ...
     interrupt-parent = <&evic>;
     interrupts = <UART1_RECEIVE_DONE DEFAULT_INT_PRI IRQ_TYPE_NONE>;
@@ -57,7 +57,7 @@ device@bf800000 {
 External interrupt DTS snippet
 ------------------------------
 
-device@bf800000 {
+device@1f800000 {
     ...
     interrupt-parent = <&evic>;
     interrupts = <EXTERNAL_INTERRUPT_0 DEFAULT_INT_PRI IRQ_TYPE_EDGE_RISING>;
