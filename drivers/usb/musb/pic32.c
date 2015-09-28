@@ -154,7 +154,8 @@ static void pic32_musb_try_idle(struct musb *musb, unsigned long timeout)
 
 	/* Never idle if active, or when VBUS timeout is not set as host */
 	if (musb->is_active || (musb->a_wait_bcon == 0 &&
-				musb->xceiv->otg->state == OTG_STATE_A_WAIT_BCON)) {
+				musb->xceiv->otg->state ==
+					OTG_STATE_A_WAIT_BCON)) {
 		dev_dbg(dev, "%s active, deleting timer\n",
 				usb_otg_state_string(musb->xceiv->otg->state));
 		del_timer(&glue->timer);
@@ -218,6 +219,7 @@ static irqreturn_t pic32_musb_interrupt(int irq, void *hci)
 		u8 devctl = musb_readb(mregs, MUSB_DEVCTL);
 		int err;
 		int usb_id = 0;
+
 		err = musb->int_usb & MUSB_INTR_VBUSERROR;
 		if (err) {
 			/*
@@ -386,6 +388,7 @@ static int pic32_musb_exit(struct musb *musb)
 static irqreturn_t pic32_over_current(int irq, void *d)
 {
 	struct device *dev = d;
+
 	dev_info(dev, "USB Host over-current detected !\n");
 
 	return IRQ_HANDLED;
@@ -552,10 +555,8 @@ int pic32_create_musb_pdev(struct pic32_glue *glue,
 
 	/* Allocate the child platform device */
 	musb = platform_device_alloc("musb-hdrc", PLATFORM_DEVID_AUTO);
-	if (!musb) {
-		dev_err(dev, "failed to allocate musb device\n");
+	if (!musb)
 		return -ENOMEM;
-	}
 
 	musb->dev.parent		= dev;
 	musb->dev.dma_mask		= &musb_dmamask;
@@ -572,7 +573,6 @@ int pic32_create_musb_pdev(struct pic32_glue *glue,
 
 	config = devm_kzalloc(&parent->dev, sizeof(*config), GFP_KERNEL);
 	if (!config) {
-		dev_err(dev, "failed to allocate musb hdrc config\n");
 		ret = -ENOMEM;
 		goto err_pdev;
 	}
@@ -682,10 +682,8 @@ static int pic32_musb_probe(struct platform_device *pdev)
 
 	/* allocate glue */
 	glue = devm_kzalloc(&pdev->dev, sizeof(*glue), GFP_KERNEL);
-	if (!glue) {
-		dev_err(&pdev->dev, "unable to allocate glue memory\n");
+	if (!glue)
 		return -ENOMEM;
-	}
 
 	/* TODO: Add runtime power management support code when needed */
 
