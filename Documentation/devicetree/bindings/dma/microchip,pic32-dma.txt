@@ -15,9 +15,9 @@ Required properties:
 		to the DMA channels in ascending order.
 Example:
 
-	dma0: dma@bf811000 {
+	dma0: dma@1f811000 {
 		compatible = "microchip,pic32-dma";
-		reg = <0xbf811000 0x2000>;
+		reg = <0x1f811000 0x2000>;
 		interrupts = <DMA_CHANNEL_0 DEFAULT_INT_PRI IRQ_TYPE_NONE>,
 			<DMA_CHANNEL_1 DEFAULT_INT_PRI IRQ_TYPE_NONE>,
 		       <DMA_CHANNEL_2 DEFAULT_INT_PRI IRQ_TYPE_NONE>,
@@ -37,9 +37,9 @@ Each dma request consists of 2 cells:
 
 Example:
 
-	i2s5: i2s@bf821A00 {
+	i2s5: i2s@1f821A00 {
 		compatible = "microchip,pic32-i2s";
-		reg = <0xbf821A00 512>;
+		reg = <0x1f821A00 512>;
 		interrupts = <SPI6_RECEIVE_DONE DEFAULT_INT_PRI IRQ_TYPE_NONE>,
 			<SPI6_TRANSFER_DONE DEFAULT_INT_PRI IRQ_TYPE_NONE>;
 		dmas = <&dma DMA_CHANNEL_4>,
