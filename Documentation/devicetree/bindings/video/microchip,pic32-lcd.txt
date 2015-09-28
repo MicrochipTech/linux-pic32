@@ -1,0 +1,63 @@
+PIC32 LCD Controller Framebuffer
+-----------------------------------------------------
+
+Required properties:
+- compatible :
+	"microchip,pic32-lcd"
+- reg : Should contain 1 register ranges (address and length).
+	Can contain an additional register range (address and length)
+	for fixed framebuffer memory. Useful for dedicated memories.
+- interrupts : framebuffer controller interrupt
+- clocks : framebuffer controller clocks
+- display: a phandle pointing to the display node
+
+Required nodes:
+- display: a display node is required to initialize the lcd panel
+	This should be in the board dts.
+- default-mode: a videomode within the display with timing parameters
+	as specified below.
+
+Required properties (as per of_videomode_helper):
+ - bits-per-pixel: lcd panel bit-depth.
+ - pic32,transp-length = <0>;
+ - pic32,red-offset = <16>;
+ - pic32,grayscale = <0>;
+
+Example:
+
+	lcd: fb@1f8ea000 {
+                compatible = "microchip,pic32-lcd";
+                reg = <0x1f8ea000 0x1000>;
+		interrupts = <GLCD_INTERRUPT DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&REFCLKO5>, <&SYSCLK>;
+		clock-names = "lcd_clk", "sys_clk";
+		bits-per-pixel = <32>;
+		pic32,transp-length = <0>;
+		pic32,red-offset = <16>;
+		pic32,grayscale = <0>;
+
+		display-timings {
+			native-mode = <&timing1>;
+
+			timing1: 800x480 {
+				 pixclock = <40000000>;
+				 clock-frequency = <40000000>;
+				 hactive = <800>;
+				 hfront-porch = <48>;
+				 hsync-len = <40>;
+				 hback-porch = <88>;
+				 vactive = <480>;
+				 vfront-porch = <3>;
+				 vsync-len = <13>;
+				 vback-porch = <32>;
+			};
+		};
+	};
+
+Example for fixed framebuffer memory:
+
+	lcd: fb@1f8ea000 {
+                compatible = "microchip,pic32-lcd";
+                reg = <0x1f8ea000 0x1000 0x08600000 9x00200000>;
+		[...]
+	};
