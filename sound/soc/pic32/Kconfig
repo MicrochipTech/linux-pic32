@@ -30,5 +30,7 @@ config SND_PIC32_SOC_CODEC_AK4953A
 	select SND_PIC32_SOC_I2S
 	select SND_SOC_AK4953
 	help
-	  Say Y if you want to add support for Audio Codec AK4953A on Microchip
-	  PIC32.
+	  Say Y or M if you want to add support for Audio Codec AK4953A on a
+	  Microchip PIC32.
+
+	  This supports connecting the AK4953A codec in master or slave mode.
