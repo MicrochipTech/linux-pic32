@@ -8,9 +8,9 @@ config SND_PIC32_SOC
 	select DMA_PIC32
 	select SND_SOC_GENERIC_DMAENGINE_PCM
 	help
-	  Say Y or M if you want to add support for codecs attached to
-	  the PIC32 I2S interface. You will also need
-	  to select the audio interfaces to support below.
+	  Say Y or M if you want to add support for codecs attached to the PIC32
+	  I2S interface. You will also need to select the audio codecs to
+	  support below.
 
 config SND_PIC32_SOC_CODEC_PROTO
 	tristate "Support for Audio Codec Board PROTO (WM8731)"
