@@ -12,9 +12,9 @@ Optional properties:
 - cts-gpios: CTS pin for USP-based UART if microchip,uart-has-rtscts
 
 Example:
-	usart0: serial@bf822000 {
+	usart0: serial@1f822000 {
 		compatible = "microchip,pic32-usart";
-		reg = <0xbf822000 0x50>;
+		reg = <0x1f822000 0x50>;
 		interrupts = <UART1_FAULT DEFAULT_INT_PRI IRQ_TYPE_NONE>,
 			     <UART1_RECEIVE_DONE DEFAULT_INT_PRI IRQ_TYPE_NONE>,
 			     <UART1_TRANSFER_DONE DEFAULT_INT_PRI IRQ_TYPE_NONE>;
