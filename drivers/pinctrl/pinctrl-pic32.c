@@ -651,8 +651,8 @@ static unsigned long pic32_gpio_to_isr(struct pic32_gpio_chip *pic32_chip,
 	int cnen_rise = readl(cnen_reg);
 	int cnne_fall = readl(cnne_reg);
 
-	/* for each change that occured, match with irq type and
-	 *   set it accordingly.
+	/* for each change that occurred, match with irq type and
+	 * set it accordingly.
 	 */
 	visr = 0;
 	for_each_set_bit(pin, &isr, BITS_PER_BYTE * sizeof(u32)) {
