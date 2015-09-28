@@ -14,9 +14,9 @@ Required properties:
 
 Examples:
 
-	pic32_ether: ethernet@bf882000 {
+	pic32_ether: ethernet@1f882000 {
 		compatible = "microchip,pic32-ether";
-		reg = <0xbf882000 0x1000>,<0x1000 0x7f000>;
+		reg = <0x1f882000 0x1000>,<0x1000 0x7f000>;
 		reg-name= "regs","mem";
 		interrupts = <ETHERNET_INTERRUPT DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
 		phy-mode = "rmii";
