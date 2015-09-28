@@ -18,8 +18,11 @@ config SND_PIC32_SOC_CODEC_PROTO
 	select SND_PIC32_SOC_I2S
 	select SND_SOC_WM8731
 	help
-	  Say Y if you want to add support for Audio Codec Board - PROTO
-	  (WM8731) on PIC32.
+	  Say Y or M if you want to add support for MicroElektronika Audio Codec
+	  Board - PROTO (WM8731) on a Microchip PIC32.
+
+	  For more information, see
+	  <http://www.mikroe.com/add-on-boards/audio-voice/audio-codec-proto/>
 
 config SND_PIC32_SOC_CODEC_AK4953A
 	tristate "Support for Audio Codec AK4953A"
