@@ -14,7 +14,7 @@ Required properties:
 
 Example:
 
-spi1:spi@0xbf821000 {
+spi1:spi@0x1f821000 {
         compatible = "microchip,pic32-spi";
         reg = <0x1f821000 0x200>;
         interrupt-parent = <&evic>;
