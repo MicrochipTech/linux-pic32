@@ -14,7 +14,7 @@ Required properties:
 
 Example:
 
-	i2s0: i2s@bf821000 {
+	i2s0: i2s@1f821000 {
 		compatible = "microchip,pic32-i2s";
 		reg = <0x1f821000 512>;
 		interrupts = <SPI1_RECEIVE_DONE DEFAULT_INT_PRI IRQ_TYPE_NONE>,
