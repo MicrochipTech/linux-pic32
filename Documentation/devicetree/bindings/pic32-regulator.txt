@@ -16,7 +16,7 @@ regulator.txt can also be used.
 Example:
 	cvref_regulator {
 		compatible = "microchip,pic32-regulator;
-		reg = <0xbf800e00 0x10>;
+		reg = <0x1f800e00 0x10>;
 
 		/* specific */
 		pic32,regulator-vin-select=<0>; /* input voltage supply selector */
