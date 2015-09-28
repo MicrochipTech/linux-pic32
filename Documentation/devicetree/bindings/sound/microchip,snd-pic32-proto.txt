@@ -1,0 +1,32 @@
+Microchip ASoC driver with WM8731 Proto Board
+
+Required properties:
+  - compatible: "microchip,snd-pic32-proto"
+
+    WM8731 Proto pins:
+
+    * SCK
+    * MISO
+    * MOSI
+    * ADCL
+    * DACL
+    * SDA
+    * SCL
+    * 3.3V
+    * GND
+
+    Board connectors:
+
+    * Headphone Jack
+    * Mic Jack
+
+  - microchip,cpu-dai: The phandle of I2S peripherals
+  - microchip,audio-codec: The phandle of the WM8731 audio codec
+
+Example:
+
+	sound {
+		compatible = "microchip,snd-pic32-proto";
+		microchip,cpu-dai = <&i2s1 &i2s2>;
+		microchip,audio-codec = <&wm8731>;
+	};
