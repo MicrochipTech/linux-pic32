@@ -50,7 +50,7 @@ char * __init fw_getcmdline(void)
 char *fw_getenv(char *envname)
 {
 	char *result = NULL;
-#if 0
+
 	if (_fw_envp != NULL) {
 		/*
 		 * Return a pointer to the given environment variable.
@@ -80,7 +80,7 @@ char *fw_getenv(char *envname)
 				index += 1;
 		}
 	}
-#endif
+
 	return result;
 }
 
