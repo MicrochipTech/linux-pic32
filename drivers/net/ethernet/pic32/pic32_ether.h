@@ -264,35 +264,38 @@ struct pic32ether_tx_skb {
 
 struct pic32ether {
 	void __iomem		*regs;
-	/* rx */
+
 	unsigned int		rx_tail;
 	struct pic32ether_dma_desc	*rx_ring;
+	struct sk_buff		**rx_skbuff;
 	void			*rx_buffers;
 	size_t			rx_buffer_size;
-	dma_addr_t		rx_ring_dma;
-	dma_addr_t		rx_buffers_dma;
-	/* tx */
+
 	unsigned int		tx_head, tx_tail;
-	struct pic32ether_tx_skb	*tx_skb;
 	struct pic32ether_dma_desc	*tx_ring;
-	dma_addr_t		tx_ring_dma;
-	/* net */
-	spinlock_t		lock; /* interrupt lock */
+	struct pic32ether_tx_skb	*tx_skb;
+
+	spinlock_t		lock;
 	struct platform_device	*pdev;
-	struct clk		*clk;
-	struct net_device	*ndev;
+	struct clk		*pclk;
+	struct net_device	*dev;
 	struct napi_struct	napi;
 	struct work_struct	tx_error_task;
-	/* stat */
 	struct net_device_stats	stats;
+
 	struct pic32ether_stats	hw_stats;
-	/* phy */
+
+	dma_addr_t		rx_ring_dma;
+	dma_addr_t		tx_ring_dma;
+	dma_addr_t		rx_buffers_dma;
+
 	struct mii_bus		*mii_bus;
 	struct phy_device	*phy_dev;
+	unsigned int		link;
+	unsigned int		speed;
+	unsigned int		duplex;
 	u32			quirks;
-	int			link;
-	int			speed;
-	int			duplex;
+
 	phy_interface_t		phy_interface;
 };
 
