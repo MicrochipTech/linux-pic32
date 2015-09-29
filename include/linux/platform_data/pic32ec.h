@@ -11,10 +11,10 @@
  *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  *  for more details.
  */
-#ifndef __PIC32ETHER_PDATA_H__
-#define __PIC32ETHER_PDATA_H__
+#ifndef __PIC32EC_PDATA_H__
+#define __PIC32EC_PDATA_H__
 
-struct pic32ether_platform_data {
+struct pic32ec_platform_data {
 	u32		phy_mask;
 	u8		is_rmii;	/* using RMII interface? */
 	u8		rev_eth_addr;	/* reverse address byte order */
