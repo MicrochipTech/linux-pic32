@@ -151,17 +151,10 @@
 };
 
 &lcd {
-#if 0
 	bits-per-pixel = <32>;
 	pic32,transp-length = <0>;
 	pic32,red-offset = <16>;
 	pic32,grayscale = <0>;
-#else
-	bits-per-pixel = <16>;
-	pic32,transp-length = <0>;
-	pic32,red-offset = <0>;
-	pic32,grayscale = <0>;
-#endif
 	status = "okay";
 
 	display-timings {
