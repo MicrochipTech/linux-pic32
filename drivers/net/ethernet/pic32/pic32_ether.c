@@ -619,10 +619,9 @@ static void pic32ether_tx_clean(struct pic32ether *bp)
 		desc->stat1 = 0;
 		desc->addr = 0;
 		desc->ctrl = MAC_BIT(NPV);
-
-		bp->tx_tail = tail;
 	}
 
+	bp->tx_tail = tail;
 	if (netif_queue_stopped(bp->ndev) &&
 	    (CIRC_CNT(bp->tx_head, bp->tx_tail, TX_RING_SIZE) <=
 		      MAC_TX_WAKEUP_THRESH))
@@ -850,6 +849,7 @@ static irqreturn_t pic32ether_interrupt(int irq, void *dev_id)
 
 out_unlock:
 	spin_unlock(&bp->lock);
+
 	return IRQ_HANDLED;
 }
 
@@ -889,6 +889,7 @@ static int pic32ether_start_xmit(struct sk_buff *skb, struct net_device *dev)
 
 	entry = pic32ether_tx_ring_wrap(bp->tx_head);
 	bp->tx_head++;
+	spin_unlock_irqrestore(&bp->lock, flags);
 
 	netdev_vdbg(bp->ndev, "allocated ring entry %u\n", entry);
 
@@ -897,7 +898,7 @@ static int pic32ether_start_xmit(struct sk_buff *skb, struct net_device *dev)
 					  &mapping, GFP_KERNEL);
 		if (!data) {
 			dev_kfree_skb_any(skb);
-			goto out_unlock;
+			goto out_done;
 		}
 
 		skb_copy_from_linear_data(skb, data, len);
@@ -907,7 +908,7 @@ static int pic32ether_start_xmit(struct sk_buff *skb, struct net_device *dev)
 					 len, DMA_TO_DEVICE);
 		if (dma_mapping_error(&bp->pdev->dev, mapping)) {
 			dev_kfree_skb_any(skb);
-			goto out_unlock;
+			goto out_done;
 		}
 	}
 	netdev_vdbg(bp->ndev, "idx %u, mapped data %p to DMA_addr %08lx(%u)\n",
@@ -929,6 +930,8 @@ static int pic32ether_start_xmit(struct sk_buff *skb, struct net_device *dev)
 
 	desc = &bp->tx_ring[entry];
 
+	spin_lock_irqsave(&bp->lock, flags);
+
 	desc->addr = mapping;
 	desc->stat0 = 0;
 	desc->stat1 = 0;
@@ -940,9 +943,13 @@ static int pic32ether_start_xmit(struct sk_buff *skb, struct net_device *dev)
 	/* ship it */
 	mac_writel(bp, PIC32_SET(ETHCON1), MAC_BIT(ETHCON1_TXRTS));
 
-out_unlock:
-	spin_unlock_irqrestore(&bp->lock, flags);
+	if (CIRC_SPACE(bp->tx_head, bp->tx_tail, TX_RING_SIZE) < 1) {
+		netdev_err(bp->ndev, "TX queue full\n");
+		netif_stop_queue(dev);
+	}
 
+	spin_unlock_irqrestore(&bp->lock, flags);
+out_done:
 	return NETDEV_TX_OK;
 }
 
