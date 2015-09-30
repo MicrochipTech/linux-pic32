@@ -368,7 +368,7 @@
 	};
 
 	eth0: ethernet@1f882000 {
-		compatible = "microchip,pic32-ether";
+		compatible = "microchip,pic32-ec";
 		reg = <0x1f882000 0x1000>, <0x1000 0x7f000>;
 		reg-names = "regs","mem";
 		interrupts = <ETHERNET_INTERRUPT DEFAULT_INT_PRI
