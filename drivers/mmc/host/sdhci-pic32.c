@@ -103,6 +103,15 @@ void pic32_sdhci_set_bus_width(struct sdhci_host *host, int width)
 	sdhci_writeb(host, ctrl, SDHCI_HOST_CONTROL);
 }
 
+static unsigned int pic32_sdhci_get_ro(struct sdhci_host *host)
+{
+	/*
+	 * The SDHCI_WRITE_PROTECT bit is unstable on current hardware so we
+	 * can't depend on its value in any way.
+	 */
+	return 0;
+}
+
 static const struct sdhci_ops pic32_sdhci_ops = {
 	.get_max_clock = pic32_sdhci_get_max_clock,
 	.get_min_clock = pic32_sdhci_get_min_clock,
@@ -110,6 +119,7 @@ static const struct sdhci_ops pic32_sdhci_ops = {
 	.set_bus_width = pic32_sdhci_set_bus_width,
 	.reset = sdhci_reset,
 	.set_uhs_signaling = sdhci_set_uhs_signaling,
+	.get_ro = pic32_sdhci_get_ro,
 };
 
 void pic32_sdhci_shared_bus(struct platform_device *pdev)
@@ -293,8 +303,7 @@ int pic32_sdhci_probe(struct platform_device *pdev)
 		host->quirks |= SDHCI_QUIRK_BROKEN_ADMA |
 			SDHCI_QUIRK_BROKEN_DMA;
 
-	host->quirks |= SDHCI_QUIRK_INVERTED_WRITE_PROTECT |
-		SDHCI_QUIRK_NO_HISPD_BIT;
+	host->quirks |= SDHCI_QUIRK_NO_HISPD_BIT;
 
 	host->mmc->ocr_avail = PIC32_MMC_OCR;
 
