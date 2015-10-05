@@ -45,8 +45,11 @@
 #define DMTSTAT_BAD2		0x40
 #define DMTSTAT_BAD1		0x80
 
+/* Reset Control Register fields for watchdog */
+#define RESETCON_DMT_TIMEOUT    0x0020
+
 struct pic32_dmt {
-	spinlock_t	lock;
+	spinlock_t	lock; /* interrupt lock */
 	void __iomem	*regs;
 	struct clk	*clk;
 };
@@ -69,10 +72,10 @@ static inline void dmt_disable(struct pic32_dmt *dmt)
 
 static inline int dmt_bad_status(struct pic32_dmt *dmt)
 {
-	uint32_t val;
+	u32 val;
 
 	val = readl(dmt->regs + DMTSTAT_REG);
-	val &= (DMTSTAT_BAD1|DMTSTAT_BAD2|DMTSTAT_EVENT);
+	val &= (DMTSTAT_BAD1 | DMTSTAT_BAD2 | DMTSTAT_EVENT);
 	if (val)
 		pr_err("dmt: bad event generated: sts %08x\n", val);
 
@@ -81,8 +84,20 @@ static inline int dmt_bad_status(struct pic32_dmt *dmt)
 
 static inline int dmt_keepalive(struct pic32_dmt *dmt)
 {
-	writeb(DMT_STEP1_KEY, dmt->regs + DMTPRECLR_REG + DMT_STEP1_KEY_BYTE);
-	writeb(DMT_STEP2_KEY, dmt->regs + DMTCLR_REG);
+	u32 v;
+
+	/* set pre-clear key */
+	writel(DMT_STEP1_KEY << 8, dmt->regs + DMTPRECLR_REG);
+
+	/* wait for DMT window to open */
+	for (;;) {
+		v = readl(dmt->regs + DMTSTAT_REG) & DMTSTAT_WINOPN;
+		if (v == DMTSTAT_WINOPN)
+			break;
+	}
+
+	/* apply key2 */
+	writel(DMT_STEP2_KEY, dmt->regs + DMTCLR_REG);
 
 	/* check whether keys are latched correctly */
 	return dmt_bad_status(dmt);
@@ -103,6 +118,24 @@ static inline u32 dmt_interval_time_to_clear(struct pic32_dmt *dmt)
 static inline u32 pic32_dmt_get_timeout_secs(struct pic32_dmt *dmt)
 {
 	return readl(dmt->regs + DMTPSCNT_REG) / clk_get_rate(dmt->clk);
+}
+
+static inline u32 pic32_dmt_bootstatus(struct pic32_dmt *dmt)
+{
+	u32 v;
+	void __iomem *rst_base;
+
+	rst_base = ioremap(PIC32_BASE_RESET, 0x10);
+	if (!rst_base)
+		return 0;
+
+	v = readl(rst_base);
+
+	/* clear DMT_TIMEOUT */
+	writel(RESETCON_DMT_TIMEOUT, PIC32_CLR(rst_base));
+
+	iounmap(rst_base);
+	return v & RESETCON_DMT_TIMEOUT;
 }
 
 static int pic32_dmt_start(struct watchdog_device *wdd)
@@ -203,6 +236,7 @@ static int pic32_dmt_probe(struct platform_device *pdev)
 
 	wdd->max_timeout /= clk_get_rate(dmt->clk);
 	wdd->timeout = pic32_dmt_get_timeout_secs(dmt);
+	wdd->bootstatus = pic32_dmt_bootstatus(dmt) ? WDIOF_CARDRESET : 0;
 	if (!wdd->timeout) {
 		dev_err(&pdev->dev,
 			"timeout %dsec too small for DMT\n", wdd->timeout);
@@ -213,7 +247,7 @@ static int pic32_dmt_probe(struct platform_device *pdev)
 	spin_lock_init(&dmt->lock);
 
 	dev_info(&pdev->dev, "max_timeout %d, min_timeout %d, cur_timeout %d\n",
-		wdd->max_timeout, wdd->min_timeout, wdd->timeout);
+		 wdd->max_timeout, wdd->min_timeout, wdd->timeout);
 	ret = watchdog_register_device(wdd);
 	if (ret) {
 		dev_err(&pdev->dev, "watchdog register failed, err %d\n", ret);
