@@ -17,24 +17,17 @@
 #include "common.h"
 #include "early_pin.h"
 
-#define UART_ENABLE           (1<<15)
-#define UART_ENABLE_RX        (1<<12)
-#define UART_RTSMD            (1<<11)
-#define UART_ENABLE_TX        (1<<10)
-#define UART_RX_DATA_AVAIL    (1)
-#define UART_RX_OERR          (1<<1)
-#define UART_TX_FULL          (1<<9)
-#define UART_TX_MT            (1<<8)
-#define UART_LOOPBACK         (1<<6)
-#define DEFAULT_BAUDRATE      115200
+#define UART_ENABLE		BIT(15)
+#define UART_ENABLE_RX		BIT(12)
+#define UART_ENABLE_TX		BIT(10)
+#define UART_TX_FULL		BIT(9)
 
 /* UART1(x == 0) - UART6(x == 5) */
-#define UARTx_BASE(x)	((x) * 0x0200)
-#define UxMODE(x)	UARTx_BASE(x)
-#define UxSTA(x)	(UARTx_BASE(x) + 0x10)
-#define UxTXREG(x)	(UARTx_BASE(x) + 0x20)
-#define UxRXREG(x)	(UARTx_BASE(x) + 0x30)
-#define UxBRG(x)	(UARTx_BASE(x) + 0x40)
+#define UART_BASE(x)	((x) * 0x0200)
+#define U_MODE(x)	UART_BASE(x)
+#define U_STA(x)	(UART_BASE(x) + 0x10)
+#define U_TXR(x)	(UART_BASE(x) + 0x20)
+#define U_BRG(x)	(UART_BASE(x) + 0x40)
 
 static void __iomem *uart_base;
 static char console_port = -1;
@@ -63,12 +56,11 @@ static void __init configure_uart(char port, int baud)
 
 	pbclk = pic32_get_pbclk(2);
 
-	__raw_writel(0, uart_base + UxMODE(port));
-	__raw_writel(((pbclk / baud) / 16) - 1,
-		uart_base + UxBRG(port));
-	__raw_writel(UART_ENABLE, uart_base + UxMODE(port));
+	__raw_writel(0, uart_base + U_MODE(port));
+	__raw_writel(((pbclk / baud) / 16) - 1, uart_base + U_BRG(port));
+	__raw_writel(UART_ENABLE, uart_base + U_MODE(port));
 	__raw_writel(UART_ENABLE_TX | UART_ENABLE_RX,
-		uart_base + PIC32_SET(UxSTA(port)));
+		     uart_base + PIC32_SET(U_STA(port)));
 }
 
 static void __init setup_early_console(char port, int baud)
@@ -102,9 +94,9 @@ static int __init get_port_from_cmdline(char *arch_cmdline)
 		goto _out;
 
 	s = strstr(arch_cmdline, "earlyprintk=");
-	if (s != NULL) {
+	if (s) {
 		s = strstr(s, "ttyS");
-		if (s != NULL)
+		if (s)
 			s += 4;
 		else
 			goto _out;
@@ -125,16 +117,16 @@ static int __init get_baud_from_cmdline(char *arch_cmdline)
 		goto _out;
 
 	s = strstr(arch_cmdline, "earlyprintk=");
-	if (s != NULL) {
+	if (s) {
 		s = strstr(s, "ttyS");
-		if (s != NULL)
+		if (s)
 			s += 6;
 		else
 			goto _out;
 
 		baud = 0;
 		while (*s >= '0' && *s <= '9')
-			baud = baud*10 + *s++ - '0';
+			baud = baud * 10 + *s++ - '0';
 	}
 
 _out:
@@ -165,10 +157,10 @@ int prom_putchar(char c)
 {
 	if (console_port >= 0) {
 		while (__raw_readl(
-				uart_base + UxSTA(console_port)) & UART_TX_FULL)
+				uart_base + U_STA(console_port)) & UART_TX_FULL)
 			;
 
-		__raw_writel(c, uart_base + UxTXREG(console_port));
+		__raw_writel(c, uart_base + U_TXR(console_port));
 	}
 
 	return 1;
