@@ -4,6 +4,8 @@
 #
 obj-y			:= init.o setup.o time.o
 
-obj-$(CONFIG_EARLY_PRINTK)	+= early_console.o early_pin.o
+obj-$(CONFIG_EARLY_PRINTK)	+= early_console.o      \
+				   early_pin.o		\
+				   early_clk.o
 
 
