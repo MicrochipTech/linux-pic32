@@ -224,6 +224,38 @@
 	status = "okay";
 };
 
+&adc1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_adc1>;
+	enabled-channel-mask = <0x10000000>;
+	resolution = <12>;
+	vref = <3300>;
+	status = "okay";
+
+	trigger@0 {
+		trigger-name = "int0-external-interrupt";
+		trigger-value = <4>;
+	};
+
+	trigger@1 {
+		trigger-name = "tmr1-match";
+		trigger-value = <5>;
+		microchip,timer = <&PBTIMER1>;
+	};
+
+	trigger@2 {
+		trigger-name = "tmr3-match";
+		trigger-value = <6>;
+		microchip,timer = <&PBTIMER23>;
+	};
+
+	trigger@3 {
+		trigger-name = "tmr5-match";
+		trigger-value = <7>;
+		microchip,timer = <&PBTIMER5>;
+	};
+};
+
 &pic32_pinctrl {
 
 	oc_pins1 {
@@ -333,6 +365,12 @@
 					PIC32_PIN_CONF_DG_OUT
 				PIC32_RP_IN_RPD0 PIC32_PP_IN_U6RX
 					PIC32_PIN_CONF_DG_IN>;
+		};
+	};
+
+	adc1 {
+		pinctrl_adc1: adc1_0 {
+			pic32,single-pins = <PORT_A 10 PIC32_PIN_CONF_AN_IN>;
 		};
 	};
 };
