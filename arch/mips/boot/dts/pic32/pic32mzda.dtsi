@@ -572,9 +572,6 @@
 		compatible = "microchip,pic32-adc";
 		reg = <0x1f84b000 0x300>;
 		interrupts = <ADC1_GLOBAL DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
-		enabled-channel-mask = <0x10000000>;
-		resolution = <12>;
-		vref = <3300>;
 		status = "disabled";
 	};
 
