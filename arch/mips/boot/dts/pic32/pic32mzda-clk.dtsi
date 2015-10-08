@@ -34,6 +34,14 @@
 		clock-frequency = <32000>;
 	};
 
+	/* UPLL is integral part of USB PHY; generates UTMI clk */
+	UPLL:usb_phy_clk {
+		#clock-cells = <0>;
+		compatible = "fixed-clock";
+		clock-frequency = <24000000>;
+		clock-output-names = "usbphy_clk";
+	};
+
 	TxCKI:txcki_clk { /* external clock input on TxCLKI pin */
 		#clock-cells = <0>;
 		compatible = "fixed-clock";
@@ -106,14 +114,6 @@
 			clocks = <&POSC>;
 			clock-output-names = "pic32-mpll";
 			status = "disabled";
-		};
-
-		/* UPLL is integral part of USB PHY; UTMI clk for USBCORE */
-		UPLL:usb_phy_clk {
-			#clock-cells = <0>;
-			compatible = "microchip,pic32-usbpll";
-			clocks = <&POSC>;
-			clock-output-names = "usbphy_clk";
 		};
 
 		/* Peripheral bus1 clock */
