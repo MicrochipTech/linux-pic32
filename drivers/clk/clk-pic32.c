@@ -42,7 +42,6 @@
 #define OSC_SOSCEN_MASK		0x02
 #define OSC_CLK_FAILED		0x04
 #define OSC_SPLL_LOCKED		0x20 /* SPLL is locked by SCLK MUX */
-#define OSC_UPLL_LOCKED		0x40
 #define OSC_SYS_LOCK		0x80
 #define OSC_SOSC_READY		BIT(22)
 
@@ -92,10 +91,6 @@
 /* FRC tuning */
 #define OSC_FRCTUN_MASK		0x3F
 #define OSC_FRCTUN_SHIFT	0
-
-/* USB PLL config (DEVCFG) */
-#define UPLL_FREQ_SEL	BIT(30)
-#define UPLL_EN		BIT(31)
 
 /* SLEW Control Register fields */
 #define SLEW_BUSY		0x01
@@ -873,62 +868,6 @@ static int roclk_debug_init(struct clk_hw *hw, struct dentry *dentry)
 	return IS_ERR(file) ? PTR_ERR(file) : 0;
 }
 
-static void upll_enable_disable(struct clk_hw *hw, int enable)
-{
-	struct pic32_upll *upll = clkhw_to_upll(hw);
-	unsigned long flags, v;
-
-	/* does it support gating ? */
-	if (upll->flags & CLK_ENABLED_ALWAYS)
-		return;
-
-	/* clk-gate/ungate */
-	__clk_lock(flags);
-
-	v = clk_readl(upll->regs);
-	v = enable ? (v | UPLL_EN) : (v & ~UPLL_EN);
-
-	/* sys unlock*/
-	pic32_devcon_sysunlock();
-
-	/* apply UPLLEN */
-	clk_writel(v, upll->regs);
-	cpu_relax();
-
-	/* sys lock */
-	pic32_devcon_syslock();
-
-	__clk_unlock(flags);
-}
-
-static int upll_clk_is_enable(struct clk_hw *hw)
-{
-	struct pic32_upll *upll = clkhw_to_upll(hw);
-
-	return clk_readl(upll->regs) & UPLL_EN;
-}
-
-static int upll_clk_enable(struct clk_hw *hw)
-{
-	upll_enable_disable(hw, 1);
-	return 0;
-}
-
-static void upll_clk_disable(struct clk_hw *hw)
-{
-	upll_enable_disable(hw, 0);
-	cpu_relax();
-}
-
-static unsigned long upll_clk_fixed_rate(struct clk_hw *hw, unsigned long dummy)
-{
-	u32 v;
-	struct pic32_upll *upll = clkhw_to_upll(hw);
-
-	v = clk_readl(upll->regs);
-	return (v & UPLL_FREQ_SEL) ? 24000000UL : 12000000UL;
-}
-
 static inline u8 spll_odiv_to_divider(u8 odiv)
 {
 	if (odiv <= PLL_ODIV_MIN)
@@ -1382,13 +1321,6 @@ static struct clk_ops sclk_postdiv_ops = {
 	.debug_init	= sclk_debug_init,
 };
 
-static struct clk_ops upll_clk_ops = {
-	.is_enabled	= upll_clk_is_enable,
-	.enable		= upll_clk_enable,
-	.disable	= upll_clk_disable,
-	.recalc_rate	= upll_clk_fixed_rate,
-};
-
 static struct clk_ops spll_clk_ops = {
 	.recalc_rate	= spll_clk_recalc_rate,
 	.round_rate	= spll_clk_round_rate,
@@ -1527,33 +1459,6 @@ static struct clk *spll_clk_register(const char *name, const char *parents,
 	clk = clk_register(NULL, &pll->hw);
 	if (IS_ERR(clk))
 		kfree(pll);
-
-	return clk;
-}
-
-static struct clk *upll_clk_register(const char *name, const char *parent,
-				     unsigned long flags)
-{
-	struct clk_init_data init;
-	struct clk *clk;
-	struct pic32_upll *upll;
-
-	init_clk_data(init, name, &parent, 1,
-		      flags | CLK_IS_BASIC, &upll_clk_ops);
-
-	upll = kzalloc(sizeof(*upll), GFP_KERNEL);
-	if (!upll)
-		return ERR_PTR(-ENOMEM);
-
-	upll->flags = flags;
-	upll->hw.init = &init;
-	upll->regs = ioremap(PIC32_BASE_DEVCFG2, 4);
-
-	clk = clk_register(NULL, &upll->hw);
-	if (IS_ERR(clk)) {
-		pr_err("usb_pll: failed to register clk\n");
-		kfree(upll);
-	}
 
 	return clk;
 }
@@ -2000,34 +1905,10 @@ static void __init of_frcdiv_setup(struct device_node *np)
 	pic32_of_clk_register_clkdev(np, clk);
 }
 
-static void __init of_usb_pll_setup(struct device_node *np)
-{
-	struct clk *clk;
-	const char *name = np->name;
-	const char *parent_name;
-
-	parent_name = of_clk_get_parent_name(np, 0);
-	if (!parent_name) {
-		pr_err("%s: must have a parent\n", np->name);
-		return;
-	}
-
-	of_property_read_string(np, "clock-output-names", &name);
-
-	clk = upll_clk_register(name, parent_name, CLK_ENABLED_ALWAYS);
-	if (IS_ERR_OR_NULL(clk)) {
-		pr_err("%s: not registered\n", np->name);
-		return;
-	}
-
-	pic32_of_clk_register_clkdev(np, clk);
-}
-
 static const struct of_device_id pic32_clk_match[] __initconst = {
 	{ .compatible = "microchip,pic32-refoclk", .data = of_refo_clk_setup, },
 	{ .compatible = "microchip,pic32-pbclk", .data = of_periph_clk_setup, },
 	{ .compatible = "microchip,pic32-syspll", .data = of_sys_pll_setup, },
-	{ .compatible = "microchip,pic32-usbpll", .data = of_usb_pll_setup, },
 	{ .compatible = "microchip,pic32-sosc",	.data = of_sosc_clk_setup, },
 	{ .compatible = "microchip,pic32-frcdivclk", .data = of_frcdiv_setup, },
 	{ .compatible = "microchip,pic32-mpll", .data = of_mem_pll_setup, },
