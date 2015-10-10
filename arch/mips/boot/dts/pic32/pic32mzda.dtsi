@@ -28,6 +28,7 @@
 		gpio8 = &pioJ;
 		gpio9 = &pioK;
 		serial1 = &usart2;
+		serial3 = &usart4;
 		serial5 = &usart6;
 		i2s1 = &i2s1;
 		i2s2 = &i2s2;
@@ -725,6 +726,42 @@
 			<UART2_RECEIVE_DONE DEFAULT_INT_PRI
 				IRQ_TYPE_LEVEL_HIGH>,
 			<UART2_TRANSFER_DONE DEFAULT_INT_PRI
+				IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&PBCLK2>;
+		status = "disabled";
+	};
+
+	usart3: serial@1f822400 {
+		compatible = "microchip,pic32-usart";
+		reg = <0x1f822400 0x50>;
+		interrupts = <UART3_FAULT DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>,
+			<UART3_RECEIVE_DONE DEFAULT_INT_PRI
+				IRQ_TYPE_LEVEL_HIGH>,
+			<UART3_TRANSFER_DONE DEFAULT_INT_PRI
+				IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&PBCLK2>;
+		status = "disabled";
+	};
+
+	usart4: serial@1f822600 {
+		compatible = "microchip,pic32-usart";
+		reg = <0x1f822600 0x50>;
+		interrupts = <UART4_FAULT DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>,
+			<UART4_RECEIVE_DONE DEFAULT_INT_PRI
+				IRQ_TYPE_LEVEL_HIGH>,
+			<UART4_TRANSFER_DONE DEFAULT_INT_PRI
+				IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&PBCLK2>;
+		status = "disabled";
+	};
+
+	usart5: serial@1f822800 {
+		compatible = "microchip,pic32-usart";
+		reg = <0x1f822800 0x50>;
+		interrupts = <UART5_FAULT DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>,
+			<UART5_RECEIVE_DONE DEFAULT_INT_PRI
+				IRQ_TYPE_LEVEL_HIGH>,
+			<UART5_TRANSFER_DONE DEFAULT_INT_PRI
 				IRQ_TYPE_LEVEL_HIGH>;
 		clocks = <&PBCLK2>;
 		status = "disabled";
