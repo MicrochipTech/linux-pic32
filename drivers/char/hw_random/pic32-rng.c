@@ -22,10 +22,11 @@
 #define DRIVER_NAME "pic32-rng"
 
 #define RNGCON		0x04
-#define RNGCON_TRNGEN	BIT(8)
-#define RNGCON_PRNGEN	BIT(9)
-#define RNGCON_CONT	BIT(10)
-#define RNGCON_LOAD	BIT(12)
+#define  TRNGEN		BIT(8)
+#define  PRNGEN		BIT(9)
+#define  PRNGCONT	BIT(10)
+#define  TRNGMOD	BIT(11)
+#define  SEEDLOAD	BIT(12)
 #define RNGPOLY1	0x08
 #define RNGPOLY2	0x0C
 #define RNGNUMGEN1	0x10
@@ -33,7 +34,7 @@
 #define RNGSEED1	0x18
 #define RNGSEED2	0x1C
 #define RNGRCNT		0x20
-#define RCNT_MASK	0x7F
+#define  RCNT_MASK	0x7F
 
 struct pic32_rng {
 	void __iomem *base;
@@ -42,14 +43,14 @@ struct pic32_rng {
 };
 
 static int pic32_rng_read(struct hwrng *rng, void *buf, size_t max,
-			   bool wait)
+			  bool wait)
 {
 	struct pic32_rng *prng = container_of(rng, struct pic32_rng, rng);
 	u64 *data = buf;
 
 	*data = ((u64)readl(prng->base + RNGNUMGEN2) << 32) +
 		readl(prng->base + RNGNUMGEN1);
-	return 8;
+	return 4;
 }
 
 static const struct of_device_id pic32_rng_of_match[] = {
@@ -62,7 +63,7 @@ static int pic32_rng_probe(struct platform_device *pdev)
 {
 	struct pic32_rng *prng;
 	struct resource *res;
-	u32 v;
+	u32 v, t;
 	int ret;
 
 	prng = devm_kzalloc(&pdev->dev, sizeof(*prng), GFP_KERNEL);
@@ -80,26 +81,27 @@ static int pic32_rng_probe(struct platform_device *pdev)
 
 	clk_prepare_enable(prng->clk);
 
-	/* enable TRNG */
+	/* enable TRNG in enhanced mode */
 	v = readl(prng->base + RNGCON);
-	v &= ~(RNGCON_TRNGEN|RNGCON_PRNGEN|0xff);
-	writel(v|RNGCON_TRNGEN, prng->base + RNGCON);
+	v &= ~(TRNGEN | PRNGEN | 0xff);
+	v |= TRNGMOD;
+	writel(v | TRNGEN, prng->base + RNGCON);
 
 	/* wait for valid seed */
 	usleep_range(100, 200);
-	v = readl(prng->base + RNGRCNT) & RCNT_MASK;
-	if (v < 0x2A)
+	t = readl(prng->base + RNGRCNT) & RCNT_MASK;
+	if (t < 0x2A)
 		dev_warn(&pdev->dev, "seed not generated.\n");
 
-	/* stop TRNG and load initial seed */
-	writel(v|RNGCON_LOAD, prng->base + RNGCON);
+	/* load initial seed */
+	writel(v | SEEDLOAD, prng->base + RNGCON);
 
 	/* load initial polynomial: 42bit poly */
 	writel(0x00c00003, prng->base + RNGPOLY1);
 	writel(0x00000000, prng->base + RNGPOLY2);
 
 	/* start PRNG to generate 42bit random */
-	v |= 0x2A|RNGCON_CONT|RNGCON_PRNGEN;
+	v |= 0x2A | PRNGCONT | PRNGEN;
 	writel(v, prng->base + RNGCON);
 
 	prng->rng.name = pdev->name;
@@ -110,8 +112,6 @@ static int pic32_rng_probe(struct platform_device *pdev)
 		goto err_register;
 
 	platform_set_drvdata(pdev, prng);
-
-	dev_info(&pdev->dev, "PIC32 Random Number Generator\n");
 
 	return 0;
 
