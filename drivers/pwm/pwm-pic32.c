@@ -44,15 +44,19 @@ static int pic32_pwm_config(struct pwm_chip *chip, struct pwm_device *pwm,
 		return -EBUSY;
 	}
 
+	if (period_ns == pwm->period)
+		goto out_duty;
+
 	/* Set period with timer */
 	ret = pic32_pb_timer_settime(pic32_pwm->timer,
-			PIC32_TIMER_MAY_RATE, period_ns);
+				     PIC32_TIMER_MAY_RATE, period_ns);
 	if (ret)
 		dev_err(chip->dev, "set_timeout() failed, ret %d\n", ret);
 
+out_duty:
 	/* Set duty-cycle & PWM mode with OC */
 	ret = pic32_oc_settime(pic32_pwm->oc,
-			PIC32_OCM_PWM_DISABLED_FAULT, duty_ns);
+			       PIC32_OCM_PWM_DISABLED_FAULT, duty_ns);
 	return ret;
 }
 
