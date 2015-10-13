@@ -14,7 +14,7 @@
 #ifndef _ASM_MACH_PIC32_H
 #define _ASM_MACH_PIC32_H
 
-#include <asm/io.h>
+#include <linux/io.h>
 
 /*
  * PIC32 register offsets for SET/CLR/INV where supported.
@@ -36,16 +36,10 @@
 #define PIC32_BASE_DEVCFG2	0x1fc4ff44
 
 /*
- * Register unlock sequence required for some registers.
+ * Register unlock sequence required for some register access.
  */
-#define pic32_syskey_unlock()						\
-	do {								\
-		void __iomem *syskey = ioremap(PIC32_BASE_CONFIG +	\
-					0x30, sizeof(u32));		\
-		__raw_writel(0x00000000, syskey);			\
-		__raw_writel(0xAA996655, syskey);			\
-		__raw_writel(0x556699AA, syskey);			\
-		iounmap(syskey);					\
-	} while (0)
+void pic32_syskey_unlock_debug(const char *fn, const ulong ln);
+#define pic32_syskey_unlock()	\
+	pic32_syskey_unlock_debug(__func__, __LINE__)
 
 #endif /* _ASM_MACH_PIC32_H */
