@@ -89,7 +89,7 @@ static const struct fb_videomode *pic32_lcd_choose_mode(
 }
 
 static int pic32_lcd_check_var(struct fb_var_screeninfo *var,
-				struct fb_info *info)
+			       struct fb_info *info)
 {
 	struct device *dev = info->device;
 	struct pic32_lcd_info *sinfo = info->par;
@@ -223,7 +223,7 @@ static int pic32_lcd_check_var(struct fb_var_screeninfo *var,
 		break;
 	default:
 		dev_err(dev, "color depth %d not supported\n",
-					var->bits_per_pixel);
+			var->bits_per_pixel);
 		return -EINVAL;
 	}
 
@@ -244,35 +244,35 @@ static int pic32_lcd_set_par(struct fb_info *info)
 
 	dev_dbg(info->device, "%s:\n", __func__);
 	dev_dbg(info->device, "  * resolution: %ux%u (%ux%u virtual)\n",
-		 info->var.xres, info->var.yres,
-		 info->var.xres_virtual, info->var.yres_virtual);
+		info->var.xres, info->var.yres,
+		info->var.xres_virtual, info->var.yres_virtual);
 
 	mode_reg = pic32_readl(sinfo->mmio, PIC32_LCD_REG_MODE);
 	pic32_writel(sinfo->mmio, PIC32_LCD_REG_MODE, mode_reg &
 		     ~PIC32_LCD_CONFIG_ENABLE);
 
 	pic32_writel(sinfo->mmio, PIC32_LCD_REG_LAYER0_RESXY,
-		XY16TOREG32(info->var.xres, info->var.yres));
+		     XY16TOREG32(info->var.xres, info->var.yres));
 	pic32_writel(sinfo->mmio, PIC32_LCD_REG_RESXY,
-		XY16TOREG32(info->var.xres, info->var.yres));
+		     XY16TOREG32(info->var.xres, info->var.yres));
 	pic32_writel(sinfo->mmio, PIC32_LCD_REG_LAYER0_STARTXY,
-		XY16TOREG32(0, 0));
+		     XY16TOREG32(0, 0));
 	pic32_writel(sinfo->mmio, PIC32_LCD_REG_LAYER0_SIZEXY,
-		XY16TOREG32(info->var.xres, info->var.yres));
+		     XY16TOREG32(info->var.xres, info->var.yres));
 
 	pic32_writel(sinfo->mmio, PIC32_LCD_REG_FRONTPORCHXY,
-		XY16TOREG32(info->var.xres + info->var.right_margin,
-			info->var.yres + info->var.lower_margin));
+		     XY16TOREG32(info->var.xres + info->var.right_margin,
+				 info->var.yres + info->var.lower_margin));
 	pic32_writel(sinfo->mmio, PIC32_LCD_REG_BLANKINGXY,
-		XY16TOREG32(info->var.xres + info->var.right_margin +
-			info->var.hsync_len,
-			info->var.yres + info->var.lower_margin +
-			info->var.vsync_len));
+		     XY16TOREG32(info->var.xres + info->var.right_margin +
+				 info->var.hsync_len,
+				 info->var.yres + info->var.lower_margin +
+				 info->var.vsync_len));
 	pic32_writel(sinfo->mmio, PIC32_LCD_REG_BACKPORCHXY,
-		XY16TOREG32(info->var.xres + info->var.right_margin +
-			info->var.hsync_len + info->var.left_margin,
-			info->var.yres + info->var.lower_margin +
-			info->var.vsync_len + info->var.upper_margin));
+		     XY16TOREG32(info->var.xres + info->var.right_margin +
+				 info->var.hsync_len + info->var.left_margin,
+				 info->var.yres + info->var.lower_margin +
+				 info->var.vsync_len + info->var.upper_margin));
 
 	if (info->var.bits_per_pixel <= 8)
 		info->fix.visual = info->var.red.offset ?
@@ -331,34 +331,34 @@ static int pic32_lcd_set_par(struct fb_info *info)
 	} else {
 		value = (value / pix_factor) - 1;
 		dev_dbg(info->device, "  * programming CLKVAL = 0x%08lx\n",
-				value);
+			value);
 		pic32_writel(sinfo, PIC32_LCD_REG_CLKCON,
-			(value & ~0x3F) | value);
+			     (value & ~0x3F) | value);
 		info->var.pixclock =
 			KHZ2PICOS(clk_value_khz / (pix_factor * (value + 1)));
 		dev_dbg(info->device, "  updated pixclk:     %lu KHz\n",
-					PICOS2KHZ(info->var.pixclock));
+			PICOS2KHZ(info->var.pixclock));
 	}
 
 	pic32_writel(sinfo->mmio, PIC32_LCD_REG_LAYER0_STRIDE,
-		info->fix.line_length);
+		     info->fix.line_length);
 
 	pic32_writel(sinfo->mmio, PIC32_LCD_REG_LAYER0_MODE, 0
 		     | (0xff << 16)
 		     | sinfo->mode
-		     | 1 << 8
+		     | (1 << 8)
 		     | PIC32_LCD_CONFIG_ENABLE);
 
 	/* set mode in registers */
 	pic32_writel(sinfo->mmio, PIC32_LCD_REG_MODE,
-		mode_reg | PIC32_LCD_CONFIG_ENABLE);
+		     mode_reg | PIC32_LCD_CONFIG_ENABLE);
 
 	return 0;
 }
 
 static int pic32_lcd_setcolreg(unsigned int regno, unsigned int red,
-				unsigned int green, unsigned int blue,
-				unsigned int transp, struct fb_info *info)
+			       unsigned int green, unsigned int blue,
+			       unsigned int transp, struct fb_info *info)
 {
 	struct pic32_lcd_info *sinfo = info->par;
 	u32 out_val;
@@ -367,8 +367,11 @@ static int pic32_lcd_setcolreg(unsigned int regno, unsigned int red,
 		return -EINVAL;
 
 	/* grayscale = 0.30*R + 0.59*G + 0.11*B */
-	if (info->var.grayscale)
-		red = green = blue = (red * 77 + green * 151 + blue * 28) >> 8;
+	if (info->var.grayscale) {
+		blue = (red * 77 + green * 151 + blue * 28) >> 8;
+		red = blue;
+		green = blue;
+	}
 
 	if (info->fix.visual == FB_VISUAL_TRUECOLOR ||
 	    info->fix.visual == FB_VISUAL_DIRECTCOLOR) {
@@ -403,7 +406,7 @@ static int pic32_lcd_setcolreg(unsigned int regno, unsigned int red,
 }
 
 static int pic32_lcd_pan_display(struct fb_var_screeninfo *var,
-				  struct fb_info *info)
+				 struct fb_info *info)
 {
 	struct pic32_lcd_info *sinfo = info->par;
 	unsigned long address;
@@ -429,7 +432,7 @@ static int pic32_lcd_pan_display(struct fb_var_screeninfo *var,
 
 #ifdef PIC32_LCD_CURSOR
 static void pic32_lcd_load_cursor_image(int width, int height, u8 *data,
-					 struct pic32_lcd_info *sinfo)
+					struct pic32_lcd_info *sinfo)
 {
 	u32 __iomem *p_addr = (u32 __iomem *)(sinfo->mmio +
 					PIC32_LCD_CURSOR_IMAGE);
@@ -486,8 +489,8 @@ static int pic32_lcd_cursor(struct fb_info *info, struct fb_cursor *cursor)
 
 	/* first of all, disable the cursor */
 	pic32_writel(sinfo->mmio, PIC32_LCD_REG_MODE,
-		pic32_readl(sinfo->mmio, PIC32_LCD_REG_MODE) &
-		~PIC32_LCD_CONFIG_CURSOR);
+		     pic32_readl(sinfo->mmio, PIC32_LCD_REG_MODE) &
+		     ~PIC32_LCD_CONFIG_CURSOR);
 
 	if (cursor->set & FB_CUR_SETPOS) {
 		dev_dbg(dev, "pic32_lcd_cursor: SETPOS x:%u y:%u\n",
@@ -527,7 +530,7 @@ static int pic32_lcd_cursor(struct fb_info *info, struct fb_cursor *cursor)
 		for (i = 0; i < PIC32_LCD_CURSOR_WIDTH *
 			     PIC32_LCD_CURSOR_HEIGHT / 8; i++)
 			pic32_writel(sinfo->mmio,
-				PIC32_LCD_CURSOR_IMAGE + 4 * i, 0);
+				     PIC32_LCD_CURSOR_IMAGE + 4 * i, 0);
 
 		/* allocate memory to apply the mask in software */
 		size = ((cursor->image.width + 7) >> 3) * cursor->image.height;
@@ -556,7 +559,7 @@ static int pic32_lcd_cursor(struct fb_info *info, struct fb_cursor *cursor)
 
 		/* load the image to the device */
 		pic32_lcd_load_cursor_image(cursor->image.width,
-					     cursor->image.height, data, sinfo);
+					    cursor->image.height, data, sinfo);
 
 		/* free the memory */
 		kfree(data);
@@ -565,8 +568,8 @@ static int pic32_lcd_cursor(struct fb_info *info, struct fb_cursor *cursor)
 	/* enable the cursor if we must */
 	if (cursor->enable)
 		pic32_writel(sinfo->mmio, PIC32_LCD_REG_MODE,
-			pic32_readl(sinfo->mmio, PIC32_LCD_REG_MODE) |
-			PIC32_LCD_CONFIG_CURSOR);
+			     pic32_readl(sinfo->mmio, PIC32_LCD_REG_MODE) |
+			     PIC32_LCD_CONFIG_CURSOR);
 
 	return 0;
 }
@@ -629,15 +632,15 @@ static int pic32_lcd_vsync(struct fb_info *info)
 
 	/* wait for it for a while */
 	if (!wait_event_interruptible_timeout(sinfo->wait_vsync,
-						count != sinfo->vblank_count,
-						HZ / 10))
+					      count != sinfo->vblank_count,
+					      HZ / 10))
 		return -ETIMEDOUT;
 
 	return 0;
 }
 
 static int pic32_lcd_ioctl(struct fb_info *info, unsigned int cmd,
-			unsigned long arg)
+			   unsigned long arg)
 {
 	struct pic32_lcd_info *sinfo = info->par;
 	struct device *dev = &sinfo->pdev->dev;
@@ -653,22 +656,20 @@ static int pic32_lcd_ioctl(struct fb_info *info, unsigned int cmd,
 
 		if (arg == 0) {
 			pic32_writel(sinfo->mmio, PIC32_LCD_REG_MODE,
-				mode & ~PIC32_LCD_CONFIG_GAMMA);
+				     mode & ~PIC32_LCD_CONFIG_GAMMA);
 		} else {
 			for (i = 0; i < 256; i++) {
-				red   = CLAMP255(i+arg);
-				green = CLAMP255(i+arg);
-				blue  = CLAMP255(i+arg);
+				red   = CLAMP255(i + arg);
+				green = CLAMP255(i + arg);
+				blue  = CLAMP255(i + arg);
 				pic32_writel(sinfo->mmio,
-					PIC32_LCD_PALETTE_OFFSET +
-					i * 4,
-					(red << 16) |
-					(green << 8) |
-					(blue << 0));
+					     PIC32_LCD_PALETTE_OFFSET + i * 4,
+					     (red << 16) | (green << 8) |
+					     (blue << 0));
 			}
 
 			pic32_writel(sinfo->mmio, PIC32_LCD_REG_MODE,
-				mode | PIC32_LCD_CONFIG_GAMMA);
+				     mode | PIC32_LCD_CONFIG_GAMMA);
 		}
 
 		return 1;
@@ -685,7 +686,7 @@ static inline void pic32_lcd_free_video_memory(struct pic32_lcd_info *sinfo)
 	struct fb_info *info = sinfo->info;
 
 	dma_free_coherent(info->device, info->fix.smem_len,
-				info->screen_base, info->fix.smem_start);
+			  info->screen_base, info->fix.smem_start);
 }
 
 static int pic32_lcd_alloc_video_memory(struct pic32_lcd_info *sinfo)
@@ -701,8 +702,8 @@ static int pic32_lcd_alloc_video_memory(struct pic32_lcd_info *sinfo)
 
 	info->screen_base =
 		dma_alloc_coherent(info->device, info->fix.smem_len,
-				(dma_addr_t *)&info->fix.smem_start,
-				GFP_KERNEL);
+				   (dma_addr_t *)&info->fix.smem_start,
+				   GFP_KERNEL);
 
 	if (!info->screen_base)
 		return -ENOMEM;
@@ -791,10 +792,10 @@ static int __init pic32_lcd_init_fbinfo(struct pic32_lcd_info *sinfo)
 	info->var.vmode = FB_VMODE_NONINTERLACED;
 
 	dev_info(info->device,
-	       "%luKiB framebuffer at %08lx (mapped at %p)\n",
-	       (unsigned long)info->fix.smem_len / 1024,
-	       (unsigned long)info->fix.smem_start,
-	       info->screen_base);
+		 "%luKiB framebuffer at %08lx (mapped at %p)\n",
+		 (unsigned long)info->fix.smem_len / 1024,
+		 (unsigned long)info->fix.smem_start,
+		 info->screen_base);
 
 	/* Allocate colormap */
 	ret = fb_alloc_cmap(&info->cmap, 256, 0);
@@ -898,7 +899,7 @@ static int pic32_lcd_probe(struct platform_device *pdev)
 	pic32_lcd_start_clock(sinfo);
 
 	modelist = list_first_entry(&info->modelist,
-			struct fb_modelist, list);
+				    struct fb_modelist, list);
 	fb_videomode_to_var(&info->var, &modelist->mode);
 
 	pic32_lcd_check_var(&info->var, info);
@@ -971,8 +972,8 @@ static int pic32_lcd_probe(struct platform_device *pdev)
 
 	/* interrupt */
 	ret = devm_request_irq(dev, sinfo->irq,
-				  pic32_lcd_vsync_interrupt, 0,
-				  pdev->name, info);
+			       pic32_lcd_vsync_interrupt, 0,
+			       pdev->name, info);
 	if (ret) {
 		dev_err(dev, "request_irq failed: %d\n", ret);
 		goto unmap_mmio;
@@ -982,7 +983,7 @@ static int pic32_lcd_probe(struct platform_device *pdev)
 	pic32_writel(sinfo->mmio, PIC32_LCD_REG_MODE, 0);
 	pic32_writel(sinfo->mmio, PIC32_LCD_REG_CLKCON, 0 | (5 << 8));
 	pic32_writel(sinfo->mmio, PIC32_LCD_REG_LAYER0_BASEADDR,
-		info->fix.smem_start);
+		     info->fix.smem_start);
 	pic32_writel(sinfo->mmio, PIC32_LCD_REG_BGCOLOR, 0);
 	pic32_writel(sinfo->mmio, PIC32_LCD_REG_INTERRUPT, 1 << 31);
 
@@ -1009,9 +1010,9 @@ static int pic32_lcd_probe(struct platform_device *pdev)
 	}
 
 	dev_info(dev,
-		"fb%d: %s framebuffer at 0x%08lx (mapped at %p), irq %d\n",
-		info->node, info->fix.id, info->fix.mmio_start,
-		sinfo->mmio, sinfo->irq);
+		 "fb%d: %s framebuffer at 0x%08lx (mapped at %p), irq %d\n",
+		 info->node, info->fix.id, info->fix.mmio_start,
+		 sinfo->mmio, sinfo->irq);
 
 	return 0;
 
