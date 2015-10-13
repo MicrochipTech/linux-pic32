@@ -26,6 +26,7 @@
 #include <video/videomode.h>
 #include <linux/clk.h>
 #include <asm/mach-pic32/pic32.h>
+#include <linux/platform_data/lcd-pic32.h>
 
 #include "pic32-lcd.h"
 
@@ -39,11 +40,6 @@
 
 #define XY16TOREG32(x, y)	((x) << 16 | ((y) & 0xffff))
 #define CLAMP255(i)		(((i) < 0) ? 0 : ((i) > 255) ? 255 : (i))
-
-/* LCD Controller info data structure, stored in device platform_data */
-struct pic32_lcd_pdata {
-	u8			default_bpp;
-};
 
 /* LCD Controller info data structure, stored in device platform_data */
 struct pic32_lcd_info {
