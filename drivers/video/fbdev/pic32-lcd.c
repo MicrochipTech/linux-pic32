@@ -33,7 +33,6 @@
 #define PIC32_LCD_PALETTE_OFFSET	0x400
 #define PIC32_LCD_PALETTE_COLORS	256
 #define PIC32_LCD_ACCEL			0x54736930
-#define PIC32_CFGCON2			0xF0
 
 #define pic32_readl(base, offset)	__raw_readl((base) + (offset))
 #define pic32_writel(base, offset, val) __raw_writel((val), (base) + (offset))
@@ -52,23 +51,10 @@ struct pic32_lcd_info {
 	int			irq;
 	unsigned int		smem_len;
 	struct platform_device	*pdev;
-	struct pic32_lcd_pdata	pdata;
+	struct pic32_lcd_pdata	*pdata;
 	struct clk		*bus_clk;
 	struct clk		*lcdc_clk;
 };
-
-static void pic32_lcd_config(u32 clr_mask, u32 set_mask)
-{
-	u32 cfgcon2;
-	void __iomem *config_base = ioremap(PIC32_BASE_CONFIG, 0x110);
-
-	if (!config_base)
-		return;
-	cfgcon2 = (__raw_readl(config_base + PIC32_CFGCON2) & clr_mask) |
-		set_mask;
-	__raw_writel(cfgcon2, config_base + PIC32_CFGCON2);
-	iounmap(config_base);
-}
 
 static const struct fb_videomode *pic32_lcd_choose_mode(
 	struct fb_var_screeninfo *var,
@@ -306,11 +292,13 @@ static int pic32_lcd_set_par(struct fb_info *info)
 	switch (info->var.bits_per_pixel) {
 	case 8:
 	case 16:
-		pic32_lcd_config(-1, BIT(30));
+		if (sinfo->pdata && sinfo->pdata->set_mode)
+			sinfo->pdata->set_mode(1);
 		break;
 	case 24:
 	case 32:
-		pic32_lcd_config(~BIT(30), 0);
+		if (sinfo->pdata && sinfo->pdata->set_mode)
+			sinfo->pdata->set_mode(0);
 		break;
 	}
 
@@ -983,7 +971,9 @@ static int pic32_lcd_probe(struct platform_device *pdev)
 	pic32_writel(sinfo->mmio, PIC32_LCD_REG_BGCOLOR, 0);
 	pic32_writel(sinfo->mmio, PIC32_LCD_REG_INTERRUPT, 1 << 31);
 
-	pic32_lcd_config(-1, BIT(31));
+	sinfo->pdata = dev->platform_data;
+	if (sinfo->pdata && sinfo->pdata->enable)
+		sinfo->pdata->enable();
 
 	ret = pic32_lcd_init_fbinfo(sinfo);
 	if (ret < 0) {
@@ -1048,12 +1038,10 @@ static int pic32_lcd_remove(struct platform_device *pdev)
 	struct device *dev = &pdev->dev;
 	struct fb_info *info = dev_get_drvdata(dev);
 	struct pic32_lcd_info *sinfo;
-	struct pic32_lcd_pdata *pdata;
 
 	if (!info || !info->par)
 		return 0;
 	sinfo = info->par;
-	pdata = &sinfo->pdata;
 
 	unregister_framebuffer(info);
 	pic32_lcd_stop_clock(sinfo);
@@ -1063,8 +1051,8 @@ static int pic32_lcd_remove(struct platform_device *pdev)
 	pic32_lcd_free_video_memory(sinfo);
 
 	framebuffer_release(info);
-
-	pic32_lcd_config(~BIT(31), 0);
+	if (sinfo->pdata && sinfo->pdata->disable)
+		sinfo->pdata->disable();
 
 	return 0;
 }
