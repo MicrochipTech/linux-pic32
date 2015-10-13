@@ -1815,6 +1815,7 @@ void musb_host_rx(struct musb *musb, u8 epnum)
 	u16			rx_csr, val;
 	bool			iso_err = false;
 	bool			done = false;
+	int			ret;
 	u32			status;
 	struct dma_channel	*dma;
 	unsigned int sg_flags = SG_MITER_ATOMIC | SG_MITER_TO_SG;
@@ -1993,10 +1994,10 @@ void musb_host_rx(struct musb *musb, u8 epnum)
 				qh->offset,
 				urb->transfer_buffer_length);
 
-			done = musb_rx_dma_in_inventra_cppi41(c, hw_ep, qh,
+			ret = musb_rx_dma_in_inventra_cppi41(c, hw_ep, qh,
 							      urb, xfer_len,
 							      iso_err);
-			if (done)
+			if (ret)
 				goto finish;
 			else
 				dev_err(musb->controller, "error: rx_dma failed\n");
