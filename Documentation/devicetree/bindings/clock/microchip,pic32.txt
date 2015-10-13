@@ -122,8 +122,8 @@ pic32_clktree {
 	/* UPLL is integral part of USB PHY; UTMI clk for USBCORE */
 	UPLL:usb_phy_clk {
 		#clock-cells = <0>;
-		compatible = "microchip,pic32-usbpll";
-		clocks = <&POSC>;
+		compatible = "fixed-clocks";
+		clock-frequency = <24000000>;
 		clock-output-names = "usbphy_clk";
 	};
 
