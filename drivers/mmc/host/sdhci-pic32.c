@@ -24,7 +24,7 @@
 #include <linux/mmc/host.h>
 #include <linux/io.h>
 #include "sdhci.h"
-#include <asm/mach-pic32/pic32.h>
+#include <linux/platform_data/sdhci-pic32.h>
 
 #define PIC32_MMC_OCR (MMC_VDD_32_33 | MMC_VDD_33_34)
 
@@ -40,10 +40,8 @@
 #define SDHCI_CTRL_CDSSEL		0x80
 #define SDHCI_CTRL_CDTLVL		0x40
 
-#define PIC32_CFGCON2		0xF0
-#define ADMA_FIFO_RD_THSHLD	(512 << 4)
-#define ADMA_FIFO_WR_THSHLD	(512 << 16)
-#define ADMA_SET_FIFO_THSHLD	(ADMA_FIFO_RD_THSHLD | ADMA_FIFO_WR_THSHLD)
+#define ADMA_FIFO_RD_THSHLD	512
+#define ADMA_FIFO_WR_THSHLD	512
 
 #define DEV_NAME "pic32-sdhci"
 
@@ -140,28 +138,6 @@ void pic32_sdhci_shared_bus(struct platform_device *pdev)
 	writel(bus, host->ioaddr + SDH_SHARED_BUS_CTRL);
 }
 
-static int pic32_sdhci_adma_devconf(struct platform_device *pdev, u32 clr_mask,
-							u32 set_mask)
-{
-	u32 cfgcon2;
-	int ret = 0;
-	struct resource *iomem_devconf;
-	void __iomem *config_base;
-
-	iomem_devconf = platform_get_resource(pdev, IORESOURCE_MEM, 1);
-	config_base = devm_ioremap_resource(&pdev->dev, iomem_devconf);
-	if (IS_ERR(config_base)) {
-		ret = PTR_ERR(config_base);
-		dev_err(&pdev->dev, "unable to map devconf iomem: %d\n", ret);
-		return ret;
-	}
-
-	cfgcon2 = (readl(config_base + PIC32_CFGCON2) & clr_mask) | set_mask;
-	writel(cfgcon2, config_base + PIC32_CFGCON2);
-	devm_iounmap(&pdev->dev, config_base);
-	return 0;
-}
-
 static int pic32_sdhci_probe_platform(struct platform_device *pdev,
 				      struct pic32_sdhci_pdata *pdata)
 {
@@ -181,7 +157,7 @@ static int pic32_sdhci_probe_platform(struct platform_device *pdev,
 #ifdef CONFIG_OF
 static inline int
 sdhci_pic32_probe_dts(struct platform_device *pdev,
-			 struct pic32_sdhci_pdata *boarddata)
+		      struct pic32_sdhci_pdata *boarddata)
 {
 	struct device_node *np = pdev->dev.of_node;
 
@@ -203,12 +179,11 @@ sdhci_pic32_probe_dts(struct platform_device *pdev,
 #else
 static inline int
 sdhci_pic32_probe_dts(struct platform_device *pdev,
-			 struct pic32_sdhci_pdata *boarddata)
+		      struct pic32_sdhci_pdata *boarddata)
 {
 	return -ENODEV;
 }
 #endif
-
 
 int pic32_sdhci_probe(struct platform_device *pdev)
 {
@@ -216,6 +191,7 @@ int pic32_sdhci_probe(struct platform_device *pdev)
 	struct sdhci_host *host;
 	struct resource *iomem;
 	struct pic32_sdhci_pdata *sdhci_pdata;
+	struct pic32_sdhci_platform_data *plat_data;
 	unsigned int clk_rate = 0;
 	int ret;
 	struct pinctrl *pinctrl;
@@ -246,9 +222,13 @@ int pic32_sdhci_probe(struct platform_device *pdev)
 	}
 
 	if (!sdhci_pdata->piomode) {
-		ret = pic32_sdhci_adma_devconf(pdev, ~0, ADMA_SET_FIFO_THSHLD);
-		if (ret)
-			goto err_host;
+		plat_data = pdev->dev.platform_data;
+		if (plat_data && plat_data->setup_dma) {
+			ret = plat_data->setup_dma(ADMA_FIFO_RD_THSHLD,
+						   ADMA_FIFO_WR_THSHLD);
+			if (ret)
+				goto err_host;
+		}
 	}
 
 	pinctrl = devm_pinctrl_get_select_default(&pdev->dev);
