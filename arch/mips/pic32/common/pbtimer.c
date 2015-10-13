@@ -636,8 +636,11 @@ int pic32_pb_timer_settime(struct pic32_pb_timer *timer,
 	struct clk *parent_clk;
 
 	mutex_lock(&timer->mutex);
-	if (WARN_ON(timer->enable_count > 0))
+	if (timer->enable_count > 0) {
+		pr_warn("pic32-%s: cannot change timer period while enabled\n",
+			__timer_name(timer));
 		goto out_done;
+	}
 
 	if (flags & PIC32_TIMER_MAY_RATE) {
 		algo_flag = flags & (PIC32_TIMER_PRESCALE_HIGH_RES |
@@ -891,7 +894,7 @@ out_timer:
 static const struct pbtimer_platform_data pic32_data[] = {
 	{ .timer_capability = PIC32_TIMER_DEFAULT_FLAGS, },
 	{ .timer_capability = PIC32_TIMER_DEFAULT_FLAGS | PIC32_TIMER_CLASS_A,},
-	{ .timer_capability = PIC32_TIMER_DEFAULT_FLAGS|PIC32_TIMER_TRIG_ADC,},
+	{ .timer_capability = PIC32_TIMER_DEFAULT_FLAGS | PIC32_TIMER_TRIG_ADC,},
 	{ .timer_capability = PIC32_TIMER_DEFAULT_FLAGS | PIC32_TIMER_32BIT, },
 };
 
