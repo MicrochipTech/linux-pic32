@@ -15,7 +15,7 @@
 #include <linux/libfdt.h>
 #include <linux/of_platform.h>
 #include <linux/of_fdt.h>
-
+#include <linux/of_address.h>
 #include <asm/bootinfo.h>
 #include <asm/mips-boards/generic.h>
 #include <asm/prom.h>
@@ -36,10 +36,10 @@ static ulong get_fdtaddr(void)
 	ulong ftaddr = 0;
 
 	if ((fw_arg0 == -2) && fw_arg1 && !fw_arg2 && !fw_arg3)
-		return (ulong) fw_arg1;
+		return (ulong)fw_arg1;
 
 	if (__dtb_start < __dtb_end)
-		ftaddr = (ulong) __dtb_start;
+		ftaddr = (ulong)__dtb_start;
 
 	return ftaddr;
 }
@@ -94,17 +94,38 @@ static struct pic32_lcd_pdata glcd_data = {
 };
 
 static struct of_dev_auxdata pic32_auxdata_lookup[] __initdata = {
-	OF_DEV_AUXDATA("microchip,pic32-sdhci", 0x1f8ec000,
-		       "sdhci", &sdhci_data),
-	OF_DEV_AUXDATA("microchip,pic32-lcd", 0x1f8ea000, "fb", &glcd_data),
+	OF_DEV_AUXDATA("microchip,pic32-sdhci", 0, "sdhci", &sdhci_data),
+	OF_DEV_AUXDATA("microchip,pic32-lcd", 0, "glcd", &glcd_data),
 	{ /* sentinel */}
 };
+
+static int pic32_of_prepare_platform_data(struct of_dev_auxdata *lookup)
+{
+	struct device_node *root, *np;
+	struct resource res;
+
+	root = of_find_node_by_path("/");
+
+	for (; lookup->compatible; lookup++) {
+		np = of_find_compatible_node(NULL, NULL, lookup->compatible);
+		if (np) {
+			lookup->name = (char *)np->name;
+			if (lookup->phys_addr)
+				continue;
+			if (!of_address_to_resource(np, 0, &res))
+				lookup->phys_addr = res.start;
+		}
+	}
+
+	return 0;
+}
 
 static int __init customize_machine(void)
 {
 	if (!of_have_populated_dt())
 		panic("Device tree not present");
 
+	pic32_of_prepare_platform_data(pic32_auxdata_lookup);
 	of_platform_populate(NULL, of_default_bus_match_table,
 			     pic32_auxdata_lookup, NULL);
 
