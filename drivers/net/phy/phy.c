@@ -767,6 +767,7 @@ EXPORT_SYMBOL(phy_stop);
  */
 void phy_start(struct phy_device *phydev)
 {
+	bool do_resume = false;
 	int err = 0;
 
 	mutex_lock(&phydev->lock);
@@ -785,14 +786,16 @@ void phy_start(struct phy_device *phydev)
 			break;
 
 		phydev->state = PHY_RESUMING;
-		/* bring the physical link up again */
-		phy_resume(phydev);
+		do_resume = true;
 		break;
 	default:
 		break;
 	}
-
 	mutex_unlock(&phydev->lock);
+
+	/* if phy was suspended, bring the physical link up again */
+	if (do_resume)
+		phy_resume(phydev);
 }
 EXPORT_SYMBOL(phy_start);
 
@@ -805,7 +808,7 @@ void phy_state_machine(struct work_struct *work)
 	struct delayed_work *dwork = to_delayed_work(work);
 	struct phy_device *phydev =
 			container_of(dwork, struct phy_device, state_queue);
-	bool needs_aneg = false;
+	bool needs_aneg = false, do_suspend = false;
 	enum phy_state old_state;
 	int err = 0;
 	int old_link;
@@ -931,7 +934,7 @@ void phy_state_machine(struct work_struct *work)
 			phydev->link = 0;
 			netif_carrier_off(phydev->attached_dev);
 			phydev->adjust_link(phydev->attached_dev);
-			phy_suspend(phydev);
+			do_suspend = true;
 		}
 		break;
 	case PHY_RESUMING:
@@ -979,6 +982,8 @@ void phy_state_machine(struct work_struct *work)
 
 	if (needs_aneg)
 		err = phy_start_aneg(phydev);
+	else if (do_suspend)
+		phy_suspend(phydev);
 
 	if (err < 0)
 		phy_error(phydev);
