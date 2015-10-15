@@ -28,7 +28,7 @@
 		gpio8 = &pioJ;
 		gpio9 = &pioK;
 		serial1 = &usart2;
-		serial5 = &usart5;
+		serial5 = &usart6;
 		i2s1 = &i2s1;
 		i2s2 = &i2s2;
 		i2s3 = &i2s3;
@@ -730,7 +730,7 @@
 		status = "disabled";
 	};
 
-	usart5: serial@1f822A00 {
+	usart6: serial@1f822A00 {
 		compatible = "microchip,pic32-usart";
 		reg = <0x1f822A00 0x50>;
 		interrupts = <UART6_FAULT DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>,
