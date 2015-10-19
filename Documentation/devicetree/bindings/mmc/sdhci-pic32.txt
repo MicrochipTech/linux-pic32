@@ -3,7 +3,15 @@
 This file documents differences between the core properties in mmc.txt
 and the properties used by the sdhci-pic32 driver.
 
-- compatible: "microchip,pic32-sdhci"
+Required properties:
+- compatible: Should be "microchip,pic32-sdhci"
+- reg: Should contain registers location and length
+- interrupts: Should contain interrupt
+- pinctrl: Should contain pinctrl for data and command lines
+
+Optional properties:
+- no-1-8-v: 1.8V voltage selection not supported
+- piomode: disable DMA support
 
 Example:
 
