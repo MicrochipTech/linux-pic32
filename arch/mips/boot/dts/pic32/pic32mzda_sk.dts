@@ -41,7 +41,7 @@
 		led@2 {
 			label = "pic32mzda_sk:yellow:led2";
 			gpios = <&pioH 1 GPIO_ACTIVE_HIGH>;
-			default-state = "on";
+			linux,default-trigger = "mmc0";
 		};
 
 		led@3 {
@@ -79,6 +79,24 @@
 			gpios = <&pioB 14 0>;
 		};
 	};
+
+	pwm8 {
+		compatible = "microchip,pic32-pwm";
+		microchip,timer = <&PBTIMER23>;
+		microchip,ocmp = <&OCMP8>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_oc8>;
+		status = "okay";
+	};
+
+	pwm9 {
+		compatible = "microchip,pic32-pwm";
+		microchip,timer = <&PBTIMER23>;
+		microchip,ocmp = <&OCMP9>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_oc9>;
+		status = "okay";
+	};
 };
 
 &eth0 {
@@ -95,10 +113,21 @@
 	status = "okay";
 };
 
-&usb1 {
+&usart4 {
 	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_usb1_vbus>;
-	vbus_on-gpios = <&pioB 5 0>;
+	pinctrl-0 = <&pinctrl_uart4>;
+	status = "okay";
+};
+
+&i2c3 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_i2c3>;
+	status = "okay";
+};
+
+&usb1 {
 	status = "okay";
 };
 
@@ -112,11 +141,26 @@
 	status = "okay";
 };
 
+&spi2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_spi2>;
+	cs-gpios = <&pioD 0 GPIO_ACTIVE_LOW>, <&pioD 14 GPIO_ACTIVE_LOW>;
+	status = "okay";
+};
+
 &pic32_pinctrl {
 
-	usb1 {
-		pinctrl_usb1_vbus: usb1_vbus-0 {
-			pic32,single-pins = <PORT_B 5 PIC32_PIN_CONF_DG_OUT>;
+	oc_pins8 {
+		pinctrl_oc8: ocmp8_pins {
+			pic32,pins = <PIC32_RP_OUT_RPB8 PIC32_PP_OUT_OC8
+					PIC32_PIN_CONF_DG_OUT>;
+		};
+	};
+
+	oc_pins9 {
+		pinctrl_oc9: ocmp9_pins {
+			pic32,pins = <PIC32_RP_OUT_RPG9 PIC32_PP_OUT_OC9
+					PIC32_PIN_CONF_DG_OUT>;
 		};
 	};
 
@@ -130,6 +174,26 @@
 				<PORT_G 14 PIC32_PIN_CONF_DG>,	  /* SDDATA2 */
 				<PORT_A 7 PIC32_PIN_CONF_DG>,	  /* SDDATA3 */
 				<PORT_A 0 PIC32_PIN_CONF_DG>;	  /* SDCD */
+		};
+	};
+
+	i2c3 {
+		pinctrl_i2c3: i2c3_0 {
+			pic32,single-pins = <PORT_F 8 PIC32_PIN_CONF_DG>,
+				<PORT_F 2 PIC32_PIN_CONF_DG>;
+		};
+	};
+
+	spi2 {
+		pinctrl_spi2: spi2_0 {
+			pic32,single-pins = <PORT_G 6 PIC32_PIN_CONF_DG_OUT
+						PORT_D 0 PIC32_PIN_CONF_DG_OUT
+						PORT_D 14 PIC32_PIN_CONF_DG_OUT>;
+
+			pic32,pins = <PIC32_RP_IN_RPD7 PIC32_PP_IN_SDI2
+					PIC32_PIN_CONF_DG_IN
+				PIC32_RP_OUT_RPG8 PIC32_PP_OUT_SDO2
+					PIC32_PIN_CONF_DG_OUT>;
 		};
 	};
 
@@ -174,6 +238,15 @@
 			pic32,pins = <PIC32_RP_OUT_RPG9 PIC32_PP_OUT_U2TX
 					PIC32_PIN_CONF_DG_OUT
 				PIC32_RP_IN_RPB0 PIC32_PP_IN_U2RX
+					PIC32_PIN_CONF_DG_IN>;
+		};
+	};
+
+	uart4 {
+		pinctrl_uart4: uart4-0 {
+			pic32,pins = <PIC32_RP_OUT_RPC3 PIC32_PP_OUT_U4TX
+					PIC32_PIN_CONF_DG_OUT
+				PIC32_RP_IN_RPE8 PIC32_PP_IN_U4RX
 					PIC32_PIN_CONF_DG_IN>;
 		};
 	};
