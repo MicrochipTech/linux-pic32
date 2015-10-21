@@ -168,6 +168,14 @@
 		pinctrl-0 = <&pinctrl_oc4>;
 		status = "okay";
 	};
+
+	backlight {
+                compatible = "gpio-backlight";
+                pinctrl-names = "default";
+                pinctrl-0 = <&pinctrl_backlight>;
+                gpios = <&pioH 6 GPIO_ACTIVE_HIGH>;
+		default-on;
+        };
 };
 
 &eth0 {
@@ -333,6 +341,12 @@
 };
 
 &pic32_pinctrl {
+
+	backlight {
+		pinctrl_backlight: backlight-0 {
+			pic32,single-pins = <PORT_H 6 PIC32_PIN_CONF_DG_OUT>;
+		};
+	};
 
 	oc_pins1 {
 		pinctrl_oc1: ocmp1_pins {
