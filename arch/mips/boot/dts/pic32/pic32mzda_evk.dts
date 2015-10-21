@@ -264,7 +264,7 @@
 	#size-cells = <0>;
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_i2c3>;
-	status = "disable";
+	status = "disabled";
 };
 
 &usb1 {
@@ -297,7 +297,7 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_spi6>;
 	cs-gpios = <&pioC 1 GPIO_ACTIVE_LOW>;
-	status = "disable";
+	status = "disabled";
 };
 
 &adc1 {
