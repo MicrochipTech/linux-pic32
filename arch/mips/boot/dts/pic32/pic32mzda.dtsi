@@ -461,11 +461,6 @@
 		clock-names = "usb_clk";
 		/*clock-frequency = <24000000>;*/
 		status = "disabled";
-
-		usb_overcurrent@0 {
-			interrupt-parent = <&pioB>;
-			interrupts = <11 PIC32_CN_FALLING>; /* GPIO_B_11 */
-		};
 	};
 
 	usb1_phy: hsusb1_phy@0 {
