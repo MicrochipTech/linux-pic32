@@ -276,7 +276,14 @@
 };
 
 &usb1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_usb1>;
 	status = "okay";
+
+	usb_overcurrent@0 {
+		interrupt-parent = <&pioB>;
+		interrupts = <11 PIC32_CN_FALLING>;
+	};
 };
 
 &usb1_phy {
@@ -341,6 +348,12 @@
 };
 
 &pic32_pinctrl {
+
+	usb1 {
+		pinctrl_usb1: usb1_oc-0 {
+			pic32,single-pins = <PORT_B 11 PIC32_PIN_CONF_DG_IN>;
+		};
+	};
 
 	backlight {
 		pinctrl_backlight: backlight-0 {
