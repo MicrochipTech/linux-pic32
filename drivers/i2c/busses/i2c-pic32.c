@@ -430,7 +430,6 @@ static int pic32_i2c_get_ofdata(struct pic32_i2c *id)
 
 static const struct of_device_id pic32_i2c_dt_ids[] = {
 	{ .compatible = "microchip,pic32-i2c" },
-	{ .compatible = "microchip,pic32-i2c" },
 	{ /* sentinel */ }
 };
 MODULE_DEVICE_TABLE(of, pic32_i2c_dt_ids);
