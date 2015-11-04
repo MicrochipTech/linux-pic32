@@ -196,6 +196,22 @@
 			interrupts = <14 IRQ_TYPE_EDGE_FALLING>;
 		};
 	};
+
+	i2c2b {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "i2c-gpio";
+		gpios = <&pioA 3 GPIO_ACTIVE_HIGH>,
+			<&pioA 2 GPIO_ACTIVE_HIGH>;
+		i2c-gpio,delay-us = <4>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_i2c2>;
+
+		wm8731: wm8731@1a {
+			compatible = "wlf,wm8731";
+			reg = <0x1a>;
+		};
+	};
 };
 
 &eth0 {
@@ -263,19 +279,6 @@
 			vsync-len = <13>;
 			vback-porch = <32>;
 		};
-	};
-};
-
-&i2c2 {
-	#address-cells = <1>;
-	#size-cells = <0>;
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_i2c2>;
-	status = "okay";
-
-	wm8731: wm8731@1a {
-		compatible = "wlf,wm8731";
-		reg = <0x1a>;
 	};
 };
 
