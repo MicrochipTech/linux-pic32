@@ -176,6 +176,26 @@
                 gpios = <&pioH 6 GPIO_ACTIVE_HIGH>;
 		default-on;
         };
+
+	i2c1b {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "i2c-gpio";
+		gpios = <&pioA 15 GPIO_ACTIVE_HIGH>,
+			<&pioA 14 GPIO_ACTIVE_HIGH>;
+		i2c-gpio,delay-us = <1>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_i2c1>;
+
+		touchscreen: mtch6303_i2c@25 {
+			compatible = "microchip,mtch6303_i2c";
+			reg = <0x25>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&pinctrl_i2c1_mtch6303>;
+			interrupt-parent = <&pioC>;
+			interrupts = <14 IRQ_TYPE_EDGE_FALLING>;
+		};
+	};
 };
 
 &eth0 {
@@ -244,14 +264,6 @@
 			vback-porch = <32>;
 		};
 	};
-};
-
-&i2c1 {
-	#address-cells = <1>;
-	#size-cells = <0>;
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_i2c1>;
-	status = "okay";
 };
 
 &i2c2 {
@@ -394,6 +406,10 @@
 		pinctrl_i2c1: i2c1_0 {
 			pic32,single-pins = <PORT_A 14 PIC32_PIN_CONF_DG>,
 				<PORT_A 15 PIC32_PIN_CONF_DG>;
+		};
+
+		pinctrl_i2c1_mtch6303: pinctrl_i2c1_mtch6303_0 {
+			pic32,single-pins = <PORT_C 14 PIC32_PIN_CONF_DG_IN>;
 		};
 	};
 
