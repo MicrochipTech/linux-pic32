@@ -311,12 +311,12 @@ static int pic32_lcd_set_par(struct fb_info *info)
 
 	if (value < pix_factor) {
 		dev_dbg(info->device, "Bypassing pixel clock divider\n");
-		pic32_writel(sinfo, PIC32_LCD_REG_CLKCON, clkcon_reg & ~0x3F);
+		pic32_writel(sinfo->mmio, PIC32_LCD_REG_CLKCON, clkcon_reg & ~0x3F);
 	} else {
 		value = (value / pix_factor) - 1;
 		dev_dbg(info->device, "  * programming CLKVAL = 0x%08lx\n",
 			value);
-		pic32_writel(sinfo, PIC32_LCD_REG_CLKCON,
+		pic32_writel(sinfo->mmio, PIC32_LCD_REG_CLKCON,
 			     (value & ~0x3F) | value);
 		info->var.pixclock =
 			KHZ2PICOS(clk_value_khz / (pix_factor * (value + 1)));
