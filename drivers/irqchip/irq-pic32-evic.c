@@ -4,10 +4,6 @@
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
  *
- * Copyright (c) 2004 MIPS Inc
- * Author: chris@mips.com
- *
- * Copyright (C) 2004, 06 Ralf Baechle <ralf@linux-mips.org>
  * Copyright (c) 2014 Cristian Birsan <cristian.birsan@microchip.com>
  */
 #include <linux/kernel.h>
@@ -126,14 +122,12 @@ static int set_type_pic32_irq(struct irq_data *data, unsigned int flow_type)
 
 	case IRQ_TYPE_EDGE_RISING:
 	case IRQ_TYPE_EDGE_FALLING:
-		__irq_set_handler(data->irq,
-				handle_edge_irq, 0, "edge");
+		irq_set_handler_locked(data, handle_edge_irq);
 		break;
 
 	case IRQ_TYPE_LEVEL_HIGH:
 	case IRQ_TYPE_LEVEL_LOW:
-		__irq_set_handler(data->irq,
-				handle_fasteoi_irq, 0, "fasteoi");
+		irq_set_handler_locked(data, handle_fasteoi_irq);
 		break;
 
 	default:
@@ -155,7 +149,7 @@ static void pic32_bind_evic_interrupt(int irq, int set)
 }
 
 static struct irq_chip pic32_irq_chip = {
-	.name = "MICROCHIP EVIC",
+	.name = "PIC32-EVIC",
 	.irq_ack = ack_pic32_irq,
 	.irq_mask = mask_pic32_irq,
 	.irq_mask_ack = mask_ack_pic32_irq,
