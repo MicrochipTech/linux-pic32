@@ -139,7 +139,7 @@
 		};
 
 		button@sw9 {
-			label = "Esc";
+			label = "ESC";
 			linux,code = <1>;
 			gpios = <&pioH 11 0>;
 		};
@@ -157,7 +157,6 @@
 		microchip,ocmp = <&OCMP1>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_oc1>;
-		status = "okay";
 	};
 
 	pwm4 {
@@ -166,7 +165,6 @@
 		microchip,ocmp = <&OCMP4>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_oc4>;
-		status = "okay";
 	};
 
 	backlight {
