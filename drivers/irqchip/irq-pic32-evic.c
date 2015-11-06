@@ -267,7 +267,7 @@ microchip_evic_of_init(struct device_node *node, struct device_node *parent)
 	if (WARN_ON(!node))
 		return -ENODEV;
 
-	evic_irq_prio = kzalloc(NR_IRQS * sizeof(*evic_irq_prio),
+	evic_irq_prio = kcalloc(NR_IRQS, sizeof(*evic_irq_prio),
 				GFP_KERNEL);
 	if (!evic_irq_prio)
 		return -ENOMEM;
