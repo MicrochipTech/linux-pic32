@@ -805,12 +805,12 @@ static irqreturn_t pic32ec_interrupt(int irq, void *dev_id)
 	}
 
 	if (status & MAC_BIT(ETHIRQ_RXBUFNA)) {
-		netdev_warn(bp->dev, "rx buf na\n");
+		netdev_dbg(bp->dev, "rx buf na\n");
 		mac_writel(bp, PIC32_CLR(ETHIRQ), MAC_BIT(ETHIRQ_RXBUFNA));
 	}
 
 	if (status & MAC_BIT(ETHIRQ_RXOVFLW)) {
-		netdev_warn(bp->dev, "rx overflow\n");
+		netdev_dbg(bp->dev, "rx overflow\n");
 		mac_writel(bp, PIC32_CLR(ETHIRQ), MAC_BIT(ETHIRQ_RXOVFLW));
 	}
 
