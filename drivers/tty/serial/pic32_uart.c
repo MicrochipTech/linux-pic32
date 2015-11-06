@@ -208,7 +208,7 @@ static void pic32_uart_do_rx(struct uart_port *port)
 
 	spin_lock(&port->lock);
 
-	tty = &(port->state->port);
+	tty = &port->state->port;
 
 	do {
 		u32 sta_reg, c;
@@ -237,7 +237,7 @@ static void pic32_uart_do_rx(struct uart_port *port)
 		flag = TTY_NORMAL;
 		c &= 0xff;
 
-		if (unlikely((sta_reg & PIC32_UART_STA_PERR) |
+		if (unlikely((sta_reg & PIC32_UART_STA_PERR) ||
 			     (sta_reg & PIC32_UART_STA_FERR))) {
 
 			/* do stats first */
@@ -384,13 +384,11 @@ static int pic32_uart_startup(struct uart_port *port)
 	unsigned long flags;
 	int ret = 0;
 
-	/* If request_irq() is called, then we could get stuck trying to
-	 *  handle an 'unexpected' interrupt. */
 	local_irq_save(flags);
 
 	ret = pic32_enable_clock(sport);
 	if (ret)
-		goto _restore_irq_ret;
+		goto out_unlock;
 
 	/* clear status and mode registers */
 	pic32_uart_write(0, sport, PIC32_UART_MODE);
@@ -402,32 +400,40 @@ static int pic32_uart_startup(struct uart_port *port)
 	/* set default baud */
 	pic32_uart_write(dflt_baud, sport, PIC32_UART_BRG);
 
-	/* each UART of a PIC32 has 3 interrupts therefore,
-	 *  we setup the driver to register the 3 irqs for this device */
+	local_irq_restore(flags);
+
+	/* Each UART of a PIC32 has three interrupts therefore,
+	 * we setup driver to register the 3 irqs for the device.
+	 *
+	 * For each irq request_irq() is called with interrupt disabled.
+	 * And the irq is enabled as soon as we are ready to handle them.
+	 */
+	tx_irq_enabled(sport) = 0;
+
 	sport->irq_fault_name = kasprintf(GFP_KERNEL, "%s%d-fault",
 					  pic32_uart_type(port),
 					  sport->idx);
 	irq_set_status_flags(sport->irq_fault, IRQ_NOAUTOEN);
-	tx_irq_enabled(sport) = 0;
 	ret = request_irq(sport->irq_fault, pic32_uart_fault_interrupt,
 			  sport->irqflags_fault, sport->irq_fault_name, port);
 	if (ret) {
 		dev_err(port->dev, "%s: request irq(%d) err! ret:%d name:%s\n",
 			__func__, sport->irq_fault, ret,
 			pic32_uart_type(port));
-		goto _restore_irq_ret;
+		goto out_done;
 	}
 
 	sport->irq_rx_name = kasprintf(GFP_KERNEL, "%s%d-rx",
 				       pic32_uart_type(port),
 				       sport->idx);
+	irq_set_status_flags(sport->irq_rx, IRQ_NOAUTOEN);
 	ret = request_irq(sport->irq_rx, pic32_uart_rx_interrupt,
 			  sport->irqflags_rx, sport->irq_rx_name, port);
 	if (ret) {
 		dev_err(port->dev, "%s: request irq(%d) err! ret:%d name:%s\n",
 			__func__, sport->irq_rx, ret,
 			pic32_uart_type(port));
-		goto _restore_irq_ret;
+		goto out_done;
 	}
 
 	sport->irq_tx_name = kasprintf(GFP_KERNEL, "%s%d-tx",
@@ -440,8 +446,10 @@ static int pic32_uart_startup(struct uart_port *port)
 		dev_err(port->dev, "%s: request irq(%d) err! ret:%d name:%s\n",
 			__func__, sport->irq_tx, ret,
 			pic32_uart_type(port));
-		goto _restore_irq_ret;
+		goto out_done;
 	}
+
+	local_irq_save(flags);
 
 	/* set rx interrupt on first receive */
 	pic32_uart_rclr(PIC32_UART_STA_URXISEL1 | PIC32_UART_STA_URXISEL0,
@@ -453,8 +461,13 @@ static int pic32_uart_startup(struct uart_port *port)
 	/* enable all interrupts and eanable uart */
 	pic32_uart_en_and_unmask(port);
 
-_restore_irq_ret:
+	enable_irq(sport->irq_fault);
+	enable_irq(sport->irq_rx);
+
+out_unlock:
 	local_irq_restore(flags);
+
+out_done:
 	return ret;
 }
 
@@ -510,11 +523,10 @@ static void pic32_uart_set_termios(struct uart_port *port,
 			pic32_uart_rclr(PIC32_UART_MODE_PDSEL1, sport,
 					PIC32_UART_MODE);
 		}
-	} else
+	} else {
 		pic32_uart_rclr(PIC32_UART_MODE_PDSEL1 | PIC32_UART_MODE_PDSEL0,
 				sport, PIC32_UART_MODE);
-
-
+	}
 	/* if hw flow ctrl, then the pins must be specified in device tree */
 	if ((new->c_cflag & CRTSCTS) && sport->hw_flow_ctrl) {
 		/* enable hardware flow control */
@@ -611,7 +623,7 @@ static int pic32_uart_verify_port(struct uart_port *port,
 }
 
 /* serial core callbacks */
-static struct uart_ops pic32_uart_ops = {
+static const struct uart_ops pic32_uart_ops = {
 	.tx_empty	= pic32_uart_tx_empty,
 	.get_mctrl	= pic32_uart_get_mctrl,
 	.set_mctrl	= pic32_uart_set_mctrl,
@@ -826,8 +838,7 @@ uart_no_flow_ctrl:
 
 #ifdef CONFIG_SERIAL_PIC32_CONSOLE
 	if (is_pic32_console_port(port) &&
-		PIC32_SCONSOLE->flags & CON_ENABLED) {
-
+	    (pic32_console.flags & CON_ENABLED)) {
 		/* The peripheral clock has been enabled by console_setup,
 		 * so disable it till the port is used. */
 		pic32_disable_clock(sport);
@@ -837,7 +848,7 @@ uart_no_flow_ctrl:
 	platform_set_drvdata(pdev, port);
 
 	dev_info(&pdev->dev, "%s: uart(%d) driver initialized.\n",
-							__func__, uart_idx);
+		 __func__, uart_idx);
 	ret = 0;
 
 err_disable_clk:
@@ -885,7 +896,7 @@ static int __init pic32_uart_init(void)
 	ret = uart_register_driver(&pic32_uart_driver);
 	if (ret) {
 		pr_err("failed to register %s:%d\n",
-			pic32_uart_driver.driver_name, ret);
+		       pic32_uart_driver.driver_name, ret);
 		return ret;
 	}
 
