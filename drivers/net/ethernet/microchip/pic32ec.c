@@ -894,7 +894,7 @@ static int pic32ec_start_xmit(struct sk_buff *skb, struct net_device *dev)
 
 	if (bp->quirks & EC_QUIRK_USE_SRAM) {
 		data = dmam_alloc_coherent(&bp->pdev->dev, len,
-					   &mapping, GFP_KERNEL);
+					   &mapping, GFP_ATOMIC);
 		if (!data) {
 			dev_kfree_skb_any(skb);
 			goto unlock;
