@@ -19,14 +19,15 @@ Note:
    are enabled.
 
 Example:
-gpio@1f860000 {
-	compatible = "microchip,pic32-gpio";
-	reg = <0x1f860000 0x24>;
-	interrupts = <PORTA_INPUT_CHANGE_INTERRUPT DEFAULT_INT_PRI IRQ_TYPE_NONE>;
-	#gpio-cells = <2>;
-	gpio-controller;
-	interrupt-controller;
-	#interrupt-cells = <2>;
-	gpio-ranges = <&pic32_pinctrl 0 0 32>;
-};
-
+	pioA: gpio@1f860000 {
+		compatible = "microchip,pic32-gpio";
+		reg = <0x1f860000 0x24>;
+		interrupts = <PORTA_INPUT_CHANGE_INTERRUPT
+				DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
+		#gpio-cells = <2>;
+		gpio-controller;
+		interrupt-controller;
+		#interrupt-cells = <2>;
+		gpio-ranges = <&pic32_pinctrl 0 0 32>;
+		clocks = <&PBCLK4>;
+	};
