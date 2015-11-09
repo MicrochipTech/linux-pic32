@@ -168,12 +168,12 @@
 	};
 
 	backlight {
-                compatible = "gpio-backlight";
-                pinctrl-names = "default";
-                pinctrl-0 = <&pinctrl_backlight>;
-                gpios = <&pioH 6 GPIO_ACTIVE_HIGH>;
+		compatible = "gpio-backlight";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_backlight>;
+		gpios = <&pioH 6 GPIO_ACTIVE_HIGH>;
 		default-on;
-        };
+	};
 
 	i2c1b {
 		#address-cells = <1>;
@@ -229,7 +229,7 @@
 &usart4 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_uart4>;
-        microchip,uart-has-rtscts;
+	microchip,uart-has-rtscts;
 	status = "okay";
 };
 
@@ -237,8 +237,8 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_uart6
 			&pinctrl_uart6_cts
-		        &pinctrl_uart6_rts>;
-        microchip,uart-has-rtscts;
+			&pinctrl_uart6_rts>;
+	microchip,uart-has-rtscts;
 	status = "okay";
 };
 
