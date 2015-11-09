@@ -25,25 +25,25 @@ adc1: adc@1f84b000 {
 	vref = <3300>;
 
 	trigger@0 {
-			trigger-name = "int0-external-interrupt";
-			trigger-value = <4>;
-			};
+		trigger-name = "int0-external-interrupt";
+		trigger-value = <4>;
+	};
 
 	trigger@1 {
-			trigger-name = "tmr1-match";
-			trigger-value = <5>;
-			microchip,timer = <&PBTIMER1>;
-			};
+		trigger-name = "tmr1-match";
+		trigger-value = <5>;
+		microchip,timer = <&PBTIMER1>;
+	};
 
 	trigger@2 {
-			trigger-name = "tmr3-match";
-			trigger-value = <6>;
-			microchip,timer = <&PBTIMER23>;
-			};
+		trigger-name = "tmr3-match";
+		trigger-value = <6>;
+		microchip,timer = <&PBTIMER23>;
+	};
 
 	trigger@3 {
-			trigger-name = "tmr5-match";
-			trigger-value = <7>;
-			microchip,timer = <&PBTIMER5>;
-			};
+		trigger-name = "tmr5-match";
+		trigger-value = <7>;
+		microchip,timer = <&PBTIMER5>;
+	};
 };
