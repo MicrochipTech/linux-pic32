@@ -71,7 +71,7 @@
 		reg = <0x1f840000 0x30>;
 		compatible = "microchip,pic32-timerA";
 		interrupts = <TIMER1 DEFAULT_INT_PRI IRQ_TYPE_EDGE_RISING>;
-		clocks = <&PBCLK3>, <&SOSC>,/*<&TxCKI>,*/<&LPRC>;
+		clocks = <&PBCLK3>, <&SOSC>, <&LPRC>;
 		microchip,clock-indices = <0>, <1>, <5>;
 		timer-id = <1>;
 		microchip,timer-class-A;  /* class A timer */
@@ -455,11 +455,9 @@
 		mentor,num-eps = <8>;
 		mentor,ram-bits = <11>;
 		mentor,power = <500>;
-		/*microchip,fifo-mode = <1>;*/
 		phys = <&usb1_phy>;
 		clocks = <&PBCLK5>;
 		clock-names = "usb_clk";
-		/*clock-frequency = <24000000>;*/
 		status = "disabled";
 	};
 
