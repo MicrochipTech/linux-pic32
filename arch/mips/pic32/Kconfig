@@ -21,7 +21,6 @@ config PIC32MZDA
 	select LIBFDT
 	select USE_OF
 	select PINCTRL
-	select SERIAL_PIC32 if TTY
 	help
 	  Support for the Microchip PIC32MZDA microcontroller.
 
