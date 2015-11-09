@@ -630,7 +630,6 @@ static const struct uart_ops pic32_uart_ops = {
 	.start_tx	= pic32_uart_start_tx,
 	.stop_tx	= pic32_uart_stop_tx,
 	.stop_rx	= pic32_uart_stop_rx,
-	/*.enable_ms	= pic32_uart_enable_ms,*/
 	.break_ctl	= pic32_uart_break_ctl,
 	.startup	= pic32_uart_startup,
 	.shutdown	= pic32_uart_shutdown,
