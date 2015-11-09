@@ -48,18 +48,18 @@ Internal interrupt DTS snippet
 ------------------------------
 
 device@1f800000 {
-    ...
-    interrupt-parent = <&evic>;
-    interrupts = <UART1_RECEIVE_DONE DEFAULT_INT_PRI IRQ_TYPE_NONE>;
-    ...
-    };
+	...
+	interrupt-parent = <&evic>;
+	interrupts = <UART1_RECEIVE_DONE DEFAULT_INT_PRI IRQ_TYPE_NONE>;
+	...
+};
 
 External interrupt DTS snippet
 ------------------------------
 
 device@1f800000 {
-    ...
-    interrupt-parent = <&evic>;
-    interrupts = <EXTERNAL_INTERRUPT_0 DEFAULT_INT_PRI IRQ_TYPE_EDGE_RISING>;
-    ...
-    };
+	...
+	interrupt-parent = <&evic>;
+	interrupts = <EXTERNAL_INTERRUPT_0 DEFAULT_INT_PRI IRQ_TYPE_EDGE_RISING>;
+	...
+};
