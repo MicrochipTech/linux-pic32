@@ -1,14 +1,27 @@
-Microchip PIC32 I2C Bus Driver
+* Microchip PIC32 I2C Bus Driver
 
 Required properties:
 - compatible: Should be "microchip,pic32-i2c"
+- reg: Should contain the address & size of the I2C controller registers.
+- interrupts: Should specify the interrupt provided by parent.
+- clocks: Should contain a single clock specifier for the JZ4780 I2C clock.
+- clock-frequency: desired I2C bus clock frequency in Hz.
+
+Recommended properties:
+- pinctrl-names: should be "default";
+- pinctrl-0: phandle to pinctrl function
+
+Optional properties:
+- interrupt-parent: Should be the phandle of the interrupt controller that
+  delivers interrupts to the I2C block.
 
 Example:
 
-	i2c@1f820000 {
+	i2c1: i2c@1f820000 {
 		compatible = "microchip,pic32-i2c";
-		reg = <0x1f820000 0x100>;
-		interrupts = <I2C1_MASTER_EVENT DEFAULT_INT_PRI IRQ_TYPE_NONE>;
+		reg = <0x1f820000 512>;
+		interrupts = <I2C1_MASTER_EVENT DEFAULT_INT_PRI
+				IRQ_TYPE_LEVEL_HIGH>;
 		clock-frequency = <100000>;
 		clocks = <&PBCLK2>;
 		pinctrl-names = "default";
