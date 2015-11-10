@@ -331,28 +331,6 @@ static int pic32_sdhci_remove(struct platform_device *pdev)
 	return 0;
 }
 
-#ifdef CONFIG_PM_SLEEP
-static int pic32_sdhci_suspend(struct device *dev)
-{
-	struct sdhci_host *host = dev_get_drvdata(dev);
-
-	clk_disable(sdhci_pdata->base_clk);
-	clk_disable(sdhci_pdata->sys_clk);
-	return sdhci_suspend_host(host);
-}
-
-static int pic32_sdhci_resume(struct device *dev)
-{
-	struct sdhci_host *host = dev_get_drvdata(dev);
-
-	clk_enable(sdhci_pdata->base_clk);
-	clk_enable(sdhci_pdata->sys_clk);
-	return sdhci_resume_host(host);
-}
-#endif
-
-static SIMPLE_DEV_PM_OPS(sdhci_pm_ops, pic32_sdhci_suspend, pic32_sdhci_resume);
-
 static const struct of_device_id pic32_sdhci_id_table[] = {
 	{ .compatible = "microchip,pic32-sdhci" },
 	{}
@@ -363,7 +341,6 @@ static struct platform_driver pic32_sdhci_driver = {
 	.driver = {
 		.name	= DEV_NAME,
 		.owner	= THIS_MODULE,
-		.pm	= &sdhci_pm_ops,
 		.of_match_table = of_match_ptr(pic32_sdhci_id_table),
 	},
 	.probe		= pic32_sdhci_probe,
