@@ -486,18 +486,14 @@ static int pic32ec_halt_tx(struct pic32ec *bp)
 
 static void pic32ec_tx_unmap(struct pic32ec *bp, struct pic32ec_tx_skb *tx_skb)
 {
-	if (bp->quirks & EC_QUIRK_USE_SRAM) {
-		if (tx_skb->mapping) {
-			dma_free_coherent(&bp->pdev->dev, tx_skb->len,
+	if (tx_skb->mapping) {
+		if (bp->quirks & EC_QUIRK_USE_SRAM)
+			dmam_free_coherent(&bp->pdev->dev, tx_skb->len,
 					  tx_skb->data, tx_skb->mapping);
-			tx_skb->mapping = 0;
-		}
-	} else {
-		if (tx_skb->mapping) {
+		else
 			dma_unmap_single(&bp->pdev->dev, tx_skb->mapping,
-					 tx_skb->len, DMA_TO_DEVICE);
-			tx_skb->mapping = 0;
-		}
+					tx_skb->len, DMA_TO_DEVICE);
+		tx_skb->mapping = 0;
 	}
 
 	if (tx_skb->skb) {
@@ -708,7 +704,6 @@ static int pic32ec_rx_frame(struct pic32ec *bp, unsigned int first_frag,
 
 	skb->protocol = eth_type_trans(skb, bp->dev);
 
-	skb_checksum_none_assert(skb);
 	if (bp->dev->features & NETIF_F_RXCSUM &&
 	    !(bp->dev->flags & IFF_PROMISC))
 		skb->ip_summed = CHECKSUM_UNNECESSARY;
