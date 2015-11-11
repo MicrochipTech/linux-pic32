@@ -643,6 +643,7 @@ config SPI_NUC900
 
 config SPI_PIC32
 	tristate "Microchip PIC32 series SPI"
+	depends on MACH_PIC32
 	help
 	  SPI driver for PIC32 SPI master controller.
 
