@@ -666,7 +666,7 @@ static int ak4953a_set_bias_level(struct snd_soc_codec *codec,
 		ret = snd_soc_write(codec, AK4953A_00_POWER_MANAGEMENT1, 0x00);
 		break;
 	}
-	codec->dapm.bias_level = level;
+	snd_soc_codec_force_bias_level(codec, level);
 
 	if (ret < 0)
 		return ret;
