@@ -106,7 +106,7 @@ static struct snd_soc_ops snd_pic32_ak4953a_ops = {
 static int ak4953a_init(struct snd_soc_pcm_runtime *rtd)
 {
 	struct snd_soc_codec *codec = rtd->codec;
-	struct snd_soc_dapm_context *dapm = &codec->dapm;
+	struct snd_soc_dapm_context *dapm = snd_soc_codec_get_dapm(codec);
 
 	snd_soc_dapm_sync(dapm);
 
