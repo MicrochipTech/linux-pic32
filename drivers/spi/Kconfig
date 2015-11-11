@@ -245,7 +245,7 @@ config SPI_IMG_SPFI
 
 config SPI_GPIO_PIC32
 	tristate "Microchip PIC32 GPIO-based bitbanging SPI Master"
-	depends on GPIOLIB && !SPI_GPIO
+	depends on MACH_PIC32 && GPIOLIB && !SPI_GPIO
 	select SPI_BITBANG
 	help
 	  Optimized GPIO SPI driver for PIC32MZ.
