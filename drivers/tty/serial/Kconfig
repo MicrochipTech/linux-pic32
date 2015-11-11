@@ -902,6 +902,7 @@ config SERIAL_SGI_L1_CONSOLE
 
 config SERIAL_PIC32
 	tristate "Microchip PIC32 serial support"
+	depends on MACH_PIC32
 	select SERIAL_CORE
 	help
 	  If you have a PIC32, this driver supports the serial ports.
