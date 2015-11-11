@@ -773,6 +773,7 @@ config REGULATOR_WM8994
 
 config REGULATOR_PIC32
 	tristate "Microchip PIC32 Comparator Voltage Reference Regulator"
+	depends on MACH_PIC32
 	help
 	  This driver provides support for the voltage regulators on the
 	  PIC32 Comparator Voltage Reference.
