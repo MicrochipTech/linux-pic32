@@ -16,7 +16,7 @@ config PIC32MZDA
 	select SYS_SUPPORTS_LITTLE_ENDIAN
 	select ARCH_REQUIRE_GPIOLIB
 	select HAVE_MACH_CLKDEV
-	select COMMON_CLK_PIC32
+	select COMMON_CLK
 	select CLKDEV_LOOKUP
 	select LIBFDT
 	select USE_OF
@@ -51,9 +51,5 @@ config DTB_PIC32_MZDA_EVK
        select BUILTIN_DTB
 
 endchoice
-
-config COMMON_CLK_PIC32
-	bool
-	select COMMON_CLK
 
 endif # MACH_PIC32
