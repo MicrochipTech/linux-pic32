@@ -233,6 +233,18 @@
 		reg = <0x1f801400 0x100>, /* in	 */
 		      <0x1f801500 0x200>; /* out */
 		clocks = <&PBCLK1>;
+		gpio-controller;
+		#gpio-cells = <2>;
+		gpio-ranges = <&pic32_pinctrl 0 0 32
+			&pic32_pinctrl 0 32 32
+			&pic32_pinctrl 0 64 32
+			&pic32_pinctrl 0 96 32
+			&pic32_pinctrl 0 128 32
+			&pic32_pinctrl 0 160 32
+			&pic32_pinctrl 0 192 32
+			&pic32_pinctrl 0 224 32
+			&pic32_pinctrl 0 256 32
+			&pic32_pinctrl 0 288 32>;
 
 		/* GPIO banks */
 		pioA: gpio@1f860000 {
@@ -244,7 +256,6 @@
 			gpio-controller;
 			interrupt-controller;
 			#interrupt-cells = <2>;
-			gpio-ranges = <&pic32_pinctrl 0 0 32>;
 			clocks = <&PBCLK4>;
 		};
 
@@ -257,7 +268,6 @@
 			gpio-controller;
 			interrupt-controller;
 			#interrupt-cells = <2>;
-			gpio-ranges = <&pic32_pinctrl 0 32 32>;
 			clocks = <&PBCLK4>;
 		};
 
@@ -270,7 +280,6 @@
 			gpio-controller;
 			interrupt-controller;
 			#interrupt-cells = <2>;
-			gpio-ranges = <&pic32_pinctrl 0 64 32>;
 			clocks = <&PBCLK4>;
 		};
 
@@ -283,7 +292,6 @@
 			gpio-controller;
 			interrupt-controller;
 			#interrupt-cells = <2>;
-			gpio-ranges = <&pic32_pinctrl 0 96 32>;
 			clocks = <&PBCLK4>;
 		};
 
@@ -296,7 +304,6 @@
 			gpio-controller;
 			interrupt-controller;
 			#interrupt-cells = <2>;
-			gpio-ranges = <&pic32_pinctrl 0 128 32>;
 			clocks = <&PBCLK4>;
 		};
 
@@ -309,7 +316,6 @@
 			gpio-controller;
 			interrupt-controller;
 			#interrupt-cells = <2>;
-			gpio-ranges = <&pic32_pinctrl 0 160 32>;
 			clocks = <&PBCLK4>;
 		};
 
@@ -322,7 +328,6 @@
 			gpio-controller;
 			interrupt-controller;
 			#interrupt-cells = <2>;
-			gpio-ranges = <&pic32_pinctrl 0 192 32>;
 			clocks = <&PBCLK4>;
 		};
 
@@ -335,7 +340,6 @@
 			gpio-controller;
 			interrupt-controller;
 			#interrupt-cells = <2>;
-			gpio-ranges = <&pic32_pinctrl 0 224 32>;
 			clocks = <&PBCLK4>;
 		};
 
@@ -350,7 +354,6 @@
 			gpio-controller;
 			interrupt-controller;
 			#interrupt-cells = <2>;
-			gpio-ranges = <&pic32_pinctrl 0 256 32>;
 			clocks = <&PBCLK4>;
 		};
 
@@ -363,7 +366,6 @@
 			gpio-controller;
 			interrupt-controller;
 			#interrupt-cells = <2>;
-			gpio-ranges = <&pic32_pinctrl 0 288 32>;
 			clocks = <&PBCLK4>;
 		};
 	};
