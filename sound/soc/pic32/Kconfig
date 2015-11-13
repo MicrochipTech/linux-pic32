@@ -14,7 +14,7 @@ config SND_PIC32_SOC
 
 config SND_PIC32_SOC_CODEC_PROTO
 	tristate "Support for Audio Codec Board PROTO (WM8731)"
-	depends on SND_PIC32_SOC
+	depends on SND_PIC32_SOC && SND_SOC_I2C_AND_SPI
 	select SND_PIC32_SOC_I2S
 	select SND_SOC_WM8731
 	help
