@@ -330,6 +330,7 @@ config SND_SOC_AK5386
 
 config SND_SOC_AK4953
 	tristate "AKM AK4953 CODEC"
+	depends on I2C
 
 config SND_SOC_ALC5623
        tristate "Realtek ALC5623 CODEC"
