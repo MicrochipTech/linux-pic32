@@ -27,6 +27,7 @@
 #include <linux/netdevice.h>
 #include <linux/etherdevice.h>
 #include <linux/dma-mapping.h>
+#include <linux/dmapool.h>
 #include <linux/platform_data/pic32ec.h>
 #include <linux/platform_device.h>
 #include <linux/phy.h>
@@ -488,8 +489,7 @@ static void pic32ec_tx_unmap(struct pic32ec *bp, struct pic32ec_tx_skb *tx_skb)
 {
 	if (tx_skb->mapping) {
 		if (bp->quirks & EC_QUIRK_USE_SRAM)
-			dmam_free_coherent(&bp->pdev->dev, tx_skb->len,
-					  tx_skb->data, tx_skb->mapping);
+			dma_pool_free(bp->pool, tx_skb->data, tx_skb->mapping);
 		else
 			dma_unmap_single(&bp->pdev->dev, tx_skb->mapping,
 					tx_skb->len, DMA_TO_DEVICE);
@@ -514,7 +514,7 @@ static void pic32ec_tx_error_task(struct work_struct *work)
 
 	spin_lock_irqsave(&bp->lock, flags);
 
-	netdev_err(bp->dev, "pic32ec_tx_error_task: t = %u, h = %u\n",
+	netdev_vdbg(bp->dev, "pic32ec_tx_error_task: t = %u, h = %u\n",
 		   bp->tx_tail, bp->tx_head);
 
 	/* Make sure nobody is trying to queue up new packets */
@@ -888,8 +888,7 @@ static int pic32ec_start_xmit(struct sk_buff *skb, struct net_device *dev)
 	netdev_vdbg(bp->dev, "Allocated ring entry %u\n", entry);
 
 	if (bp->quirks & EC_QUIRK_USE_SRAM) {
-		data = dmam_alloc_coherent(&bp->pdev->dev, len,
-					   &mapping, GFP_ATOMIC);
+		data = dma_pool_alloc(bp->pool, GFP_ATOMIC, &mapping);
 		if (!data) {
 			dev_kfree_skb_any(skb);
 			goto unlock;
@@ -1455,10 +1454,18 @@ static int __init pic32ec_probe(struct platform_device *pdev)
 						  (dma_addr_t)mem->start,
 						  (dma_addr_t)mem->start,
 						  resource_size(mem),
-						  DMA_MEMORY_MAP |
-						  DMA_MEMORY_EXCLUSIVE);
+						  DMA_MEMORY_MAP);
 		if (!err) {
 			dev_err(&pdev->dev, "Failed declare_coherent_memory\n"
+				"for ethernet controller device\n");
+			goto err_out;
+		}
+
+		bp->pool = dma_pool_create(DRIVER_NAME, &pdev->dev,
+				resource_size(mem) / TX_RING_SIZE, 32, 0);
+
+		if (!bp->pool) {
+			dev_err(&pdev->dev, "Failed dma_pool_create\n"
 				"for ethernet controller device\n");
 			goto err_out;
 		}
@@ -1584,6 +1591,7 @@ static int __exit pic32ec_remove(struct platform_device *pdev)
 		mdiobus_unregister(bp->mii_bus);
 		kfree(bp->mii_bus->irq);
 		mdiobus_free(bp->mii_bus);
+		dma_pool_destroy(bp->pool);
 		unregister_netdev(dev);
 		clk_disable_unprepare(bp->pclk);
 		free_netdev(dev);

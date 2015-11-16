@@ -297,6 +297,7 @@ struct pic32ec {
 	u32 quirks;
 
 	phy_interface_t phy_interface;
+	struct dma_pool *pool;
 };
 
 #endif
