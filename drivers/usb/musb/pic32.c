@@ -2,7 +2,7 @@
  * PIC32 MUSB "glue layer"
  *
  * Cristian Birsan <cristian.birsan@microchip.com>
- * Copyright (C) 2014 Microchip Technology Inc.  All rights reserved.
+ * Copyright (C) 2015 Microchip Technology Inc.  All rights reserved.
  *
  * Based on the am35x and dsps "glue layer" code.
  *
@@ -135,8 +135,6 @@ static void otg_timer(unsigned long _musb)
 		break;
 	case OTG_STATE_A_WAIT_VFALL:
 		musb->xceiv->otg->state = OTG_STATE_A_WAIT_VRISE;
-		/*musb_writel(musb->ctrl_base, wrp->coreintr_set,
-			    MUSB_INTR_VBUSERROR << wrp->usb_shift); */
 		break;
 	default:
 		break;
@@ -379,7 +377,8 @@ static int pic32_musb_exit(struct musb *musb)
 	del_timer_sync(&glue->timer);
 
 	/* Shutdown the on-chip PHY and its PLL. - Enabled by default. Can be
-	 * disabled by setting USBMD bit */
+	 * disabled by setting USBMD bit
+	 */
 
 	usb_put_phy(musb->xceiv);
 	return 0;
