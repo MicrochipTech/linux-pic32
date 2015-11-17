@@ -19,9 +19,6 @@
 #define cpu_has_4k_cache	1
 #define cpu_has_fpu		0
 #define cpu_has_counter		1
-/* #define cpu_has_divec	1 */
-/* #define cpu_has_vce		0 */
-/* #define cpu_has_mcheck	1 */
 #ifdef CONFIG_CPU_MICROMIPS
 #define cpu_has_llsc		0
 #else
