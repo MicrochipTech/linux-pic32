@@ -32,9 +32,9 @@
 		(BUCKET(x_bucket)) | (PINDIR(x_dir)))
 
 /* pin direction
-   Note: for PPS  direction has 1 bit: IN or OUT and
-	 for CONF direction has 2 bit: IN, OUT or NONE
-*/
+ *  Note: for PPS  direction has 1 bit: IN or OUT and
+ *	 for CONF direction has 2 bit: IN, OUT or NONE
+ */
 #ifdef DIR_IN
 #undef DIR_IN
 #endif
