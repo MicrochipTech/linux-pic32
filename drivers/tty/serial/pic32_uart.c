@@ -107,7 +107,8 @@ static unsigned int pic32_uart_get_mctrl(struct uart_port *port)
 
 ret:
 	/* DSR and CD are not supported in PIC32, so return 1
-	 * RI is not supported in PIC32, so return 0 */
+	 * RI is not supported in PIC32, so return 0
+	 */
 	mctrl |= TIOCM_CD;
 	mctrl |= TIOCM_DSR;
 
@@ -115,7 +116,8 @@ ret:
 }
 
 /* stop tx and start tx are not called in pairs, therefore a flag indicates
- the status of irq to control the irq-depth. */
+ * the status of irq to control the irq-depth.
+ */
 static inline void pic32_uart_irqtxen(struct pic32_sport *sport, u8 en)
 {
 	if (en && !tx_irq_enabled(sport)) {
@@ -124,7 +126,8 @@ static inline void pic32_uart_irqtxen(struct pic32_sport *sport, u8 en)
 	} else if (!en && tx_irq_enabled(sport)) {
 		/* use disable_irq_nosync() and not disable_irq() to avoid self
 		 * imposed deadlock by not waiting for irq handler to end,
-		 * since this callback is called from interrupt context. */
+		 * since this callback is called from interrupt context.
+		 */
 		disable_irq_nosync(sport->irq_tx);
 		tx_irq_enabled(sport) = 0;
 	}
@@ -135,17 +138,15 @@ static void pic32_uart_stop_tx(struct uart_port *port)
 {
 	struct pic32_sport *sport = to_pic32_sport(port);
 
-	if (!(pic32_uart_read(sport, PIC32_UART_MODE) &
-		PIC32_UART_MODE_ON))
-			return;
-	if (!(pic32_uart_read(sport, PIC32_UART_STA) &
-		PIC32_UART_STA_UTXEN))
-			return;
+	if (!(pic32_uart_read(sport, PIC32_UART_MODE) & PIC32_UART_MODE_ON))
+		return;
+
+	if (!(pic32_uart_read(sport, PIC32_UART_STA) & PIC32_UART_STA_UTXEN))
+		return;
 
 	/* wait for tx empty */
-	while (!(pic32_uart_read(sport, PIC32_UART_STA)
-		& PIC32_UART_STA_TRMT))
-			udelay(1);
+	while (!(pic32_uart_read(sport, PIC32_UART_STA) & PIC32_UART_STA_TRMT))
+		udelay(1);
 
 	pic32_uart_rclr(PIC32_UART_STA_UTXEN, sport, PIC32_UART_STA);
 	pic32_uart_irqtxen(sport, 0);
@@ -203,7 +204,8 @@ static void pic32_uart_do_rx(struct uart_port *port)
 
 	/* limit number of char read in interrupt, should not be
 	 * higher than fifo size anyway since we're much faster than
-	 * serial port */
+	 * serial port
+	 */
 	max_count = PIC32_UART_RX_FIFO_DEPTH;
 
 	spin_lock(&port->lock);
@@ -269,7 +271,8 @@ static void pic32_uart_do_rx(struct uart_port *port)
 }
 
 /* fill tx fifo with chars to send, stop when fifo is about to be full
- *  or when all chars have been sent. */
+ * or when all chars have been sent.
+ */
 static void pic32_uart_do_tx(struct uart_port *port)
 {
 	struct pic32_sport *sport = to_pic32_sport(port);
@@ -298,7 +301,8 @@ static void pic32_uart_do_tx(struct uart_port *port)
 	 * (all chars have been sent)
 	 * or
 	 * 3) until the max count is reached
-	 * (prevents lingering here for too long in certain cases) */
+	 * (prevents lingering here for too long in certain cases)
+	 */
 	while (!(PIC32_UART_STA_UTXBF &
 		pic32_uart_rval(sport, PIC32_UART_STA))) {
 		unsigned int c = xmit->buf[xmit->tail];
@@ -310,7 +314,7 @@ static void pic32_uart_do_tx(struct uart_port *port)
 		--max_count;
 		if (uart_circ_empty(xmit))
 			break;
-		if (0 == max_count)
+		if (max_count == 0)
 			break;
 	}
 
@@ -606,7 +610,7 @@ static void pic32_uart_config_port(struct uart_port *port, int flags)
 	}
 }
 
-/* serial core request to check that port information in serinfo are suitable*/
+/* serial core request to check that port information in serinfo are suitable */
 static int pic32_uart_verify_port(struct uart_port *port,
 				  struct serial_struct *serinfo)
 {
@@ -647,12 +651,11 @@ static void pic32_console_putchar(struct uart_port *port, int ch)
 {
 	struct pic32_sport *sport = to_pic32_sport(port);
 
-	if (!(pic32_uart_read(sport, PIC32_UART_MODE) &
-		PIC32_UART_MODE_ON))
-			return;
-	if (!(pic32_uart_read(sport, PIC32_UART_STA) &
-		PIC32_UART_STA_UTXEN))
-			return;
+	if (!(pic32_uart_read(sport, PIC32_UART_MODE) & PIC32_UART_MODE_ON))
+		return;
+
+	if (!(pic32_uart_read(sport, PIC32_UART_STA) & PIC32_UART_STA_UTXEN))
+		return;
 
 	/* wait for tx empty */
 	while (!(pic32_uart_read(sport, PIC32_UART_STA) & PIC32_UART_STA_TRMT))
@@ -673,7 +676,8 @@ static void pic32_console_write(struct console *co, const char *s,
 }
 
 /* console core request to setup given console, find matching uart
- *  port and setup it. */
+ * port and setup it.
+ */
 static int pic32_console_setup(struct console *co, char *options)
 {
 	struct pic32_sport *sport;
@@ -797,7 +801,8 @@ static int pic32_uart_probe(struct platform_device *pdev)
 		goto uart_no_flow_ctrl;
 
 	/* Hardware flow control: gpios
-	 * !Note: Basically, CTS is needed for reading the status. */
+	 * !Note: Basically, CTS is needed for reading the status.
+	 */
 	sport->cts_gpio = of_get_named_gpio(np, "cts-gpios", 0);
 	if (gpio_is_valid(sport->cts_gpio)) {
 		ret = devm_gpio_request(sport->dev,
@@ -839,7 +844,8 @@ uart_no_flow_ctrl:
 	if (is_pic32_console_port(port) &&
 	    (pic32_console.flags & CON_ENABLED)) {
 		/* The peripheral clock has been enabled by console_setup,
-		 * so disable it till the port is used. */
+		 * so disable it till the port is used.
+		 */
 		pic32_disable_clock(sport);
 	}
 #endif
