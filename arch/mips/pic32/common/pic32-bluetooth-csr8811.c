@@ -62,12 +62,12 @@ static int csr8811_bluetooth_probe(struct platform_device *pdev)
 			"bluetooth_nrst-gpios", 0);
 
 	if (gpio_is_valid(csr_bt.bt_nrst_gpio)) {
-			ret = devm_gpio_request(&pdev->dev,
+		ret = devm_gpio_request(&pdev->dev,
 					csr_bt.bt_nrst_gpio, "bt_nrst");
-			if (ret) {
-				dev_err(&pdev->dev, "Error requesting Bluetooth stby/rst gpio.\n");
-				return -EINVAL;
-			}
+		if (ret) {
+			dev_err(&pdev->dev, "Error requesting Bluetooth stby/rst gpio.\n");
+			return -EINVAL;
+		}
 	}
 
 	gpio_direction_output(csr_bt.bt_nrst_gpio, 0);
