@@ -1,12 +1,18 @@
 /*
  * PIC32 General Purpose Timer Driver.
  *
- * Copyright (c) 2014, Microchip Technology Inc.
- *      Purna Chandra Mandal <purna.mandal@microchip.com>
+ * Purna Chandra Mandal <purna.mandal@microchip.com>
+ * Copyright (C) 2015 Microchip Technology Inc.  All rights reserved.
  *
- * Licensed under GPLv2.
+ *  This program is free software; you can distribute it and/or modify it
+ *  under the terms of the GNU General Public License (Version 2) as
+ *  published by the Free Software Foundation.
+ *
+ *  This program is distributed in the hope it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ *  for more details.
  */
-
 #include <linux/time.h>
 #include <linux/of.h>
 #include <linux/of_address.h>
@@ -894,7 +900,8 @@ out_timer:
 static const struct pbtimer_platform_data pic32_data[] = {
 	{ .timer_capability = PIC32_TIMER_DEFAULT_FLAGS, },
 	{ .timer_capability = PIC32_TIMER_DEFAULT_FLAGS | PIC32_TIMER_CLASS_A,},
-	{ .timer_capability = PIC32_TIMER_DEFAULT_FLAGS | PIC32_TIMER_TRIG_ADC,},
+	{ .timer_capability = PIC32_TIMER_DEFAULT_FLAGS |
+	  PIC32_TIMER_TRIG_ADC,},
 	{ .timer_capability = PIC32_TIMER_DEFAULT_FLAGS | PIC32_TIMER_32BIT, },
 };
 
