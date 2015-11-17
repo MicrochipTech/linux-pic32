@@ -562,7 +562,8 @@ static int pic32_init_hardware(struct iio_dev *idev)
 	}
 
 	/* Set the ADC clock source to SYSCLK, turn on digital logic for
-	 * ADC cores */
+	 * ADC cores
+	 */
 	pic32_adc_writel(st, PIC32_ADCCON3, PIC32_ADCCON3_ADCCLKSRC(1) |
 			PIC32_ADCCON3_CLKDIV(0) | ADCCON3_mask);
 
@@ -589,7 +590,8 @@ static int pic32_init_hardware(struct iio_dev *idev)
 		res = 3;
 
 	/* 12-bit resolution, source clock synchronous to SYSCLK, turn on
-	 * ADC module */
+	 * ADC module
+	 */
 	pic32_adc_writel(st, PIC32_ADCCON1, PIC32_ADCCON1_SELRES(res) |
 			PIC32_ADCCON1_FSSCLKEN | PIC32_ADCCON1_ADCEN);
 
