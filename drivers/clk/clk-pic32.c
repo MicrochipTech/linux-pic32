@@ -976,7 +976,8 @@ static int spll_clk_set_rate(struct clk_hw *hw, unsigned long rate,
 	/* To check whether rate change is allowed we will have to ensure
 	 * spll_clk is not active parent of sys_clk.
 	 */
-	BUG_ON(IS_ERR_OR_NULL(pic32_sys_clk));
+	if (WARN_ON(IS_ERR_OR_NULL(pic32_sys_clk)))
+		return -EPERM;
 
 	/* get sysclk parent */
 	sclk_parent = clk_get_parent(pic32_sys_clk);
