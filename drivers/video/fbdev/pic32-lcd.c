@@ -98,8 +98,9 @@ static int pic32_lcd_check_var(struct fb_var_screeninfo *var,
 		return -EINVAL;
 	}
 
-	/*  FB_VMODE_CONUPDATE and FB_VMODE_SMOOTH_XPAN are equal!
-	 *  as FB_VMODE_SMOOTH_XPAN is only used internally */
+	/* FB_VMODE_CONUPDATE and FB_VMODE_SMOOTH_XPAN are equal!
+	 * as FB_VMODE_SMOOTH_XPAN is only used internally
+	 */
 	if (var->vmode & FB_VMODE_CONUPDATE) {
 		var->vmode |= FB_VMODE_YWRAP;
 		var->xoffset = info->var.xoffset;
@@ -311,7 +312,8 @@ static int pic32_lcd_set_par(struct fb_info *info)
 
 	if (value < pix_factor) {
 		dev_dbg(info->device, "Bypassing pixel clock divider\n");
-		pic32_writel(sinfo->mmio, PIC32_LCD_REG_CLKCON, clkcon_reg & ~0x3F);
+		pic32_writel(sinfo->mmio, PIC32_LCD_REG_CLKCON,
+			     clkcon_reg & ~0x3F);
 	} else {
 		value = (value / pix_factor) - 1;
 		dev_dbg(info->device, "  * programming CLKVAL = 0x%08lx\n",
@@ -432,7 +434,8 @@ static void pic32_lcd_load_cursor_image(int width, int height, u8 *data,
 			b = *data++, p = 0;
 
 			/* set the color respective to every bit to 0 or 1
-			   (4 bits are needed) */
+			 * (4 bits are needed)
+			 */
 			for (k = 0; k < 8; k += 1)
 				p |= (b & (1 << 7) ? 1 : 0) << (4 * k), b <<= 1;
 
@@ -446,7 +449,8 @@ static void pic32_lcd_load_cursor_image(int width, int height, u8 *data,
 			b = *data++, p = 0;
 
 			/* set the color respective to every bit to 0 or 1
-			   (4 bits are needed) */
+			 * (4 bits are needed)
+			 */
 			for (k = 0; k < mod; k += 1)
 				p |= (b & (1 << 7) ? 1 : 0) << (4 * k), b <<= 1;
 
