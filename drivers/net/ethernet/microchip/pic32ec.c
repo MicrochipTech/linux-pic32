@@ -492,7 +492,7 @@ static void pic32ec_tx_unmap(struct pic32ec *bp, struct pic32ec_tx_skb *tx_skb)
 			dma_pool_free(bp->pool, tx_skb->data, tx_skb->mapping);
 		else
 			dma_unmap_single(&bp->pdev->dev, tx_skb->mapping,
-					tx_skb->len, DMA_TO_DEVICE);
+					 tx_skb->len, DMA_TO_DEVICE);
 		tx_skb->mapping = 0;
 	}
 
@@ -515,7 +515,7 @@ static void pic32ec_tx_error_task(struct work_struct *work)
 	spin_lock_irqsave(&bp->lock, flags);
 
 	netdev_vdbg(bp->dev, "pic32ec_tx_error_task: t = %u, h = %u\n",
-		   bp->tx_tail, bp->tx_head);
+		    bp->tx_tail, bp->tx_head);
 
 	/* Make sure nobody is trying to queue up new packets */
 	netif_stop_queue(bp->dev);
