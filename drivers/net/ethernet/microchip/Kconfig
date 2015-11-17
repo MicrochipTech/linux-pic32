@@ -15,19 +15,6 @@ config NET_VENDOR_MICROCHIP
 
 if NET_VENDOR_MICROCHIP
 
-config PIC32EC
-	tristate "PIC32 Ethernet Controller support"
-	depends on MACH_PIC32
-	default y
-	select PHYLIB
-	---help---
-	  The PIC32 ethernet controller is found on the Microchip PIC32
-	  microcontrollers. Say Y to include support for the PIC32 ethernet
-	  controller.
-
-	  To compile this driver as a module, choose M here: the module
-	  will be called pic32ec.
-
 config ENC28J60
 	tristate "ENC28J60 support"
 	depends on SPI
@@ -44,5 +31,18 @@ config ENC28J60_WRITEVERIFY
 	---help---
 	  Enable the verify after the buffer write useful for debugging purpose.
 	  If unsure, say N.
+
+config PIC32EC
+	tristate "PIC32 Ethernet Controller support"
+	depends on MACH_PIC32
+	default y
+	select PHYLIB
+	---help---
+	  The PIC32 ethernet controller is found on the Microchip PIC32
+	  microcontrollers. Say Y to include support for the PIC32 ethernet
+	  controller.
+
+	  To compile this driver as a module, choose M here: the module
+	  will be called pic32ec.
 
 endif # NET_VENDOR_MICROCHIP
