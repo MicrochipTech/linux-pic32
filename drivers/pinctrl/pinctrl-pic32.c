@@ -155,8 +155,8 @@ static int pic32_pinconf_analog(struct pic32_gpio_chip *pic32_chip,
 				pic32_pio_get_reg(pic32_chip, PIC32_ANSEL);
 	u32 mask = BIT(pin);
 
-	if (pin >= pic32_chip->chip.ngpio)
-		BUG();
+	if (WARN_ON(pin >= pic32_chip->chip.ngpio))
+		return -EINVAL;
 
 	writel(mask, &ansel_reg->set);
 
@@ -173,8 +173,8 @@ static int pic32_pinconf_dg(struct pic32_gpio_chip *pic32_chip, unsigned pin)
 				pic32_pio_get_reg(pic32_chip, PIC32_ANSEL);
 	u32 mask = BIT(pin);
 
-	if (pin >= pic32_chip->chip.ngpio)
-		BUG();
+	if (WARN_ON(pin >= pic32_chip->chip.ngpio))
+		return -EINVAL;
 
 	writel(mask, &ansel_reg->clr);
 
@@ -194,8 +194,8 @@ static int pic32_pinconf_set_dir(struct pic32_gpio_chip *pic32_chip,
 
 	u32 mask = BIT(pin);
 
-	if (pin >= pic32_chip->chip.ngpio)
-		BUG();
+	if (WARN_ON(pin >= pic32_chip->chip.ngpio))
+		return -EINVAL;
 
 	if (pinconf->dir == DIR_IN)
 		writel(mask, &tris_reg->set);
@@ -217,8 +217,8 @@ static struct pic32_gpio_chip *gpio_to_pic32_gpio_chip(unsigned pin_id)
 	unsigned bank = pin_id / PINS_PER_BANK;
 	unsigned pin = pin_id % PINS_PER_BANK;
 
-	if (pin > PINS_PER_BANK || bank >= MAX_PIO_BANKS)
-		BUG();
+	if (WARN_ON(pin > PINS_PER_BANK || bank >= MAX_PIO_BANKS))
+		return ERR_PTR(-EINVAL);
 
 	return gpio_chips[bank];
 }
@@ -228,7 +228,7 @@ int pic32_pinconf_open_drain_runtime(unsigned pin_id, int value)
 	struct pic32_gpio_chip *pic32_chip = gpio_to_pic32_gpio_chip(pin_id);
 	unsigned pin = pin_id % PINS_PER_BANK;
 
-	if (!pic32_chip)
+	if (IS_ERR_OR_NULL(pic32_chip))
 		return -ENODEV;
 
 	return pic32_pinconf_open_drain(pic32_chip, pin, value);
@@ -240,7 +240,7 @@ int pic32_pinconf_pullup_runtime(unsigned pin_id, int value)
 	struct pic32_gpio_chip *pic32_chip = gpio_to_pic32_gpio_chip(pin_id);
 	unsigned pin = pin_id % PINS_PER_BANK;
 
-	if (!pic32_chip)
+	if (IS_ERR_OR_NULL(pic32_chip))
 		return -ENODEV;
 
 	return pic32_pinconf_pullup(pic32_chip, pin, value);
@@ -252,7 +252,7 @@ int pic32_pinconf_pulldown_runtime(unsigned pin_id, int value)
 	struct pic32_gpio_chip *pic32_chip = gpio_to_pic32_gpio_chip(pin_id);
 	unsigned pin = pin_id % PINS_PER_BANK;
 
-	if (!pic32_chip)
+	if (IS_ERR_OR_NULL(pic32_chip))
 		return -ENODEV;
 
 	return pic32_pinconf_pulldown(pic32_chip, pin, value);
@@ -264,7 +264,7 @@ int pic32_pinconf_analog_runtime(unsigned pin_id)
 	struct pic32_gpio_chip *pic32_chip = gpio_to_pic32_gpio_chip(pin_id);
 	unsigned pin = pin_id % PINS_PER_BANK;
 
-	if (!pic32_chip)
+	if (IS_ERR_OR_NULL(pic32_chip))
 		return -ENODEV;
 
 	return pic32_pinconf_analog(pic32_chip, pin);
@@ -276,7 +276,7 @@ int pic32_pinconf_dg_runtime(unsigned pin_id)
 	struct pic32_gpio_chip *pic32_chip = gpio_to_pic32_gpio_chip(pin_id);
 	unsigned pin = pin_id % PINS_PER_BANK;
 
-	if (!pic32_chip)
+	if (IS_ERR_OR_NULL(pic32_chip))
 		return -ENODEV;
 
 	return pic32_pinconf_dg(pic32_chip, pin);
@@ -313,13 +313,12 @@ static void pic32_gpio_set(struct gpio_chip *chip, unsigned gpio, int val)
 
 	u32 mask = BIT(gpio);
 
-	if (gpio >= chip->ngpio)
-		BUG();
-
-	if (val)
-		writel(mask, &port_reg->set);
-	else
-		writel(mask, &port_reg->clr);
+	if (!WARN_ON(gpio >= chip->ngpio)) {
+		if (val)
+			writel(mask, &port_reg->set);
+		else
+			writel(mask, &port_reg->clr);
+	}
 }
 
 static int pic32_gpio_get(struct gpio_chip *chip, unsigned gpio)
@@ -330,8 +329,8 @@ static int pic32_gpio_get(struct gpio_chip *chip, unsigned gpio)
 
 	u32 mask = BIT(gpio);
 
-	if (gpio >= chip->ngpio)
-		BUG();
+	if (WARN_ON(gpio >= chip->ngpio))
+		return -EINVAL;
 
 	return readl(&port_reg->val) & mask;
 }
@@ -355,8 +354,8 @@ static int pic32_gpio_set_dir(struct gpio_chip *chip, unsigned gpio, int dir)
 
 	u32 mask = BIT(gpio);
 
-	if (gpio >= chip->ngpio)
-		BUG();
+	if (WARN_ON(gpio >= chip->ngpio))
+		return -EINVAL;
 
 	/* clear analog selection when digital input is required! */
 	pic32_pinconf_dg(pic32_chip, gpio);
@@ -385,8 +384,8 @@ static int pic32_gpio_dir_out(struct gpio_chip *chip,
 
 	u32 mask = BIT(gpio);
 
-	if (gpio >= chip->ngpio)
-		BUG();
+	if (WARN_ON(gpio >= chip->ngpio))
+		return -EINVAL;
 
 	/* clear open-drain for value of 1 */
 	if (value)
@@ -425,7 +424,6 @@ static void pic32_gpio_dbg_show(struct seq_file *s, struct gpio_chip *chip)
 	int i;
 
 	for (i = 0; i < chip->ngpio; i++) {
-		/*unsigned pin = chip->base + i;*/
 		const char *gpio_label;
 
 		gpio_label = gpiochip_is_requested(chip, i);
@@ -776,7 +774,9 @@ int pic32_gpio_probe(struct platform_device *pdev,
 	if (!np)
 		return -ENODEV;
 
-	BUG_ON(alias_idx >= ARRAY_SIZE(gpio_chips));
+	if (WARN_ON(alias_idx >= ARRAY_SIZE(gpio_chips)))
+		return -EINVAL;
+
 	if (gpio_chips[alias_idx]) {
 		dev_err(&pdev->dev, "Failure %i for GPIO %i\n", ret, alias_idx);
 		return -EBUSY;
@@ -1066,8 +1066,8 @@ static int pic32_pin_config_get(struct pinctrl_dev *pctldev,
 	unsigned pin = pin_id % PINS_PER_BANK;
 	struct pic32_gpio_chip *pic32_chip = gpio_chips[bank];
 
-	if (pin_id > PINS_PER_BANK * MAX_PIO_BANKS)
-		BUG();
+	if (WARN_ON(pin_id > PINS_PER_BANK * MAX_PIO_BANKS))
+		return -EINVAL;
 
 	*config = pic32_pinconf_get(pic32_chip, pin);
 
@@ -1088,8 +1088,8 @@ static int pic32_pin_config_set(struct pinctrl_dev *pctldev,
 	unsigned pin = pin_id % PINS_PER_BANK;
 	int i;
 
-	if (pin > PINS_PER_BANK || bank >= MAX_PIO_BANKS)
-		BUG();
+	if (WARN_ON(pin > PINS_PER_BANK || bank >= MAX_PIO_BANKS))
+		return -EINVAL;
 
 	pic32_chip = gpio_chips[bank];
 
@@ -1195,7 +1195,8 @@ static unsigned pic32_get_ppsout_offset(struct pic32_pinctrl_data *data,
 }
 
 /* set a particular OUT mux function for a particular
- *   re-mappable pin (bank,pin) */
+ * re-mappable pin (bank,pin)
+ */
 static void pic32_ppsout_set(struct pic32_pinctrl_data *data,
 			     struct gpins *gpins,
 			     bool en)
@@ -1228,7 +1229,8 @@ static unsigned pic32_get_ppsin_offset(struct pic32_pinctrl_data *data,
 }
 
 /* set a particular IN mux function for a particular
- *   peripheral pin (bank,pin) */
+ * peripheral pin (bank,pin)
+ */
 static void pic32_ppsin_set(struct pic32_pinctrl_data *data,
 			    struct gpins *gpins, bool en)
 {
@@ -1261,7 +1263,8 @@ static int pic32_pinmux_muxen(struct pic32_pinctrl_data *data,
 }
 
 /* enable a certain pinmux function within a pin group and
- *   within a muxing function */
+ * within a muxing function
+ */
 static int pic32_pinmux_set_mux(struct pinctrl_dev *pctldev,
 			       unsigned selector, unsigned group)
 {
@@ -1420,7 +1423,8 @@ static int pic32_dt_node_to_map(struct pinctrl_dev *pctldev,
 	int i;
 
 	/* first find the group of this node and check if we need create
-	 *   config maps for pins */
+	 * config maps for pins
+	 */
 	grp = pic32_pinctrl_find_group_by_name(data, np->name);
 	if (!grp) {
 		dev_err(data->dev, "unable to find group for node %s\n",
@@ -1509,7 +1513,8 @@ static struct pinctrl_desc pic32_pinctrl_desc = {
 };
 
 /* pinctrl mechanism force to keep a pin array, therfore the pin array will
- *   contain single-pinss and pinmux as well. */
+ * contain single-pinss and pinmux as well.
+ */
 static int pic32_pinctrl_cout_pins(struct platform_device *pdev,
 				   struct pin_group *grp)
 {
@@ -1544,7 +1549,7 @@ static int get_pic32_pinctrl_propidx(struct property *prop)
 	int i;
 
 	for (i = 0; i < PIC32_PINCTRL_PROP_LAST; i++) {
-		if (0 == strcmp(pinctrl_props[i].name, prop->name))
+		if (!strcmp(pinctrl_props[i].name, prop->name))
 			return i;
 	}
 
@@ -1598,7 +1603,8 @@ static int pic32_pinctrl_parse_single_pins(struct platform_device *pdev,
 	dev_dbg(data->dev, "%s: parse %u pins\n", __func__,
 							grp->ngspins);
 	/* single-pins configuration entry:
-	 *   <pin-bank> <pin-idx> <pin-conf> */
+	 *   <pin-bank> <pin-idx> <pin-conf>
+	 */
 	for (i = 0; i < grp->ngspins; i++) {
 		u32 *bank = (i == 0 ? u32array : (++u32array));
 		u32 *pin = (++u32array);
@@ -1608,7 +1614,8 @@ static int pic32_pinctrl_parse_single_pins(struct platform_device *pdev,
 		grp->gspins[i].pin = *pin;
 
 		/* we need the direction for differentiate between
-		 *   PPS-in and PPS-out */
+		 * PPS-in and PPS-out
+		 */
 		grp->gspins[i].conf = (CONF_DIR(pinconf->dir) |
 				       CONF_COD(pinconf->conf));
 	}
@@ -1669,7 +1676,8 @@ static int pic32_pinctrl_parse_pins(struct platform_device *pdev,
 	dev_dbg(data->dev, "%s: parse %u pins\n", __func__,
 							grp->ngpins);
 	/* pinmux configuration entry:
-	 *   <pin-code> <peripheral-pin-code> <pin-conf> */
+	 *   <pin-code> <peripheral-pin-code> <pin-conf>
+	 */
 	for (i = 0; i < grp->ngpins; i++) {
 		struct rpin_cod *pincod = (struct rpin_cod *)
 					  (i == 0 ? u32array : (++u32array));
@@ -1687,7 +1695,8 @@ static int pic32_pinctrl_parse_pins(struct platform_device *pdev,
 
 		/* syntax check:
 		 * 1) if the function is not available for bucket or
-		 * 2) if the function is not availbale for direction */
+		 * 2) if the function is not availbale for direction
+		 */
 		if (((pincod->bucket & ppincod->bucket) == 0) ||
 		    (pincod->dir != ppincod->dir)) {
 			ret = -EINVAL;
