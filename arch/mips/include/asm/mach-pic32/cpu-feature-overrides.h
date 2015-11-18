@@ -19,11 +19,7 @@
 #define cpu_has_4k_cache	1
 #define cpu_has_fpu		0
 #define cpu_has_counter		1
-#ifdef CONFIG_CPU_MICROMIPS
-#define cpu_has_llsc		0
-#else
 #define cpu_has_llsc		1
-#endif
 #define cpu_has_nofpuex		0
 #define cpu_icache_snoops_remote_store 1
 #endif
