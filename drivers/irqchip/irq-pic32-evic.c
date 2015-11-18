@@ -1,10 +1,11 @@
 /*
+ * Cristian Birsan <cristian.birsan@microchip.com>
+ * Copyright (C) 2015 Microchip Technology Inc.  All rights reserved.
+ *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
- *
- * Copyright (c) 2014 Cristian Birsan <cristian.birsan@microchip.com>
  */
 #include <linux/kernel.h>
 #include <linux/module.h>
@@ -55,9 +56,8 @@ static void evic_set_ext_irq_polarity(int ext_irq, u32 type);
 		mask = 1 << (bit % 32);		\
 	} while (0)
 
-asmlinkage void plat_irq_dispatch(void)
+asmlinkage void __weak plat_irq_dispatch(void)
 {
-
 	unsigned int irq, hwirq;
 	u32 reg, mask;
 
@@ -146,6 +146,14 @@ static int set_type_pic32_irq(struct irq_data *data, unsigned int flow_type)
 static void pic32_bind_evic_interrupt(int irq, int set)
 {
 	writel(set, &evic_base->off[irq]);
+}
+
+int pic32_get_c0_compare_int(void)
+{
+	int virq;
+	virq = irq_create_mapping(evic_irq_domain, CORE_TIMER_INTERRUPT);
+	irq_set_irq_type(virq, IRQ_TYPE_EDGE_RISING);
+	return virq;
 }
 
 static struct irq_chip pic32_irq_chip = {
