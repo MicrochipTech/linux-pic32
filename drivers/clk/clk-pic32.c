@@ -29,8 +29,6 @@
 #include <linux/time.h>
 #include <linux/debugfs.h>
 #include <asm/traps.h>
-
-#include <asm/mips-boards/generic.h>
 #include <asm/mach-pic32/pic32.h>
 
 /* OSCCON Reg fields */
