@@ -1,8 +1,8 @@
 /*
  * Device Tree Source for PIC32MZ(Darlington) clock data
  *
- * Copyright (C) 2014 Microchip Technology, Inc.
- *               2014 Purna Chandra Mandal <purna.mandal@microchip.com>
+ * Purna Chandra Mandal <purna.mandal@microchip.com>
+ * Copyright (C) 2015 Microchip Technology Inc.  All rights reserved.
  *
  * Licensed under GPLv2 or later.
  */
