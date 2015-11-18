@@ -86,14 +86,6 @@
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_oc8>;
 	};
-
-	pwm9 {
-		compatible = "microchip,pic32-pwm";
-		microchip,timer = <&PBTIMER23>;
-		microchip,ocmp = <&OCMP9>;
-		pinctrl-names = "default";
-		pinctrl-0 = <&pinctrl_oc9>;
-	};
 };
 
 &eth0 {
@@ -163,13 +155,6 @@
 	oc_pins8 {
 		pinctrl_oc8: ocmp8_pins {
 			pic32,pins = <PIC32_RP_OUT_RPB8 PIC32_PP_OUT_OC8
-					PIC32_PIN_CONF_DG_OUT>;
-		};
-	};
-
-	oc_pins9 {
-		pinctrl_oc9: ocmp9_pins {
-			pic32,pins = <PIC32_RP_OUT_RPG9 PIC32_PP_OUT_OC9
 					PIC32_PIN_CONF_DG_OUT>;
 		};
 	};
