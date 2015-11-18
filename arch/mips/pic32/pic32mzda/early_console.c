@@ -14,8 +14,12 @@
 #include <asm/mach-pic32/pic32.h>
 #include <asm/fw/fw.h>
 
-#include "common.h"
+#include "pic32mzda.h"
 #include "early_pin.h"
+
+/* Default early console parameters */
+#define EARLY_CONSOLE_PORT	1
+#define EARLY_CONSOLE_BAUDRATE	115200
 
 #define UART_ENABLE		BIT(15)
 #define UART_ENABLE_RX		BIT(12)

@@ -13,25 +13,25 @@
  */
 #include <asm/mach-pic32/pic32.h>
 
-#include "common.h"
+#include "pic32mzda.h"
 
 /* Oscillators, PLL & clocks */
-#define ICLK_MASK   0x00000080
-#define PLLDIV_MASK 0x00000007
-#define CUROSC_MASK 0x00000007
-#define PLLMUL_MASK 0x0000007F
-#define PB_MASK     0x00000007
-#define FRC1        0
-#define FRC2        7
-#define SPLL        1
-#define POSC        2
-#define FRC_CLK     8000000
+#define ICLK_MASK	0x00000080
+#define PLLDIV_MASK	0x00000007
+#define CUROSC_MASK	0x00000007
+#define PLLMUL_MASK	0x0000007F
+#define PB_MASK		0x00000007
+#define FRC1		0
+#define FRC2		7
+#define SPLL		1
+#define POSC		2
+#define FRC_CLK		8000000
 
-#define PIC32_POSC_FREQ         24000000
+#define PIC32_POSC_FREQ	24000000
 
-#define OSCCON         0x0000
-#define SPLLCON        0x0020
-#define PB1DIV         0x0140
+#define OSCCON		0x0000
+#define SPLLCON		0x0020
+#define PB1DIV		0x0140
 
 u32 pic32_get_sysclk(void)
 {
@@ -94,7 +94,6 @@ u32 pic32_get_sysclk(void)
 u32 pic32_get_pbclk(int bus)
 {
 	u32 clk_freq;
-
 	void __iomem *osc_base = ioremap(PIC32_BASE_OSC, 0x200);
 	u32 pbxdiv = PB1DIV + ((bus - 1) * 0x10);
 	u32 pbdiv = (__raw_readl(osc_base + pbxdiv) & PB_MASK) + 1;
@@ -105,4 +104,3 @@ u32 pic32_get_pbclk(int bus)
 
 	return clk_freq / pbdiv;
 }
-

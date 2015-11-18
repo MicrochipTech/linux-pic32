@@ -11,29 +11,22 @@
  *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  *  for more details.
  */
-#include <linux/types.h>
-#include <linux/init.h>
-#include <linux/spinlock.h>
-#include <linux/interrupt.h>
 #include <linux/clk.h>
-#include <asm/irq.h>
-#include <asm/cpu.h>
-#include <asm/time.h>
+#include <linux/clk-provider.h>
+#include <linux/clocksource.h>
+#include <linux/init.h>
+#include <linux/irqchip/pic32-evic.h>
+#include <linux/of.h>
 
-#include <asm/mips-boards/generic.h>
+#include <asm/time.h>
 #include <asm/mach-pic32/pbtimer.h>
 #include <asm/mach-pic32/ocmp.h>
 
-#include "common.h"
-#include <dt-bindings/interrupt-controller/microchip,pic32mz-evic.h>
+#include "pic32mzda.h"
 
 unsigned int get_c0_compare_int(void)
 {
-	int virq;
-
-	virq = irq_create_mapping(evic_irq_domain, CORE_TIMER_INTERRUPT);
-	irq_set_irq_type(virq, IRQ_TYPE_EDGE_RISING);
-	return virq;
+	return pic32_get_c0_compare_int();
 }
 
 void __init plat_time_init(void)

@@ -16,7 +16,8 @@
 #include <linux/of_platform.h>
 
 #include <asm/mach-pic32/pic32.h>
-#include "common.h"
+
+#include "pic32mzda.h"
 
 #define PIC32_CFGCON	0x0000
 #define PIC32_DEVID	0x0020
