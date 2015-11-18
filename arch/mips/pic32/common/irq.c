@@ -16,9 +16,5 @@
 
 void __init arch_init_irq(void)
 {
-#if defined(CONFIG_OF) && defined(CONFIG_IRQCHIP)
 	irqchip_init();
-#else
-#error "EVIC interrupt controller needs CONFIG_OF and CONFIG_IRQCHIP !"
-#endif
 }
