@@ -49,14 +49,14 @@ Optional properties (for subnodes):
 
 - microchip,clock-indices: in multiplexer node clock sources always aren't linear
     and contiguous. This property helps define clock-sources with respect to
-	the mux clock node.
+    the mux clock node.
 
 - microchip,ignore-unused : ignore gate request even if the gated clock is unused.
 - microchip,status-bit-mask: bitmask for status check. This will be used to confirm
-   particular operation by clock sub-node is completed. It is dependent sub-node.
+    particular operation by clock sub-node is completed. It is dependent sub-node.
 - microchip,bit-mask: enable mask, similar to microchip,status-bit-mask.
 - microchip,slew-step: enable frequency slewing(stepping) during rate change;
-   applicable only to sys-clock subnode.
+    applicable only to sys-clock subnode.
 
 Example:
 
@@ -102,14 +102,14 @@ pic32_clktree {
 	SYSCLK:sys_clk {
 		#clock-cells = <0>;
 		compatible = "microchip,pic32-sysclk-v2";
-		reg = <0x1f8013c0 0x10>; /* SLEWCON */
+		reg = <0x1f8013c0 0x04>; /* SLEWCON */
 		clocks = <&FRCDIV>, <&SYSPLL>, <&POSC>, <&SOSC>,
 				<&LPRC>, <&FRCDIV>;
 		microchip,clock-indices = <0>, <1>, <2>, <4>, <5>, <7>;
 		clock-output-names = "sys_clk";
 	};
 
-	/* DDR Ctrl & DDR PHY PLL: available in Darlington SoC */
+	/* DDR Ctrl & DDR PHY PLL */
 	MPLL: CLK_MPLL {
 		#clock-cells = <0>;
 		compatible = "microchip,pic32-mpll";
@@ -119,14 +119,6 @@ pic32_clktree {
 		status = "disabled";
 	};
 
-	/* UPLL is integral part of USB PHY; UTMI clk for USBCORE */
-	UPLL:usb_phy_clk {
-		#clock-cells = <0>;
-		compatible = "fixed-clocks";
-		clock-frequency = <24000000>;
-		clock-output-names = "usbphy_clk";
-	};
-
 	/* Peripheral bus1 clock */
 	PBCLK1:pb1_clk {
 		reg = <0x1f801340 0x10>;
@@ -134,11 +126,11 @@ pic32_clktree {
 		compatible = "microchip,pic32-pbclk";
 		clocks = <&SYSCLK>;
 		clock-output-names = "pb1_clk";
-		/* always ON, can't be gated even if unused */
+		/* used by system modules, not gateable */
 		microchip,ignore-unused;
 	};
 
-	/* Peripheral bus2(APB) clock */
+	/* Peripheral bus2 clock */
 	PBCLK2:pb2_clk {
 		reg = <0x1f801350 0x10>;
 		#clock-cells = <0>;
@@ -165,19 +157,15 @@ pic32_clktree {
 		compatible = "microchip,pic32-pbclk";
 		clocks = <&SYSCLK>;
 		clock-output-names = "pb4_clk";
-		/* I/O ports & GPIO controller uses this clock, so keep
-		   it enabled */
-		microchip,ignore-unused;
 	};
 
-	/* Peripheral AHB bus clock */
+	/* Peripheral bus clock */
 	PBCLK5:pb5_clk {
 		reg = <0x1f801380 0x10>;
 		#clock-cells = <0>;
 		compatible = "microchip,pic32-pbclk";
 		clocks = <&SYSCLK>;
-		clock-output-names = "pb5_clk", "pic32-ether",
-					"pic32-rng";
+		clock-output-names = "pb5_clk";
 	};
 
 	/* Peripheral Bus6 clock; */
@@ -196,9 +184,6 @@ pic32_clktree {
 		/* CPU is driven by this clock; so named */
 		clock-output-names = "cpu_clk";
 		clocks = <&SYSCLK>;
-		/* EBI drives SRAM in SK+MEB setup, so avoid gating even
-		   if unused */
-		microchip,ignore-unused;
 	};
 
 	/* Reference Oscillator clock for SPI/I2S */
