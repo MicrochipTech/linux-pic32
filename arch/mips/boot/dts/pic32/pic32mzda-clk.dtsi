@@ -34,7 +34,7 @@
 		clock-frequency = <32000>;
 	};
 
-	/* UPLL is integral part of USB PHY; generates UTMI clk */
+	/* UPLL provides UTMI clock to USBCORE */
 	UPLL:usb_phy_clk {
 		#clock-cells = <0>;
 		compatible = "fixed-clock";
@@ -106,7 +106,7 @@
 			clock-output-names = "sys_clk";
 		};
 
-		/* DDR Ctrl & DDR PHY PLL: available in Darlington SoC */
+		/* DDR Ctrl & DDR PHY PLL */
 		MPLL: CLK_MPLL {
 			#clock-cells = <0>;
 			compatible = "microchip,pic32-mpll";
@@ -127,7 +127,7 @@
 			microchip,ignore-unused;
 		};
 
-		/* Peripheral bus2(APB) clock */
+		/* Peripheral bus2 clock */
 		PBCLK2:pb2_clk {
 			reg = <0x1f801350 0x10>;
 			#clock-cells = <0>;
@@ -156,7 +156,7 @@
 			clock-output-names = "pb4_clk";
 		};
 
-		/* Peripheral AHB bus clock */
+		/* Peripheral bus clock */
 		PBCLK5:pb5_clk {
 			reg = <0x1f801380 0x10>;
 			#clock-cells = <0>;
