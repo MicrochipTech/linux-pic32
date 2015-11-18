@@ -18,27 +18,36 @@
 
 #define PIC32_RSWRST		0x10
 
+static void pic32_halt(void)
+{
+        while (1) {
+		__asm__(
+			"       .set    push            \n"
+			"       .set    arch=r4000      \n"
+			"       wait                    \n"
+			"       .set    pop             \n");
+	}
+}
+
 static void pic32_machine_restart(char *command)
 {
-	u32 dummy;
 	void __iomem *reg =
 		ioremap(PIC32_BASE_RESET + PIC32_RSWRST, sizeof(u32));
 
 	pic32_syskey_unlock();
 
+	/* magic write/read */
 	__raw_writel(1, reg);
+	(void)__raw_readl(reg);
 
-	dummy = __raw_readl(reg);
-
-	while (1)
-		;
+	pic32_halt();
 }
 
 static void pic32_machine_halt(void)
 {
 	local_irq_disable();
-	while (1)
-		__asm__ __volatile__ ("wait");
+
+	pic32_halt();
 }
 
 static int __init mips_reboot_setup(void)
