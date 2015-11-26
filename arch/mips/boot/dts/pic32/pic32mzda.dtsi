@@ -429,7 +429,8 @@
 		interrupts = <SDHC_EVENT DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
 		clocks = <&REFCLKO4>, <&PBCLK5>;
 		clock-names = "base_clk", "sys_clk";
-		no-1-8-v;
+		bus-width = <4>;
+		cap-sd-highspeed;
 		status = "disabled";
 	};
 
