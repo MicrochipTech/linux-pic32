@@ -26,8 +26,6 @@
 #include "sdhci.h"
 #include <linux/platform_data/sdhci-pic32.h>
 
-#define PIC32_MMC_OCR (MMC_VDD_32_33 | MMC_VDD_33_34)
-
 #define SDH_SHARED_BUS_CTRL		0x000000E0
 #define SDH_SHARED_BUS_NR_CLK_PINS_MASK	0x7
 #define SDH_SHARED_BUS_NR_IRQ_PINS_MASK	0x30
@@ -49,8 +47,6 @@ struct pic32_sdhci_pdata {
 	struct platform_device	*pdev;
 	struct clk *sys_clk;
 	struct clk *base_clk;
-	bool support_vsel;
-	bool piomode;
 };
 
 unsigned int pic32_sdhci_get_max_clock(struct sdhci_host *host)
@@ -59,7 +55,7 @@ unsigned int pic32_sdhci_get_max_clock(struct sdhci_host *host)
 	unsigned int clk_rate = clk_get_rate(sdhci_pdata->base_clk);
 	struct platform_device *pdev = sdhci_pdata->pdev;
 
-	dev_dbg(&pdev->dev, "Sdhc max clock rate: %u\n", clk_rate);
+	dev_dbg(&pdev->dev, "max clock rate: %u\n", clk_rate);
 	return clk_rate;
 }
 
@@ -69,7 +65,7 @@ unsigned int pic32_sdhci_get_min_clock(struct sdhci_host *host)
 	unsigned int clk_rate = clk_get_rate(sdhci_pdata->base_clk);
 	struct platform_device *pdev = sdhci_pdata->pdev;
 
-	dev_dbg(&pdev->dev, "Sdhc min clock rate: %u\n", clk_rate);
+	dev_dbg(&pdev->dev, "min clock rate: %u\n", clk_rate);
 	return clk_rate;
 }
 
@@ -91,9 +87,9 @@ void pic32_sdhci_set_bus_width(struct sdhci_host *host, int width)
 			ctrl &= ~SDHCI_CTRL_4BITBUS;
 	}
 	/*
-	 * SDHC will not work if JTAG is not Connected.As a workaround fix,
-	 * set Card Detect Signal Selection bit in SDHC Host Control
-	 * register and clear Card Detect Test Level bit in SDHC Host
+	 * SDHCI will not work if JTAG is not Connected. As a workaround fix,
+	 * set Card Detect Signal Selection bit in SDHCI Host Control
+	 * register and clear Card Detect Test Level bit in SDHCI Host
 	 * Control register.
 	 */
 	ctrl &= ~SDHCI_CTRL_CDTLVL;
@@ -154,37 +150,6 @@ static int pic32_sdhci_probe_platform(struct platform_device *pdev,
 	return ret;
 }
 
-#ifdef CONFIG_OF
-static inline int
-sdhci_pic32_probe_dts(struct platform_device *pdev,
-		      struct pic32_sdhci_pdata *boarddata)
-{
-	struct device_node *np = pdev->dev.of_node;
-
-	if (!np)
-		return -ENODEV;
-
-	if (of_find_property(np, "no-1-8-v", NULL))
-		boarddata->support_vsel = true;
-	else
-		boarddata->support_vsel = false;
-
-	if (of_find_property(np, "piomode", NULL))
-		boarddata->piomode = true;
-	else
-		boarddata->piomode = false;
-
-	return 0;
-}
-#else
-static inline int
-sdhci_pic32_probe_dts(struct platform_device *pdev,
-		      struct pic32_sdhci_pdata *boarddata)
-{
-	return -ENODEV;
-}
-#endif
-
 int pic32_sdhci_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
@@ -207,12 +172,6 @@ int pic32_sdhci_probe(struct platform_device *pdev)
 	sdhci_pdata->pdev = pdev;
 	platform_set_drvdata(pdev, host);
 
-	if (sdhci_pic32_probe_dts(pdev, sdhci_pdata) < 0) {
-		ret = -EINVAL;
-		dev_err(&pdev->dev, "no device tree information %d\n", ret);
-		goto err_host1;
-	}
-
 	iomem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	host->ioaddr = devm_ioremap_resource(&pdev->dev, iomem);
 	if (IS_ERR(host->ioaddr)) {
@@ -221,14 +180,12 @@ int pic32_sdhci_probe(struct platform_device *pdev)
 		goto err_host;
 	}
 
-	if (!sdhci_pdata->piomode) {
-		plat_data = pdev->dev.platform_data;
-		if (plat_data && plat_data->setup_dma) {
-			ret = plat_data->setup_dma(ADMA_FIFO_RD_THSHLD,
-						   ADMA_FIFO_WR_THSHLD);
-			if (ret)
-				goto err_host;
-		}
+	plat_data = pdev->dev.platform_data;
+	if (plat_data && plat_data->setup_dma) {
+		ret = plat_data->setup_dma(ADMA_FIFO_RD_THSHLD,
+					   ADMA_FIFO_WR_THSHLD);
+		if (ret)
+			goto err_host;
 	}
 
 	pinctrl = devm_pinctrl_get_select_default(&pdev->dev);
@@ -276,16 +233,11 @@ int pic32_sdhci_probe(struct platform_device *pdev)
 	clk_rate = clk_get_rate(sdhci_pdata->sys_clk);
 	dev_dbg(&pdev->dev, "sys clock at: %u\n", clk_rate);
 
-	if (sdhci_pdata->support_vsel)
-		host->quirks2 |= SDHCI_QUIRK2_NO_1_8_V;
-
-	if (sdhci_pdata->piomode)
-		host->quirks |= SDHCI_QUIRK_BROKEN_ADMA |
-			SDHCI_QUIRK_BROKEN_DMA;
-
 	host->quirks |= SDHCI_QUIRK_NO_HISPD_BIT;
 
-	host->mmc->ocr_avail = PIC32_MMC_OCR;
+        ret = mmc_of_parse(host->mmc);
+        if (ret)
+                goto err_host;
 
 	ret = pic32_sdhci_probe_platform(pdev, sdhci_pdata);
 	if (ret) {
@@ -304,7 +256,6 @@ int pic32_sdhci_probe(struct platform_device *pdev)
 
 err_host:
 	devm_iounmap(&pdev->dev, host->ioaddr);
-err_host1:
 	sdhci_free_host(host);
 err:
 	dev_err(&pdev->dev, "pic32-sdhci probe failed: %d\n", ret);
