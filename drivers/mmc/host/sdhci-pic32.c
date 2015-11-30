@@ -235,9 +235,9 @@ int pic32_sdhci_probe(struct platform_device *pdev)
 
 	host->quirks |= SDHCI_QUIRK_NO_HISPD_BIT;
 
-        ret = mmc_of_parse(host->mmc);
-        if (ret)
-                goto err_host;
+	ret = mmc_of_parse(host->mmc);
+	if (ret)
+		goto err_host;
 
 	ret = pic32_sdhci_probe_platform(pdev, sdhci_pdata);
 	if (ret) {
