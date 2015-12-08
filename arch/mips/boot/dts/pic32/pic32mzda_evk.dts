@@ -157,6 +157,7 @@
 		microchip,ocmp = <&OCMP1>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_oc1>;
+		status = "disabled";
 	};
 
 	pwm4 {
@@ -306,6 +307,20 @@
 &sdhci {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_sdhc1>;
+	status = "okay";
+};
+
+&can1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_can1>;
+	transceiver-gpio = <&pioE 7 0>;
+	status = "okay";
+};
+
+&can2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_can2>;
+	transceiver-gpio = <&pioB 4 0>;
 	status = "okay";
 };
 
@@ -559,6 +574,26 @@
 	adc1 {
 		pinctrl_adc1: adc1_0 {
 			pic32,single-pins = <PORT_A 10 PIC32_PIN_CONF_AN_IN>;
+		};
+	};
+
+	can1 {
+		pinctrl_can1: can1_0 {
+			pic32,pins = <PIC32_RP_OUT_RPG8 PIC32_PP_OUT_C1TX
+					PIC32_PIN_CONF_DG_OUT
+					PIC32_RP_IN_RPB3 PIC32_PP_IN_C1RX
+					PIC32_PIN_CONF_DG_IN>;
+			pic32,single-pins = <PORT_E 7 PIC32_PIN_CONF_DG_OUT>;
+		};
+	};
+
+	can2 {
+		pinctrl_can2: can2_0 {
+			pic32,pins = <PIC32_RP_OUT_RPB2 PIC32_PP_OUT_C2TX
+					PIC32_PIN_CONF_DG_OUT
+					PIC32_RP_IN_RPE9 PIC32_PP_IN_C2RX
+					PIC32_PIN_CONF_DG_IN>;
+			pic32,single-pins = <PORT_B 4 PIC32_PIN_CONF_DG_OUT>;
 		};
 	};
 };

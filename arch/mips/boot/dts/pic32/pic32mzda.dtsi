@@ -824,4 +824,26 @@
 		clocks = <&PBCLK2>;
 		status = "disabled";
 	};
+
+	can1: can@1f880000 {
+		compatible = "microchip,pic32-can";
+		reg = <0x1f880000 512>;
+		interrupts = <CONTROL_AREA_NETWORK_1 DEFAULT_INT_PRI
+				IRQ_TYPE_LEVEL_HIGH>;
+		clock-frequency = <80000000>;
+		clocks = <&PBCLK5>;
+		clock-names = "can_clk";
+		status = "disabled";
+	};
+
+	can2: can@1f881000 {
+		compatible = "microchip,pic32-can";
+		reg = <0x1f881000 512>;
+		interrupts = <CONTROL_AREA_NETWORK_2 DEFAULT_INT_PRI
+				IRQ_TYPE_LEVEL_HIGH>;
+		clock-frequency = <80000000>;
+		clocks = <&PBCLK5>;
+		clock-names = "can_clk";
+		status = "disabled";
+	};
 };
