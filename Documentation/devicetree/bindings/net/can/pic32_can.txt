@@ -1,0 +1,32 @@
+* Microchip PIC32 CAN Controller Device Tree Bindings
+-----------------------------------------------------
+
+Required properties:
+- compatible: Should be "microchip,pic32-can"
+- reg: Should contain registers location and length
+- interrupts: Should contain interrupt
+- pinctrl: Should contain pinctrl for Tx, Rx and STBY(i.e Transreceiver enable/disable) lines
+- clocks: Clock handles (see clock bindings for details).
+- clock-names: List of input clock names - "can_clk"
+
+Example:
+
+Step1: SoC common .dtsi file
+
+    can1: can@1f880000 {
+        compatible = "microchip,pic32-can";
+        reg = <0x1f880000 512>;
+        interrupts = <CONTROL_AREA_NETWORK_1 DEFAULT_INT_PRI IRQ_TYPE_LEVEL_HIGH>;
+        clocks = <&PBCLK5>;
+        clock-names = "can_clk";
+        status = "disabled";
+    };
+
+Step 2: board specific .dts file
+
+	&can1 {
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_can1>;
+		transceiver-gpio = <&pioE 7 0>;
+		status = "okay";
+	};

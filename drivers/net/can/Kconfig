@@ -153,6 +153,7 @@ source "drivers/net/can/usb/Kconfig"
 
 source "drivers/net/can/softing/Kconfig"
 
+source "drivers/net/can/microchip/Kconfig"
 endif
 
 config CAN_DEBUG_DEVICES

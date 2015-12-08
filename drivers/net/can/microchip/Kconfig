@@ -1,0 +1,8 @@
+menu "Microchip PIC32 CAN Controller"
+	depends on MIPS
+
+config CAN_PIC32MZDA
+        tristate "Microchip PIC32MZDA CAN Controller"
+        ---help---
+	This driver adds support for the PIC32MZDA Chip.
+endmenu
