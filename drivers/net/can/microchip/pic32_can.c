@@ -319,11 +319,12 @@ static void pic32_transceiver_switch(const struct pic32_priv *priv, int on)
 	gpio_set_value(priv->transceiver_gpio, on);
 }
 
-static void pic32_configure_fifos(struct net_device *ndev)
+static int pic32_configure_fifos(struct net_device *ndev)
 {
 	int i = 0;
 	struct pic32_priv *priv = netdev_priv(ndev);
 	u32 regval = 0;
+	int timeout = 5000;
 
 	/* Reset all FIFO's */
 	for (i = 0; i < PIC32_MAX_FIFO; i++) {
@@ -333,8 +334,13 @@ static void pic32_configure_fifos(struct net_device *ndev)
 		/* Wait till FIFO RESET bit gets cleared */
 		while (pic32_can_get_bit(priv,
 					 PIC32_CAN_FIFOCTLN_REG(i),
-					 PIC32_CAN_FIFOCTL_FRST))
-			;
+					 PIC32_CAN_FIFOCTL_FRST)) {
+			if (--timeout <= 0) {
+				netdev_err(priv->ndev, "Pic32 CAN FIFO Reset timeout\n");
+				return -ETIMEDOUT;
+			}
+			udelay(1);
+		}
 	}
 
 	/* Configuring 3 ACCEPTANCE FILTER MASK REGISTER's
@@ -409,13 +415,15 @@ static void pic32_configure_fifos(struct net_device *ndev)
 				PIC32_CAN_FIFOCTL_TXPR |
 				PIC32_CAN_FIFOCTL_RTREN);
 	}
+	return 0;
 }
 
-static void pic32_set_op_mode(struct net_device *ndev,
-			      enum pic32_op_mode mode)
+static int pic32_set_op_mode(struct net_device *ndev,
+			     enum pic32_op_mode mode)
 {
 	struct pic32_priv *priv = netdev_priv(ndev);
 	u32 regval = 0;
+	int timeout = 10000;
 
 	switch (mode) {
 	case CONFIG:
@@ -425,6 +433,11 @@ static void pic32_set_op_mode(struct net_device *ndev,
 		do {
 			regval = pic32_can_read(priv, PIC32_CAN_MODE_CTL_REG);
 			regval = (regval >> 21) & 0x07;
+			if (--timeout <= 0) {
+				netdev_err(priv->ndev,
+					   "Pic32 CAN CONFIG Mode timeout\n");
+				return -ETIMEDOUT;
+			}
 		} while (CONFIG != regval);
 		break;
 
@@ -453,6 +466,11 @@ static void pic32_set_op_mode(struct net_device *ndev,
 		do {
 			regval = pic32_can_read(priv, PIC32_CAN_MODE_CTL_REG);
 			regval = (regval >> 21) & 0x07;
+			if (--timeout <= 0) {
+				netdev_err(priv->ndev,
+					   "Pic32 CAN CONFIG Mode timeout\n");
+				return -ETIMEDOUT;
+			}
 		} while (DISABLE != regval);
 		break;
 
@@ -464,7 +482,9 @@ static void pic32_set_op_mode(struct net_device *ndev,
 
 	default:
 		netdev_err(priv->ndev, "pic32_set_op_mode: Invalid Mode\n");
+		return -EINVAL;
 	}
+	return 0;
 }
 
 static void pic32_enable_interrupts(struct net_device *ndev, int enable)
@@ -481,11 +501,14 @@ static void pic32_enable_interrupts(struct net_device *ndev, int enable)
 				PIC32_CAN_IRQ_ALL);
 }
 
-static void pic32_can_init(struct net_device *ndev)
+static int pic32_can_init(struct net_device *ndev)
 {
 	struct pic32_priv *priv = netdev_priv(ndev);
+	int ret = 0;
 
-	pic32_set_op_mode(ndev, CONFIG);
+	ret = pic32_set_op_mode(ndev, CONFIG);
+	if (ret < 0)
+		return ret;
 
 	pic32_can_write(priv,
 			PIC32_SET(PIC32_CAN_MODE_CTL_REG),
@@ -495,38 +518,66 @@ static void pic32_can_init(struct net_device *ndev)
 
 	/*pic32_set_bittiming(ndev);*/
 
-	pic32_configure_fifos(ndev);
+	ret = pic32_configure_fifos(ndev);
+	if (ret < 0)
+		return ret;
 
 	pic32_enable_interrupts(ndev, 1);
 
-	pic32_set_op_mode(ndev, NORMAL);
+	ret = pic32_set_op_mode(ndev, NORMAL);
+	if (ret < 0)
+		return ret;
+	return ret;
 }
 
-static void pic32_can_enable(struct net_device *ndev)
+static int pic32_can_enable(struct net_device *ndev)
 {
 	struct pic32_priv *priv = netdev_priv(ndev);
+	int ret = 0;
 
-	pic32_set_op_mode(ndev, CONFIG);
+	ret = pic32_set_op_mode(ndev, CONFIG);
+	if (ret < 0)
+		return ret;
+
 	pic32_can_write(priv,
 			PIC32_SET(PIC32_CAN_MODE_CTL_REG),
 			PIC32_CAN_MODE_CTL_ON);
-	pic32_set_op_mode(ndev, NORMAL);
+
+	ret = pic32_set_op_mode(ndev, NORMAL);
+	if (ret < 0)
+		return ret;
+
+	return ret;
 }
 
-static void pic32_can_disable(struct net_device *ndev)
+static int pic32_can_disable(struct net_device *ndev)
 {
 	struct pic32_priv *priv = netdev_priv(ndev);
+	int timeout = 5000, ret = 0;
 
-	pic32_set_op_mode(ndev, CONFIG);
+	ret = pic32_set_op_mode(ndev, CONFIG);
+	if (ret < 0)
+		return ret;
 
 	pic32_can_write(priv,
 			PIC32_CLR(PIC32_CAN_MODE_CTL_REG),
 			PIC32_CAN_MODE_CTL_ON);
 	while (pic32_can_get_bit(priv,
 				 PIC32_CAN_MODE_CTL_REG,
-				 PIC32_CAN_MODE_CTL_BUSY))
-		; /* do nothing */
-	pic32_set_op_mode(ndev, NORMAL);
+				 PIC32_CAN_MODE_CTL_BUSY)) {
+		if (--timeout <= 0) {
+			netdev_err(priv->ndev,
+				   "Pic32 CAN Busy wait timeout\n");
+			return -ETIMEDOUT;
+		}
+		udelay(1);
+	}
+
+	ret = pic32_set_op_mode(ndev, NORMAL);
+	if (ret < 0)
+		return ret;
+
+	return 0;
 }
 
 static netdev_tx_t pic32_xmit(struct sk_buff *skb, struct net_device *ndev)
@@ -713,14 +764,13 @@ static int pic32_can_error(struct net_device *ndev, int err_status)
 	struct can_frame *cf;
 	struct sk_buff *skb;
 	u32 regval = 0;
-
-	netdev_dbg(ndev, "pic32_can_error ...\n");
+	int err = 0, timeout = 5000;
 
 	/* create skb to propagate the error condition to the can stack */
 	skb = alloc_can_err_skb(ndev, &cf);
 	if (!skb) {
 		netdev_err(priv->ndev,
-			   "pic32_can_error: alloc_can_err_skb() failed\n");
+			   "pic32 can alloc_can_err_skb() failed\n");
 		return -ENOMEM;
 	}
 
@@ -729,10 +779,19 @@ static int pic32_can_error(struct net_device *ndev, int err_status)
 		/* wait till BUSY bit gets cleared */
 		while (pic32_can_get_bit(priv,
 					 PIC32_CAN_MODE_CTL_REG,
-					 PIC32_CAN_MODE_CTL_BUSY))
-			; /* Do nothing */
+					 PIC32_CAN_MODE_CTL_BUSY)) {
+			if (--timeout <= 0) {
+				netdev_err(priv->ndev,
+					   "Pic32 CAN In Busy wait timeout\n");
+				return -ETIMEDOUT;
+			}
+			udelay(1);
+		}
+
 		/* Disable CAN Module */
-		pic32_can_disable(ndev);
+		err = pic32_can_disable(ndev);
+		if (err < 0)
+			return err;
 
 		/* update err net Status Info */
 		++priv->can.can_stats.bus_error;
@@ -823,7 +882,6 @@ static irqreturn_t pic32_can_interrupt(int irq, void *dev_id)
 
 	status = pic32_can_read(priv, PIC32_CAN_IVEC_REG);
 	cintstatus = pic32_can_read(priv, PIC32_CAN_INT_REG);
-	/*netdev_dbg(ndev, "CVEC = 0x%x CINT =0x%x\n", status, cintstatus);*/
 
 	if ((status & PIC32_CAN_INT_IVRIF) == PIC32_CAN_INT_IVRIF) {
 		pic32_can_write(priv,
@@ -897,7 +955,7 @@ static irqreturn_t pic32_can_interrupt(int irq, void *dev_id)
 static int pic32_open(struct net_device *ndev)
 {
 	struct pic32_priv *priv = netdev_priv(ndev);
-	int err;
+	int err = 0;
 
 	err = request_irq(ndev->irq, pic32_can_interrupt,
 			  IRQF_SHARED, ndev->name, ndev);
@@ -912,8 +970,17 @@ static int pic32_open(struct net_device *ndev)
 		goto err_irq;
 	}
 
-	pic32_can_enable(ndev);
-	pic32_can_init(ndev);
+	err = pic32_can_enable(ndev);
+	if (err < 0) {
+		netdev_err(ndev, "pic32 CAN Enable failed\n");
+		goto err_irq;
+	}
+
+	err = pic32_can_init(ndev);
+	if (err < 0) {
+		netdev_err(ndev, "pic32 CAN Init failed\n");
+		goto err_irq;
+	}
 
 	/* Open common can device */
 	err = open_candev(ndev);
@@ -933,18 +1000,28 @@ err_irq:
 	return err;
 }
 
-static void pic32_stop(struct net_device *ndev)
+static int pic32_stop(struct net_device *ndev)
 {
 	struct pic32_priv *priv = netdev_priv(ndev);
+	int err = 0;
 
-	pic32_can_disable(ndev);
+	err = pic32_can_disable(ndev);
+	if (err < 0)
+		return err;
+
 	priv->can.state = CAN_STATE_STOPPED;
+	return 0;
 }
 
 static int pic32_close(struct net_device *ndev)
 {
+	int err = 0;
+
 	netif_stop_queue(ndev);
-	pic32_stop(ndev);
+	err = pic32_stop(ndev);
+	if (err < 0)
+		return err;
+
 	free_irq(ndev->irq, ndev);
 	close_candev(ndev);
 	return 0;
@@ -985,7 +1062,7 @@ static const struct net_device_ops pic32_netdev_ops = {
 static int pic32_can_probe(struct platform_device *pdev)
 {
 	struct device_node *np = pdev->dev.of_node;
-	struct resource *res; /* IO mem resources */
+	struct resource *res;
 	struct net_device *ndev;
 	struct pic32_priv *priv;
 	void __iomem *addr;
@@ -1006,7 +1083,7 @@ static int pic32_can_probe(struct platform_device *pdev)
 					    "pic32can transceiver");
 		if (ret < 0) {
 			dev_err(&pdev->dev, "CAN Transceiver request failed.\n");
-			goto probe_exit_iounmap;
+			goto err;
 		}
 		gpio_set_value(gpio, 1);
 	}
@@ -1015,7 +1092,7 @@ static int pic32_can_probe(struct platform_device *pdev)
 	if (!ndev) {
 		dev_err(&pdev->dev, "alloc_candev failed\n");
 		ret = -ENOMEM;
-		goto probe_exit_iounmap;
+		goto err;
 	}
 
 	priv = netdev_priv(ndev);
@@ -1055,7 +1132,6 @@ static int pic32_can_probe(struct platform_device *pdev)
 	}
 
 	priv->can.clock.freq = clk_get_rate(priv->can_clk) * 2;
-
 	priv->tx_rx_buf = dmam_alloc_coherent(&pdev->dev, PIC32_BUF_LEN,
 					      &priv->tx_rx_buf_dma, GFP_DMA);
 	if (!priv->tx_rx_buf) {
@@ -1071,7 +1147,7 @@ static int pic32_can_probe(struct platform_device *pdev)
 		goto err_free_buffer;
 	}
 
-	/* Enable CAN Transreceiver Stantby GPIO to Low */
+	/* Enable CAN Transceiver: set Stantby GPIO to Low */
 	pic32_transceiver_switch(priv, 0);
 
 	dev_info(&pdev->dev, "device registered (reg_base=%p, irq=%u)\n",
@@ -1079,8 +1155,6 @@ static int pic32_can_probe(struct platform_device *pdev)
 
 	return ret;
 
-probe_exit_iounmap:
-	devm_iounmap(&pdev->dev, &addr);
 err_unprepare_disable_dev:
 	clk_disable_unprepare(priv->can_clk);
 err_free_buffer:
@@ -1104,7 +1178,7 @@ static int pic32_can_remove(struct platform_device *pdev)
 }
 
 static const struct of_device_id pic32_can_id_table[] = {
-	{ .compatible = "microchip,pic32-can" },
+	{ .compatible = "microchip,pic32mzda-can" },
 	{}
 };
 MODULE_DEVICE_TABLE(of, pic32_sdhci_id_table);
